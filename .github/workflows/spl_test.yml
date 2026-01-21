@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: "3.10"
 
-    # 3. Run the Conway's Game of Life test
-    - name: Run Conway's Game of Life
+    # 3. Run SPL tests
+    - name: Run interpreted SPL tests
       run: |
         python interpreter.py tests.spl
