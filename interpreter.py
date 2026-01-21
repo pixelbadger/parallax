@@ -145,13 +145,21 @@ class Parser:
         self.tokens = tokens
         self.pos = 0
 
+    # FIX 1: Safe peek that doesn't crash on EOF
+    def peek(self):
+        if self.pos >= len(self.tokens):
+            return "EOF" # Return a special End-Of-File marker
+        return self.tokens[self.pos][0]
+
+    # FIX 2: consume now handles EOF gracefully
     def consume(self, type_name):
+        if self.pos >= len(self.tokens):
+            raise Exception(f"Unexpected End of File. Expected '{type_name}'")
+            
         if self.tokens[self.pos][0] == type_name:
             self.pos += 1
             return self.tokens[self.pos-1][1]
         raise Exception(f"Expected {type_name}, got {self.tokens[self.pos]}")
-
-    def peek(self): return self.tokens[self.pos][0]
 
     def parse_type(self):
         prefix = ""
