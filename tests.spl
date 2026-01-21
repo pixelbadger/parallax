@@ -15,6 +15,22 @@ fn apply_rules(alive, neighbors) = {
 }
 
 fn main() = {
+
+    seed(42);
+    let x : ?Int = open;
+    
+    # 1. Propagation
+    # y is a Future (~Int). No random number generated yet.
+    let y : ~Int = x + 10;
+    
+    # 2. Observation
+    # The 'if' requires a concrete value, forcing 'y' (and thus 'x') to collapse.
+    if (y > 50) {
+        print(111, y);
+    } else {
+        print(222, y);
+    }
+
     # --- GENERATION 0: Vertical Line (Middle Col) ---
     # 0 1 0
     # 0 1 0
