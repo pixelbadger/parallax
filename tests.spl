@@ -15,7 +15,7 @@ fn apply_rules(alive, neighbors) = {
 }
 
 fn main() = {
-    seed(99);
+    seed(2);
     let reactor_heat = 0;
 
     # Fork a new timeline
