@@ -24,7 +24,7 @@ fn main() = {
         let reactor_heat = reactor_heat + spike; # Mutates LOCAL heat only
         
         # Return struct
-        if (reactor_heat > 80) { Result { success: 0, val: reactor_heat } }
+        if (reactor_heat > 10) { Result { success: 0, val: reactor_heat } }
         else { Result { success: 1, val: reactor_heat } }
     };
 
