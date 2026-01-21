@@ -361,3 +361,16 @@ def run_spl(code):
     for n in ast: 
         if isinstance(n, Func): i.visit(n, i.env)
     if 'main' in i.env.vars: i.visit(Call('main', []), i.env)
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python interpreter.py <filename.spl>")
+        sys.exit(1)
+        
+    filename = sys.argv[1]
+    with open(filename, 'r') as f:
+        code = f.read()
+        
+    print(f"--- Executing {filename} ---")
+    run_spl(code)
