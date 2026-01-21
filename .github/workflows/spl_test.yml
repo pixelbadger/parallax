@@ -23,4 +23,6 @@ jobs:
     # 3. Run SPL tests
     - name: Run interpreted SPL tests
       run: |
-        python interpreter.py tests.spl
+        python interpreter.py tests/observer_effect.spl
+        python interpreter.py tests/time_travel.spl
+        python interpreter.py tests/wormhole.spl
