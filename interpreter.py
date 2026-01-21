@@ -336,27 +336,52 @@ class Interpreter:
     
     def visit_BinOp(self, n, env):
         l, r = self.visit(n.left, env), self.visit(n.right, env)
-        # Propagation Logic
-        if l.state == State.OPEN or r.state == State.OPEN:
-            return Value((l, n.op, r), State.RESOLVED, type_hint="~Int")
+        
+        # FIX: Check for RESOLVED as well. 
+        # If either side is a Future/Open, the result must also be a Future.
+        if l.state == State.OPEN or r.state == State.OPEN or \
+           l.state == State.RESOLVED or r.state == State.RESOLVED:
+            return Value((l, n.op, r), State.RESOLVED, type_hint="~Bool")
+            
         val = 0
         lv, rv = l.unbox(), r.unbox()
         if n.op == '+': val = lv + rv
         elif n.op == '-': val = lv - rv
+        elif n.op == '*': val = lv * rv
         elif n.op == '>': val = 1 if lv > rv else 0
         elif n.op == '<': val = 1 if lv < rv else 0
         elif n.op == '==': val = 1 if lv == rv else 0
+        elif n.op == '&&': val = 1 if lv and rv else 0
+        elif n.op == '||': val = 1 if lv or rv else 0
         return Value(val)
 
     def visit_Observe(self, n, env): return self.collapse(self.visit(n.expr, env))
     def collapse(self, v):
-        if v.state == State.OPEN: v.val = random.randint(0, 99); v.state = State.COLLAPSED; return v
+        if v.state == State.OPEN: 
+            v.val = random.randint(0, 99)
+            v.state = State.COLLAPSED
+            return v
+            
         if v.state == State.RESOLVED:
-            l = self.collapse(v.val[0]); r = self.collapse(v.val[2])
-            # Re-run op
+            # Recursively collapse dependencies
+            l = self.collapse(v.val[0])
+            r = self.collapse(v.val[2])
             op = v.val[1]
-            if op == '+': v.val = l.val + r.val
-            v.state = State.COLLAPSED; return v
+            
+            lv, rv = l.val, r.val
+            
+            # FIX: Execute the deferred operator
+            if op == '+': v.val = lv + rv
+            elif op == '-': v.val = lv - rv
+            elif op == '*': v.val = lv * rv
+            elif op == '>': v.val = 1 if lv > rv else 0
+            elif op == '<': v.val = 1 if lv < rv else 0
+            elif op == '==': v.val = 1 if lv == rv else 0
+            elif op == '&&': v.val = 1 if lv and rv else 0
+            elif op == '||': v.val = 1 if lv or rv else 0
+            
+            v.state = State.COLLAPSED
+            return v
         return v
     
     def visit_Call(self, n, env):
