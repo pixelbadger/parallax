@@ -64,6 +64,10 @@ class Environment:
 # ==========================================
 
 TOKEN_TYPES = [
+    # 1. Skip Comments (Hash followed by anything until newline)
+    ('COMMENT', r'#[^\n]*'), 
+    
+    # 2. Keywords & Symbols
     ('FN', r'fn'), ('LET', r'let'), ('OBSERVE', r'observe'),
     ('IF', r'if'), ('ELSE', r'else'), ('OPEN', r'open'),
     ('FORK', r'fork'), ('COMMIT', r'commit'), ('DISCARD', r'discard'),
@@ -71,7 +75,10 @@ TOKEN_TYPES = [
     ('DOT', r'\.'), ('COLON', r':'), ('Q_MARK', r'\?'), ('TILDE', r'~'),
     ('ID', r'[a-zA-Z_][a-zA-Z0-9_]*'), ('NUMBER', r'\d+'),
     ('OP', r'[+\-*/><=]+'), ('LPAREN', r'\('), ('RPAREN', r'\)'),
-    ('LBRACE', r'\{'), ('RBRACE', r'\}'), ('SEMI', r';'), ('COMMA', r','), ('WS', r'\s+')
+    ('LBRACE', r'\{'), ('RBRACE', r'\}'), ('SEMI', r';'), ('COMMA', r','), 
+    
+    # 3. Whitespace
+    ('WS', r'\s+')
 ]
 
 def lex(code):
@@ -86,8 +93,14 @@ def lex(code):
                 match = (name, m.group(0))
                 pos = m.end()
                 break
-        if not match: raise Exception(f"Illegal char at {pos}")
-        if match[0] != 'WS': tokens.append(match)
+        if not match: 
+            # Show a helpful error snippet
+            snippet = code[pos:pos+10].replace('\n', '\\n')
+            raise Exception(f"Illegal char at {pos}: '{snippet}...'")
+            
+        # IGNORE both Whitespace AND Comments
+        if match[0] != 'WS' and match[0] != 'COMMENT': 
+            tokens.append(match)
     return tokens
 
 class AST: pass
