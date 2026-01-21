@@ -15,86 +15,27 @@ fn apply_rules(alive, neighbors) = {
 }
 
 fn main() = {
+    seed(99);
+    let reactor_heat = 0;
 
-    seed(42);
-    let x : ?Int = open;
-    
-    # 1. Propagation
-    # y is a Future (~Int). No random number generated yet.
-    let y : ~Int = x + 10;
-    
-    # 2. Observation
-    # The 'if' requires a concrete value, forcing 'y' (and thus 'x') to collapse.
-    if (y > 50) {
-        print(111, y);
+    # Fork a new timeline
+    let experiment = fork {
+        let spike = open;
+        let reactor_heat = reactor_heat + spike; # Mutates LOCAL heat only
+        
+        # Return struct
+        if (reactor_heat > 80) { Result { success: 0, val: reactor_heat } }
+        else { Result { success: 1, val: reactor_heat } }
+    };
+
+    # Introspect result without committing
+    if (experiment.success) {
+        print(111); # Success
+        commit experiment; # Merge the low heat change
     } else {
-        print(222, y);
+        print(222); # Failure
+        discard experiment; # Rollback the dangerous heat change
     }
-
-    # --- GENERATION 0: Vertical Line (Middle Col) ---
-    # 0 1 0
-    # 0 1 0
-    # 0 1 0
     
-    let g0_00 = 0; let g0_01 = 1; let g0_02 = 0;
-    let g0_10 = 0; let g0_11 = 1; let g0_12 = 0;
-    let g0_20 = 0; let g0_21 = 1; let g0_22 = 0;
-
-    print(0, g0_00, g0_01, g0_02);
-    print(0, g0_10, g0_11, g0_12);
-    print(0, g0_20, g0_21, g0_22);
-    print(999); # Separator
-
-    # --- GENERATION 1 CALCULATION ---
-    
-    # Row 0 Neighbors
-    let n_00 = g0_01 + g0_10 + g0_11;
-    let n_01 = g0_00 + g0_02 + g0_10 + g0_11 + g0_12;
-    let n_02 = g0_01 + g0_11 + g0_12;
-    
-    # Row 1 Neighbors
-    let n_10 = g0_00 + g0_01 + g0_11 + g0_20 + g0_21;
-    let n_11 = g0_00 + g0_01 + g0_02 + g0_10 + g0_12 + g0_20 + g0_21 + g0_22;
-    let n_12 = g0_01 + g0_02 + g0_11 + g0_21 + g0_22;
-    
-    # Row 2 Neighbors
-    let n_20 = g0_10 + g0_11 + g0_21;
-    let n_21 = g0_10 + g0_11 + g0_12 + g0_20 + g0_22;
-    let n_22 = g0_11 + g0_12 + g0_21;
-
-    # Apply Rules
-    let g1_00 = apply_rules(g0_00, n_00);
-    let g1_01 = apply_rules(g0_01, n_01);
-    let g1_02 = apply_rules(g0_02, n_02);
-    
-    let g1_10 = apply_rules(g0_10, n_10);
-    let g1_11 = apply_rules(g0_11, n_11);
-    let g1_12 = apply_rules(g0_12, n_12);
-    
-    let g1_20 = apply_rules(g0_20, n_20);
-    let g1_21 = apply_rules(g0_21, n_21);
-    let g1_22 = apply_rules(g0_22, n_22);
-
-    # Print Gen 1 (Should be Horizontal)
-    # 0 0 0
-    # 1 1 1
-    # 0 0 0
-    print(1, g1_00, g1_01, g1_02);
-    print(1, g1_10, g1_11, g1_12);
-    print(1, g1_20, g1_21, g1_22);
-    print(999);
-
-    # --- GENERATION 2 CALCULATION ---
-    # Neighbors for (1,0) and (1,1)
-    
-    let nn_10 = g1_00 + g1_01 + g1_11 + g1_20 + g1_21;
-    let g2_10 = apply_rules(g1_10, nn_10);
-    
-    let nn_11 = g1_00 + g1_01 + g1_02 + g1_10 + g1_12 + g1_20 + g1_21 + g1_22;
-    let g2_11 = apply_rules(g1_11, nn_11);
-
-    # Print Gen 2 Partial (Should return to Vertical center)
-    print(2, 0, 0, 0); 
-    print(2, g2_10, g2_11, g2_10); 
-    print(2, 0, 0, 0);
+    print(333, reactor_heat);
 }
