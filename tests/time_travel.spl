@@ -1,19 +1,3 @@
-fn apply_rules(alive, neighbors) = {
-    # 1. Alive Cell
-    if (alive > 0) {
-        if (neighbors < 2) { 0 } 
-        else {
-            if (neighbors > 3) { 0 }
-            else { 1 }
-        }
-    } 
-    # 2. Dead Cell
-    else {
-        if (neighbors == 3) { 1 }
-        else { 0 }
-    }
-}
-
 fn main() = {
     seed(14);
     let reactor_heat = 0;
