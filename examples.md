@@ -54,7 +54,7 @@ fn main() = {
 ```
 
 Example 3: Pinning & Wormholes
-Persisting data across program restarts (simulated via re-seeding).
+Holding a collapsed value fixed across re-seeds of the RNG.
 
 ```
 fn main() = {

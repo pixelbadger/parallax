@@ -1,0 +1,37 @@
+# Exercises the grammar: precedence, operators, keyword-prefixed
+# identifiers, structs, lexical scoping and fork/commit from a nested block.
+type Pair = { left, right, };
+
+fn add(a, b) = { a + b }
+
+fn main() = {
+    seed(7);
+
+    # Precedence: * / bind tighter than + -, which bind tighter than comparisons
+    print(2 + 3 * 4, 20 / 3 - 1, 1 + 2 > 2, 1 && 0 || 1);
+
+    # Identifiers may start with a keyword
+    let iffy = 1;
+    let opener = 2;
+    let typed = 3;
+    print(iffy + opener + typed);
+
+    # Struct literals, member access inside arithmetic
+    let p = Pair { left: 10, right: 32 };
+    print(p, p.left + p.right);
+
+    # A bare identifier condition is not mistaken for a struct literal
+    if iffy { print(add(p.left, 1)); }
+
+    # Futures stay unresolved until observed; observing collapses dependencies
+    let coin : ?Int = open;
+    let doubled : ~Int = coin * 2;
+    let seen : Int = observe doubled;
+    print(seen, coin);
+
+    # commit inside a nested block still merges into the forking scope
+    let level = 1;
+    let attempt = fork { let level = level + 41; level };
+    if (attempt == 42) { commit attempt; }
+    print(level);
+}

@@ -1,0 +1,8 @@
+--- Executing tests/language.spl ---
+[SYS] Seed: 7
+14 5 1 1
+6
+Pair { left: 10, right: 32 } 42
+11
+82 41
+42

@@ -12,17 +12,14 @@ jobs:
 
     steps:
     # 1. Check out the repository code
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # 2. Set up Python
     - name: Set up Python 3.10
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
 
-    # 3. Run SPL tests
+    # 3. Run SPL tests (fixed seeds, compared against tests/*.out)
     - name: Run interpreted SPL tests
-      run: |
-        python interpreter.py tests/observer_effect.spl
-        python interpreter.py tests/time_travel.spl
-        python interpreter.py tests/wormhole.spl
+      run: python tests/run_tests.py

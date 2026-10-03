@@ -1,0 +1,7 @@
+--- Executing tests/wormhole.spl ---
+[SYS] Seed: 10
+111 73
+[SYS] Seed: 9999
+[SYS] Pinned 'key' retrieved.
+222 73
+333 15
