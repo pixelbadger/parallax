@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+    - uses: Swatinem/rust-cache@v2
+    - name: Format
+      run: cargo fmt --check
+    - name: Lint
+      run: cargo clippy --all-targets --locked -- -D warnings
+    # Unit tests, semantics, and every program in tests/ and simulations/
+    # (fixed seeds, compared against their .out files)
+    - name: Test
+      run: cargo test --locked

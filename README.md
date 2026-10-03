@@ -19,7 +19,7 @@ It treats execution as observation (`observe`) and supports timeline management 
 * **Forks**: `fork` creates a branched reality. You can inspect the result of a dangerous calculation in a fork and decide to `commit` (apply the variables the fork wrote) or `discard` (rollback). A fork draws from its own random stream, so forking never changes what the parent timeline draws next. A fork's result is lazy like anything else: `observe` it inside the fork if it must be decided in that timeline.
 * **The Multiverse**: `multiverse n { ... }` runs the block in `n` independent universes and aggregates what they produce (see below). `given cond;` inside a universe throws that universe away when `cond` is false, which conditions the results on `cond`.
 * **Pinning**: `pin x = open` persists a specific collapse for the rest of the interpreter run, surviving re-seeds (`seed(n)`) and forks, until it is cleared with `reset x;`. This lets you hold one draw fixed while re-running the rest of a simulation under different seeds.
-* **Determinism**: Every run is driven by a single seeded RNG. Pass `--seed N` (or call `seed(N)` in the program) and the run is fully reproducible. Without a seed, the interpreter picks one and prints it so the run can be replayed.
+* **Determinism**: Every run is driven by a single seeded RNG (xoshiro256++, with the interpreter's own range sampling, so a seed gives the same draws on every platform). Pass `--seed N` (or call `seed(N)` in the program) and the run is fully reproducible. Without a seed, the interpreter picks one and prints it so the run can be replayed.
 * **Mutation**: `x = expr;` rebinds an existing variable in the nearest scope that defines it. Inside a fork it changes only the fork's copy until committed.
 
 ## Simulation
@@ -38,15 +38,26 @@ print(r.rate);   # ~17
 
 See [`simulations/reactor.spl`](simulations/reactor.spl) for a full study: five reactor-operating policies compared over the same 400 shifts, then conditioned on the coolant pump failing.
 
-Values are integers (and string literals for labels); `/` is integer division.
+Values are 64-bit signed integers (and string literals for labels); `/` is integer division, rounding down. Arithmetic that overflows is an error.
 
 ## Running
 
+The interpreter is written in Rust. With a [Rust toolchain](https://rustup.rs) installed:
+
 ```sh
-python interpreter.py program.spl            # random seed, printed so you can replay it
-python interpreter.py --seed 42 program.spl  # deterministic run
-python tests/run_tests.py                    # run the test suite (use --update to regenerate expected output)
+cargo run --release -- program.spl            # random seed, printed so you can replay it
+cargo run --release -- --seed 42 program.spl  # deterministic run
+cargo install --path .                        # or install the `spl` binary
 ```
+
+### Testing
+
+```sh
+cargo test                                    # unit, semantics and program tests
+UPDATE_EXPECT=1 cargo test --test programs    # regenerate tests/*.out and simulations/*.out
+```
+
+`tests/*.spl` and `simulations/*.spl` run with `--seed 0` and must print exactly their `.out` file. Every example in [`examples.md`](examples.md) must run cleanly, and an unseeded run must replay exactly from the seed it reports. `tests/semantics.rs` covers behaviour that holds for every seed. CI also runs `cargo fmt --check` and `cargo clippy -- -D warnings`.
 
 Execution runs every top-level statement in order, then calls `main()` if it is defined.
 
@@ -58,7 +69,7 @@ Execution runs every top-level statement in order, then calls `main()` if it is 
 | `seed(n)` | Re-seeds the RNG with integer `n`. Pinned values are not affected. |
 | `min(a, b)`, `max(a, b)`, `abs(a)` | Like operators, these stay unobserved futures if an argument is. |
 
-SPL recursion is supported to a depth of many thousands of calls.
+SPL recursion is supported to a depth of tens of thousands of calls (over 100,000 in a release build); deeper recursion stops with "Recursion too deep".
 
 ## EBNF Grammar
 

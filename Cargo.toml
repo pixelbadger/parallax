@@ -1,0 +1,18 @@
+[package]
+name = "spl"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Interpreter for the Superposition Language (SPL), a ternary-substrate probabilistic programming language"
+license = "MIT"
+publish = false
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+rand_xoshiro = "0.8"
+rustc-hash = "2.1.3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
