@@ -190,10 +190,6 @@ impl Scope {
         })
     }
 
-    pub fn child(parent: &Rc<Scope>) -> Rc<Scope> {
-        Scope::new(Some(parent.clone()))
-    }
-
     /// Reads `name` from the nearest scope that defines it.
     pub fn lookup(self: &Rc<Scope>, name: Sym) -> Option<Value> {
         let mut scope = self;

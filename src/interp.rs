@@ -154,7 +154,7 @@ impl<W: Write> Interpreter<W> {
     fn exec_block(&mut self, block: &Block, env: &Rc<Scope>) -> R<Value> {
         // A block evaluates to its last statement if that is an expression
         let mut result = Value::None;
-        for stmt in block.iter() {
+        for stmt in block.stmts.iter() {
             result = match stmt {
                 Stmt::Expr(e) => self.eval(e, env)?,
                 _ => {
@@ -164,6 +164,15 @@ impl<W: Write> Interpreter<W> {
             };
         }
         Ok(result)
+    }
+
+    /// Runs a block in a scope of its own, if it declares anything.
+    fn exec_nested(&mut self, block: &Block, env: &Rc<Scope>) -> R<Value> {
+        if block.binds == 0 {
+            return self.exec_block(block, env);
+        }
+        let scope = Scope::with_capacity(Some(env.clone()), block.binds);
+        self.exec_block(block, &scope)
     }
 
     fn exec(&mut self, stmt: &Stmt, env: &Rc<Scope>) -> R<()> {
@@ -313,7 +322,11 @@ impl<W: Write> Interpreter<W> {
             Expr::Binary(op, l, r) => {
                 let a = self.eval(l, env)?;
                 let b = self.eval(r, env)?;
-                self.lazy(*op, &a, &b)?
+                match (&a, &b) {
+                    // Fast path: both already collapsed integers
+                    (Value::Int(_), Value::Int(_)) => Value::Int(self.apply(*op, &a, &b)?),
+                    _ => self.lazy(*op, &a, &b)?,
+                }
             }
             Expr::Call(name, args) => self.call(*name, args, env)?,
             Expr::StructInit(name, fields) => self.struct_init(*name, fields, env)?,
@@ -355,9 +368,9 @@ impl<W: Write> Interpreter<W> {
             Expr::If(cond, then_b, else_b) => {
                 let c = self.eval(cond, env)?;
                 if self.truthy(&c)? {
-                    self.exec_block(then_b, &Scope::child(env))?
+                    self.exec_nested(then_b, env)?
                 } else if let Some(else_b) = else_b {
-                    self.exec_block(else_b, &Scope::child(env))?
+                    self.exec_nested(else_b, env)?
                 } else {
                     Value::None
                 }
@@ -367,7 +380,7 @@ impl<W: Write> Interpreter<W> {
                 let n = self.int_of(&n, "repeat count")?;
                 let mut result = Value::None;
                 for _ in 0..n {
-                    result = self.exec_block(block, &Scope::child(env))?;
+                    result = self.exec_nested(block, env)?;
                 }
                 result
             }
@@ -378,7 +391,7 @@ impl<W: Write> Interpreter<W> {
                     if !self.truthy(&c)? {
                         break result;
                     }
-                    result = self.exec_block(block, &Scope::child(env))?;
+                    result = self.exec_nested(block, env)?;
                 }
             }
             Expr::Multiverse(count, block) => self.multiverse(count, block, env)?,
@@ -566,7 +579,7 @@ impl<W: Write> Interpreter<W> {
         {
             return fail("Recursion too deep");
         }
-        let scope = Scope::with_capacity(Some(env), def.params.len());
+        let scope = Scope::with_capacity(Some(env), def.params.len() + def.body.binds);
         for (&p, a) in def.params.iter().zip(args) {
             scope.set(p, a);
         }

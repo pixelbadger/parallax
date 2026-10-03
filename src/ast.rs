@@ -114,7 +114,27 @@ impl fmt::Display for Op {
     }
 }
 
-pub type Block = Box<[Stmt]>;
+#[derive(Debug)]
+pub struct Block {
+    pub stmts: Box<[Stmt]>,
+    /// How many statements bind a name in the block's own scope. A block
+    /// that binds nothing runs in its parent's scope (one of its own would
+    /// be unobservable), and other scopes are allocated at the right size.
+    pub binds: usize,
+}
+
+impl Block {
+    pub fn new(stmts: Vec<Stmt>) -> Self {
+        let binds = stmts
+            .iter()
+            .filter(|s| matches!(s, Stmt::Let(_) | Stmt::Pin(_) | Stmt::Func(_)))
+            .count();
+        Block {
+            stmts: stmts.into(),
+            binds,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum Expr {

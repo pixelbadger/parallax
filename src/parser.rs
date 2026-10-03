@@ -114,7 +114,7 @@ impl<'src> Parser<'_, 'src> {
             Ok(stmts)
         })?;
         self.expect(Tok::RBrace)?;
-        Ok(stmts.into())
+        Ok(Block::new(stmts))
     }
 
     /// The expression before a block: `if c {`, `repeat n {`, ...
