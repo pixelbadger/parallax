@@ -1,3 +1,5 @@
+type Result = { success, val };
+
 fn main() = {
     seed(14);
     let reactor_heat = 0;
