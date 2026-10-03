@@ -79,3 +79,40 @@ fn main() = {
     print(333, key); 
 }
 ```
+
+Example 4: The Multiverse
+Monte Carlo in one expression, conditioning with `given`.
+
+```
+type Dice = { total, double };
+
+fn main() = {
+    # How often do two dice sum to 7?
+    let sevens = multiverse 1000 { open(1, 6) + open(1, 6) == 7 };
+    print("P(7) %", sevens.rate);
+
+    # Given the first die shows at least 4, what does the total look like?
+    let r = multiverse 1000 {
+        let a = open(1, 6);
+        let b = open(1, 6);
+        given a > 3;
+        Dice { total: a + b, double: a == b }
+    };
+    print("kept", r.total.n, "mean total", r.total.mean, "doubles %", r.double.rate);
+}
+```
+
+Example 5: Loops and Mutation
+A random walk, run until it drifts 10 steps from home.
+
+```
+fn main() = {
+    let pos = 0;
+    let steps = 0;
+    while (abs(pos) < 10) {
+        pos = pos + open(0, 1) * 2 - 1;
+        steps = steps + 1;
+    }
+    print("escaped after", steps, "steps");
+}
+```

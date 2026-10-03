@@ -1,6 +1,6 @@
 """SPL test runner.
 
-  python tests/run_tests.py           # check every tests/*.spl against its .out file
+  python tests/run_tests.py           # check tests/*.spl and simulations/*.spl against their .out files
   python tests/run_tests.py --update  # regenerate the .out files
 
 Each program runs with a fixed --seed, so output is reproducible. The runner
@@ -24,7 +24,7 @@ def run(path, *flags):
 def main(update):
     failures = []
 
-    for spl in sorted((ROOT / "tests").glob("*.spl")):
+    for spl in sorted([*(ROOT / "tests").glob("*.spl"), *(ROOT / "simulations").glob("*.spl")]):
         rel = spl.relative_to(ROOT)
         code, out, err = run(rel, "--seed", SEED)
         expected = spl.with_suffix(".out")

@@ -1,0 +1,115 @@
+# ============================================================
+# Reactor Shift: which operating policy should the night crew use?
+#
+# A reactor runs for a 24-hour shift. Each hour the operator picks:
+#   FULL power   +10 output, heat += 8 + surge - cooling
+#   THROTTLED    +4 output,  heat += 2 + surge / 2 - cooling
+# Surges are 0-12, plus a 30-heat demand spike 8% of the time.
+# The coolant pump removes 12 heat an hour. In 40% of shifts it fails
+# at some hour (drawn up front, so it is the same for every policy),
+# leaving only 3 cooling for the rest of the shift.
+# At 100 heat the core melts down: the shift ends and its output is
+# forfeit, so every policy trades output against risk.
+#
+# All policies run in the same universes (common random numbers): forks
+# draw from their own random stream, so a policy that forecasts does not
+# change what happens in the real timeline. Differences are the policy's.
+# ============================================================
+
+type Shift = { melted, output, pump_failed };
+
+let SHIFT_HOURS = 24;
+let MELTDOWN = 100;
+let UNIVERSES = 400;
+
+fn surge() = { open(0, 12) + if (open(1, 100) < 9) { 30 } else { 0 } }
+fn cooling(pump) = { if pump { 12 } else { 3 } }
+fn full_hour(heat, pump) = { max(0, heat + 8 + surge() - cooling(pump)) }
+fn slow_hour(heat, pump) = { max(0, heat + 2 + surge() / 2 - cooling(pump)) }
+
+# Policies
+let ALWAYS_FULL = 0;   # never throttle
+let GAUGE = 1;         # throttle when the heat gauge reads above 50
+let FORECAST = 2;      # imagine one full-power hour in a fork, throw the
+                       # forecast away, throttle if it came out hot
+let RISK = 3;          # imagine 20 full-power hours in a multiverse and
+                       # throttle if any of them reaches 70
+let EDIT = 4;          # timeline editing: run a full-power hour in a fork,
+                       # *commit* it if it stayed cool, else discard it and
+                       # throttle instead. Physically impossible; fine in SPL.
+
+fn shift(policy) = {
+    let heat = 30;
+    let fail_hour = observe open(0, 59);
+    let pump_failed = fail_hour < SHIFT_HOURS;
+    let output = 0;
+    let melted = 0;
+    let hour = 0;
+
+    while (hour < SHIFT_HOURS && melted == 0) {
+        let pump = hour < fail_hour;
+
+        let throttle = 0;
+        if (policy == GAUGE) { throttle = heat > 50; }
+        if (policy == FORECAST) {
+            # observe inside the fork: an unobserved forecast would be
+            # collapsed later, in the real timeline's random stream
+            let forecast = fork { observe full_hour(heat, pump) };
+            throttle = forecast > 70;
+            discard forecast;
+        }
+        if (policy == RISK) {
+            let risk = multiverse 20 { full_hour(heat, pump) > 69 };
+            throttle = risk.hits > 0;
+        }
+
+        if (policy == EDIT) {
+            let attempt = fork {
+                heat = observe full_hour(heat, pump);
+                output = output + 10;
+                heat
+            };
+            if (attempt < 71) { commit attempt; }
+            else {
+                discard attempt;
+                heat = slow_hour(heat, pump);
+                output = output + 4;
+            }
+        } else {
+            if throttle {
+                heat = slow_hour(heat, pump);
+                output = output + 4;
+            } else {
+                heat = full_hour(heat, pump);
+                output = output + 10;
+            }
+        }
+
+        if (heat > MELTDOWN - 1) { melted = 1; }
+        hour = hour + 1;
+    }
+    if melted { output = 0; }
+    Shift { melted: melted, output: output, pump_failed: pump_failed }
+}
+
+fn report(name, r) = {
+    print(name, "| meltdowns", r.melted.hits, "of", r.melted.n,
+          "| mean output", r.output.mean, "| median", r.output.median);
+}
+
+fn main() = {
+    print("== Every shift ==");
+    report("always full  ", multiverse UNIVERSES { shift(ALWAYS_FULL) });
+    report("heat gauge   ", multiverse UNIVERSES { shift(GAUGE) });
+    report("forecast     ", multiverse UNIVERSES { shift(FORECAST) });
+    report("risk (20 fwd)", multiverse UNIVERSES { shift(RISK) });
+    report("timeline edit", multiverse UNIVERSES { shift(EDIT) });
+
+    # Conditioning: keep only the universes where the pump failed
+    print("== Given the coolant pump failed ==");
+    report("always full  ", multiverse UNIVERSES { let s = shift(ALWAYS_FULL); given s.pump_failed; s });
+    report("heat gauge   ", multiverse UNIVERSES { let s = shift(GAUGE); given s.pump_failed; s });
+    report("forecast     ", multiverse UNIVERSES { let s = shift(FORECAST); given s.pump_failed; s });
+    report("risk (20 fwd)", multiverse UNIVERSES { let s = shift(RISK); given s.pump_failed; s });
+    report("timeline edit", multiverse UNIVERSES { let s = shift(EDIT); given s.pump_failed; s });
+}
