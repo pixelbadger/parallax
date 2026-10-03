@@ -1,0 +1,26 @@
+--- Executing simulations/island.spl ---
+Fertility of each patch (surveyed once, then pinned):
+    [8, 9, 8, 5, 10]
+    [5, 14, 14, 8, 5]
+    [8, 5, 6, 6, 5]
+    [9, 11, 6, 8, 9]
+    [8, 6, 5, 8, 9]
+== Every universe: 16 islands over 8 years ==
+leave    | both survive 38 % | rabbits 100 % | foxes 38 % | median at the end: 156 rabbits, 0 foxes
+cull     | both survive 44 % | rabbits 100 % | foxes 44 % | median at the end: 196 rabbits, 0 foxes
+forecast | both survive 38 % | rabbits 100 % | foxes 38 % | median at the end: 179 rabbits, 0 foxes
+Median rabbits each year, left alone: [80, 37, 38, 33, 39, 78, 106, 156]
+Where the rabbits end up (median per patch), left alone:
+    [0, 2, 8, 3, 1]
+    [0, 8, 11, 8, 4]
+    [0, 2, 5, 4, 6]
+    [0, 0, 5, 9, 0]
+    [0, 0, 0, 0, 0]
+== Given a drought in the first two years: 6 of 16 islands ==
+leave    | both survive 33 % | rabbits 100 % | foxes 33 % | median at the end: 241 rabbits, 0 foxes
+cull     | both survive 50 % | rabbits 100 % | foxes 50 % | median at the end: 321 rabbits, 0 foxes
+== The same island under another seed ==
+[SYS] Seed: 99
+[SYS] Pinned 'fertility' retrieved.
+leave    | both survive 25 % | rabbits 81 % | foxes 31 % | median at the end: 102 rabbits, 0 foxes
+cull     | both survive 31 % | rabbits 94 % | foxes 31 % | median at the end: 160 rabbits, 0 foxes

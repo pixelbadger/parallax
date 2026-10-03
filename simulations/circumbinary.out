@@ -1,0 +1,9 @@
+--- Executing simulations/circumbinary.spl ---
+== Every launch: 24 universes ==
+drift    | kept 83 % | ejected 8 % | crashed 8 % | habitable 55 % of the time | burns 0
+forecast | kept 83 % | ejected 4 % | crashed 12 % | habitable 69 % of the time | burns 2
+edit     | kept 96 % | ejected 4 % | crashed 0 % | habitable 77 % of the time | burns 2
+median distance from the stars (0.1 AU), every 150 steps, drifting: [21, 24, 26, 27, 27]
+== Given it started inside 2 AU: 11 of 24 launches ==
+drift    | kept 64 % | ejected 18 % | crashed 18 % | habitable 35 % of the time | burns 0
+edit     | kept 91 % | ejected 9 % | crashed 0 % | habitable 57 % of the time | burns 3

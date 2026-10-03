@@ -16,3 +16,8 @@ rustc-hash = "2.1.3"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+# SPL programs are slow to interpret unoptimised; tests run whole simulations.
+# Debug assertions and overflow checks stay on.
+[profile.dev]
+opt-level = 1

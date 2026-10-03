@@ -36,7 +36,11 @@ let r = multiverse 1000 { open(1, 6) + open(1, 6) == 7 };
 print(r.rate);   # ~17
 ```
 
-See [`simulations/reactor.spl`](simulations/reactor.spl) for a full study: five reactor-operating policies compared over the same 400 shifts, then conditioned on the coolant pump failing.
+Full studies live in [`simulations/`](simulations):
+
+* [`reactor.spl`](simulations/reactor.spl): five reactor-operating policies compared over the same 400 shifts, then conditioned on the coolant pump failing.
+* [`circumbinary.spl`](simulations/circumbinary.spl): a three-body problem. A habitat orbits a binary star from an uncertain launch. How often is it flung out or burnt up, and can mission control save it by forecasting thruster burns in forks, or by living three futures and committing the best?
+* [`island.spl`](simulations/island.spl): a spatial predator–prey ecology on a grid of patches, with seasons, droughts, disease and migration. A ranger's policies are compared on one surveyed island, held fixed with `pin` across universes and a re-seed. The final populations aggregate into a per-patch heat map.
 
 Values are 64-bit signed integers (and string literals for labels); `/` is integer division, rounding down. Arithmetic that overflows is an error.
 
