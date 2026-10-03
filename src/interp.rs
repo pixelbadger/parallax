@@ -5,7 +5,9 @@ use std::fmt::Write as _;
 use std::io::Write;
 use std::rc::Rc;
 
-use crate::ast::{Ann, Block, Expr, FuncDef, Interner, Op, Program, Stmt, Sym, well_known as wk};
+use crate::ast::{
+    Ann, Block, Expr, FuncDef, Interner, Op, Place, Program, Stmt, Sym, well_known as wk,
+};
 use crate::error::Error;
 use crate::rng::{Rng, universe_seed};
 use crate::stats::{Sample, aggregate};
@@ -17,6 +19,9 @@ pub const STACK_SIZE: usize = 512 << 20;
 
 /// Stack kept in reserve below the recursion limit, for the evaluation
 /// between one call and the next (bounded by the parser's nesting limit).
+/// Longest array `array(n, v)` will make.
+const MAX_ARRAY_LEN: usize = 1 << 28;
+
 const STACK_MARGIN: usize = 32 << 20;
 
 /// Why evaluation stopped early.
@@ -72,6 +77,9 @@ impl<W: Write> Interpreter<W> {
             (wk::MIN, Builtin::Min),
             (wk::MAX, Builtin::Max),
             (wk::ABS, Builtin::Abs),
+            (wk::LEN, Builtin::Len),
+            (wk::ARRAY, Builtin::Array),
+            (wk::PUSH, Builtin::Push),
         ] {
             global.set(name, Value::Builtin(b));
         }
@@ -176,6 +184,31 @@ impl<W: Write> Interpreter<W> {
                         self.name(*name)
                     ));
                 }
+            }
+            Stmt::AssignPath(name, path, expr) => {
+                // The value first, then the indices left to right
+                let v = self.eval(expr, env)?;
+                let mut steps = Vec::with_capacity(path.len());
+                for place in path.iter() {
+                    steps.push(match place {
+                        Place::Index(e) => {
+                            let i = self.eval(e, env)?;
+                            Step::Index(self.int_of(&i, "array index")?)
+                        }
+                        Place::Field(f) => Step::Field(*f),
+                    });
+                }
+                // Taking the value out leaves it uniquely owned, so the
+                // write happens in place unless someone else shares it.
+                let Some(mut target) = env.take(*name) else {
+                    return fail(format!(
+                        "Cannot assign to undefined variable '{}'",
+                        self.name(*name)
+                    ));
+                };
+                let result = self.write_path(&mut target, &steps, v);
+                env.assign(*name, target);
+                result?;
             }
             Stmt::Pin(b) => {
                 if let Some(saved) = self.pins.get(&b.name).cloned() {
@@ -284,6 +317,22 @@ impl<W: Write> Interpreter<W> {
             }
             Expr::Call(name, args) => self.call(*name, args, env)?,
             Expr::StructInit(name, fields) => self.struct_init(*name, fields, env)?,
+            Expr::Array(items) => {
+                let mut values = Vec::with_capacity(items.len());
+                for item in items.iter() {
+                    values.push(self.eval(item, env)?);
+                }
+                Value::Array(Rc::new(values))
+            }
+            Expr::Index(base, index) => {
+                let base = self.eval(base, env)?;
+                let index = self.eval(index, env)?;
+                let i = self.int_of(&index, "array index")?;
+                match base.resolved() {
+                    Value::Array(items) => element(items, i)?.clone(),
+                    _ => return fail(format!("Cannot index {}", self.repr(&base))),
+                }
+            }
             Expr::Member(obj, member) => {
                 let obj = self.eval(obj, env)?;
                 if let Value::Struct(s) = obj.resolved()
@@ -413,6 +462,7 @@ impl<W: Write> Interpreter<W> {
             Value::Int(n) => n != 0,
             Value::Str(s) => !s.is_empty(),
             Value::Struct(s) => !s.fields.is_empty(),
+            Value::Array(items) => !items.is_empty(),
             _ => false,
         })
     }
@@ -567,6 +617,34 @@ impl<W: Write> Interpreter<W> {
                 arity("abs", 1)?;
                 self.lazy(Op::Abs, &args[0], &Value::None)
             }
+            Builtin::Len => {
+                arity("len", 1)?;
+                match args[0].resolved() {
+                    Value::Array(items) => Ok(Value::Int(items.len() as i64)),
+                    other => fail(format!("len() needs an array, got {}", self.repr(other))),
+                }
+            }
+            Builtin::Array => {
+                arity("array", 2)?;
+                let n = self.int_of(&args[0], "array() length")?;
+                match usize::try_from(n) {
+                    Ok(n) if n <= MAX_ARRAY_LEN => {
+                        Ok(Value::Array(Rc::new(vec![args[1].clone(); n])))
+                    }
+                    _ => fail(format!("array() length {n} is out of range")),
+                }
+            }
+            Builtin::Push => {
+                arity("push", 2)?;
+                match args[0].resolved() {
+                    Value::Array(items) => {
+                        let mut items = Vec::clone(items);
+                        items.push(args[1].clone());
+                        Ok(Value::Array(Rc::new(items)))
+                    }
+                    other => fail(format!("push() needs an array, got {}", self.repr(other))),
+                }
+            }
         }
     }
 
@@ -678,13 +756,52 @@ impl<W: Write> Interpreter<W> {
                 }
                 Ok(Sample::Struct(s.ty, fields.into()))
             }
+            Value::Array(items) => {
+                let mut samples = Vec::with_capacity(items.len());
+                for item in items.iter() {
+                    samples.push(self.sample(item)?);
+                }
+                Ok(Sample::Array(samples.into()))
+            }
             other => {
                 let mut shown = String::new();
                 self.format(&other, &mut shown)?;
                 fail(format!(
-                    "A universe must produce an integer or a struct, got {shown}"
+                    "A universe must produce an integer, a struct or an array, got {shown}"
                 ))
             }
+        }
+    }
+
+    /// Writes `v` into `target` at `steps`, copying shared parts on the way.
+    fn write_path(&self, target: &mut Value, steps: &[Step], v: Value) -> R<()> {
+        let Some((step, rest)) = steps.split_first() else {
+            *target = v;
+            return Ok(());
+        };
+        match (step, &mut *target) {
+            (Step::Index(i), Value::Array(items)) => {
+                element(items, *i)?;
+                let slot = &mut Rc::make_mut(items)[*i as usize];
+                self.write_path(slot, rest, v)
+            }
+            (Step::Field(f), Value::Struct(s)) => {
+                let ty = s.ty;
+                match Rc::make_mut(s).fields.iter_mut().find(|(k, _)| k == f) {
+                    Some((_, slot)) => self.write_path(slot, rest, v),
+                    None => fail(format!(
+                        "'{}' has no field '{}'",
+                        self.name(ty),
+                        self.name(*f)
+                    )),
+                }
+            }
+            (Step::Index(_), other) => fail(format!("Cannot index {}", self.repr(other))),
+            (Step::Field(f), other) => fail(format!(
+                "Cannot access '{}' on {}",
+                self.name(*f),
+                self.repr(other)
+            )),
         }
     }
 
@@ -705,6 +822,18 @@ impl<W: Write> Interpreter<W> {
                     self.format(&f, out)?;
                 }
                 out.push_str(" }");
+            }
+            Value::Array(items) => {
+                let items = items.clone();
+                out.push('[');
+                for (i, item) in items.iter().enumerate() {
+                    if i > 0 {
+                        out.push_str(", ");
+                    }
+                    let item = self.collapse(item)?;
+                    self.format(&item, out)?;
+                }
+                out.push(']');
             }
             Value::None => out.push_str("none"),
             Value::Int(n) => write!(out, "{n}").expect("write to String"),
@@ -731,6 +860,7 @@ impl<W: Write> Interpreter<W> {
                 }
             },
             Value::Struct(s) => format!("Struct<{}>", self.name(s.ty)),
+            Value::Array(items) => format!("Array[{}]", items.len()),
             Value::Branch(b) => format!("<Branch: {}>", self.repr(&b.val)),
             Value::Closure(c) => format!("<fn {}>", self.name(c.def.name)),
             Value::Builtin(_) => "<built-in function>".into(),
@@ -752,8 +882,28 @@ impl<W: Write> Interpreter<W> {
                     .collect();
                 format!("{{{}}}", fields.join(", "))
             }
+            Value::Array(items) => {
+                let items: Vec<String> = items.iter().map(|item| self.py_repr(item)).collect();
+                format!("[{}]", items.join(", "))
+            }
             other => self.repr(other),
         }
+    }
+}
+
+/// One resolved step of an assignment target.
+enum Step {
+    Index(i64),
+    Field(Sym),
+}
+
+fn element(items: &[Value], i: i64) -> R<&Value> {
+    match usize::try_from(i).ok().and_then(|i| items.get(i)) {
+        Some(item) => Ok(item),
+        None => fail(format!(
+            "Index {i} out of range for an array of length {}",
+            items.len()
+        )),
     }
 }
 
@@ -765,6 +915,7 @@ fn state_name(v: &Value) -> &'static str {
             LazyState::Done(_) => "COLLAPSED",
         },
         Value::Struct(_) => "STRUCT",
+        Value::Array(_) => "ARRAY",
         _ => "COLLAPSED",
     }
 }

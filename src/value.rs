@@ -24,6 +24,9 @@ pub enum Builtin {
     Min,
     Max,
     Abs,
+    Len,
+    Array,
+    Push,
 }
 
 #[derive(Clone, Debug)]
@@ -33,6 +36,9 @@ pub enum Value {
     Str(Rc<str>),
     Lazy(Rc<Lazy>),
     Struct(Rc<Struct>),
+    /// Arrays have value semantics: writes copy on write, so no two
+    /// variables ever observe each other's changes.
+    Array(Rc<Vec<Value>>),
     Branch(Rc<Branch>),
     Closure(Rc<Closure>),
     Builtin(Builtin),
@@ -120,7 +126,7 @@ impl Drop for Lazy {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Struct {
     pub ty: Sym,
     pub fields: Box<[(Sym, Value)]>,
@@ -228,6 +234,27 @@ impl Scope {
             v => Slot::Value(v),
         };
         self.set_slot(name, slot);
+    }
+
+    /// Takes the value of `name` out of the nearest scope that defines it,
+    /// leaving `none`, so it can be modified in place and put back with
+    /// [`assign`](Self::assign). A function binding is returned as a closure.
+    pub fn take(self: &Rc<Scope>, name: Sym) -> Option<Value> {
+        let mut scope = self;
+        loop {
+            if let Some(var) = scope.vars.borrow_mut().iter_mut().find(|v| v.name == name) {
+                return Some(
+                    match std::mem::replace(&mut var.slot, Slot::Value(Value::None)) {
+                        Slot::Value(v) => v,
+                        Slot::Fn(def) => Value::Closure(Rc::new(Closure {
+                            def,
+                            env: scope.clone(),
+                        })),
+                    },
+                );
+            }
+            scope = scope.parent.as_ref()?;
+        }
     }
 
     pub fn set_slot(&self, name: Sym, slot: Slot) {
@@ -439,6 +466,22 @@ impl Copier {
                     v.clone()
                 }
             }
+            Value::Array(items) => {
+                let mut changed = false;
+                let copied: Vec<Value> = items
+                    .iter()
+                    .map(|item| {
+                        let copy = self.value(item);
+                        changed |= !same(item, &copy);
+                        copy
+                    })
+                    .collect();
+                if changed {
+                    Value::Array(Rc::new(copied))
+                } else {
+                    v.clone()
+                }
+            }
             Value::Branch(b) => {
                 if let Some(copy) = self.branches.get(&Rc::as_ptr(b)) {
                     return Value::Branch(copy.clone());
@@ -491,6 +534,7 @@ fn same(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Lazy(x), Value::Lazy(y)) => Rc::ptr_eq(x, y),
         (Value::Struct(x), Value::Struct(y)) => Rc::ptr_eq(x, y),
+        (Value::Array(x), Value::Array(y)) => Rc::ptr_eq(x, y),
         (Value::Branch(x), Value::Branch(y)) => Rc::ptr_eq(x, y),
         (Value::Closure(x), Value::Closure(y)) => Rc::ptr_eq(x, y),
         _ => true, // immutable scalars are always shared

@@ -10,17 +10,39 @@ use crate::value::{Struct, Value};
 pub enum Sample {
     Int(i64),
     Struct(Sym, Box<[(Sym, Sample)]>),
+    Array(Box<[Sample]>),
 }
 
 /// Ints aggregate to an `Ensemble`; structs to a struct of the same type
-/// whose every field is aggregated.
+/// whose every field is aggregated; arrays element by element.
 pub fn aggregate(samples: Vec<Sample>, rejected: i64) -> Result<Value, String> {
+    if let Some(Sample::Array(first)) = samples.first() {
+        let len = first.len();
+        let mut columns: Vec<Vec<Sample>> = (0..len)
+            .map(|_| Vec::with_capacity(samples.len()))
+            .collect();
+        for s in samples {
+            match s {
+                Sample::Array(items) if items.len() == len => {
+                    for (column, item) in columns.iter_mut().zip(items.into_vec()) {
+                        column.push(item);
+                    }
+                }
+                _ => return Err(MIXED.into()),
+            }
+        }
+        let items = columns
+            .into_iter()
+            .map(|column| aggregate(column, rejected))
+            .collect::<Result<Vec<_>, String>>()?;
+        return Ok(Value::Array(Rc::new(items)));
+    }
     let Some(Sample::Struct(ty, shape)) = samples.first() else {
         let ints: Option<Vec<i64>> = samples
             .into_iter()
             .map(|s| match s {
                 Sample::Int(n) => Some(n),
-                Sample::Struct(..) => None,
+                Sample::Struct(..) | Sample::Array(_) => None,
             })
             .collect();
         return match ints {

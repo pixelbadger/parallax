@@ -238,7 +238,7 @@ fn runtime_errors() {
         ("let p = 1; print(p.x);", "Cannot access 'x' on <1>"),
         (
             "let q = multiverse 3 { \"s\" };",
-            "A universe must produce an integer or a struct, got s",
+            "A universe must produce an integer, a struct or an array, got s",
         ),
         ("fn f(n) = { f(n + 1) } f(0);", "Recursion too deep"),
         ("print(9223372036854775807 + 1);", "Integer overflow in '+'"),
@@ -256,4 +256,118 @@ fn syntax_errors() {
         error("if 1 { 2 } else if 0 { 3 }"),
         "Line 1: Expected LBRACE, got 'if'"
     );
+}
+
+#[test]
+fn arrays_have_value_semantics() {
+    let src = r#"
+        let a = [1, 2, 3];
+        let b = a;
+        b[0] = 10;
+        fn bump(arr) = { arr[0] = arr[0] + 1; arr }
+        let c = bump(a);
+        print(a, b, c, len(a), a[2]);
+    "#;
+    assert_eq!(run(src), "[1, 2, 3] [10, 2, 3] [2, 2, 3] 3 3\n");
+}
+
+#[test]
+fn nested_element_and_field_writes() {
+    let src = r#"
+        type P = { x, ys };
+        let grid = array(2, array(3, 0));
+        grid[1][2] = 5;
+        let p = P { x: 1, ys: [7, 8] };
+        p.ys[1] = 9;
+        p.x = p.x + 1;
+        print(grid, p);
+    "#;
+    assert_eq!(run(src), "[[0, 0, 0], [0, 0, 5]] P { x: 2, ys: [7, 9] }\n");
+}
+
+#[test]
+fn push_returns_a_new_array() {
+    assert_eq!(
+        run("let a = []; let b = push(a, 1); print(a, b, len(push(b, \"s\")));"),
+        "[] [1] 2\n"
+    );
+}
+
+#[test]
+fn array_elements_stay_unobserved_until_used() {
+    let src = "let a = [open, 5]; let x : ?Int = a[0]; print(a[0] == a[0], a[1]);";
+    assert_eq!(run(src), "1 5\n");
+    // array(n, v) repeats one value: an Open value collapses once for all
+    assert_eq!(
+        run("let a = array(3, open); print(a[0] == a[1] && a[1] == a[2]);"),
+        "1\n"
+    );
+}
+
+#[test]
+fn indexing_observes_the_index() {
+    for seed in 0..10 {
+        let out = run_seeded(
+            "let a = [10, 20, 30]; let i = open(0, 2); print(a[i] == 10 + i * 10);",
+            seed,
+        );
+        assert_eq!(out, "1\n");
+    }
+}
+
+#[test]
+fn forks_copy_arrays() {
+    let src = r#"
+        let a = [1, 2, 3];
+        let f = fork { a[1] = 99; a[1] };
+        print(f, a);
+        commit f;
+        print(a);
+    "#;
+    assert_eq!(run(src), "99 [1, 2, 3]\n[1, 99, 3]\n");
+}
+
+#[test]
+fn multiverse_aggregates_arrays_elementwise() {
+    let out =
+        run("let m = multiverse 50 { [3, open(1, 6) > 0] }; print(m[0].mean, m[1].rate, len(m));");
+    assert_eq!(out, "3 100 2\n");
+    assert_eq!(
+        error("let m = multiverse 4 { array(observe open(1, 2), 0) };"),
+        "Every universe must produce the same kind of result"
+    );
+}
+
+#[test]
+fn array_errors() {
+    let cases = [
+        (
+            "let a = [1]; print(a[1]);",
+            "Index 1 out of range for an array of length 1",
+        ),
+        (
+            "let a = [1]; a[0 - 1] = 2;",
+            "Index -1 out of range for an array of length 1",
+        ),
+        ("let a = 1; a[0] = 2;", "Cannot index <1>"),
+        ("let a = [1]; a.x = 1;", "Cannot access 'x' on Array[1]"),
+        (
+            "type P = { x }; let p = P { x: 1 }; p.y = 2;",
+            "'P' has no field 'y'",
+        ),
+        ("print(len(3));", "len() needs an array, got <3>"),
+        ("print([1] + 1);", "'+' needs integers, got [1], 1"),
+        ("q[0] = 1;", "Cannot assign to undefined variable 'q'"),
+        (
+            "let a = array(0 - 1, 0);",
+            "array() length -1 is out of range",
+        ),
+        (
+            "(1)[0] = 2;",
+            "Line 1: Can only assign to a variable, an element or a field, got '='",
+        ),
+    ];
+    for (src, expected) in cases {
+        assert_eq!(error(src), expected, "for {src}");
+    }
 }

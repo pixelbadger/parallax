@@ -32,9 +32,12 @@ pub mod well_known {
     pub const MEDIAN: Sym = Sym(11);
     pub const HITS: Sym = Sym(12);
     pub const RATE: Sym = Sym(13);
-    pub(super) const NAMES: [&str; 14] = [
+    pub const LEN: Sym = Sym(14);
+    pub const ARRAY: Sym = Sym(15);
+    pub const PUSH: Sym = Sym(16);
+    pub(super) const NAMES: [&str; 17] = [
         "main", "Ensemble", "print", "seed", "min", "max", "abs", "n", "rejected", "total", "mean",
-        "median", "hits", "rate",
+        "median", "hits", "rate", "len", "array", "push",
     ];
     /// Fields of the `Ensemble` struct a multiverse produces, in order.
     pub const ENSEMBLE_FIELDS: [Sym; 9] = [N, REJECTED, TOTAL, MEAN, MIN, MAX, MEDIAN, HITS, RATE];
@@ -124,6 +127,10 @@ pub enum Expr {
     Call(Sym, Box<[Expr]>),
     StructInit(Sym, Box<[(Sym, Expr)]>),
     Member(Box<Expr>, Sym),
+    /// `[a, b, c]`
+    Array(Box<[Expr]>),
+    /// `array[index]`
+    Index(Box<Expr>, Box<Expr>),
     Observe(Box<Expr>),
     Fork(Block),
     If(Box<Expr>, Block, Option<Block>),
@@ -174,6 +181,8 @@ pub enum Stmt {
     Let(Binding),
     Pin(Binding),
     Assign(Sym, Expr),
+    /// `name[i].field[j] = expr;`: writes into part of a variable's value.
+    AssignPath(Sym, Box<[Place]>, Expr),
     Reset(Sym),
     TypeDef(Sym, Box<[Sym]>),
     Commit(Sym),
@@ -181,6 +190,13 @@ pub enum Stmt {
     Given(Expr),
     Func(Rc<FuncDef>),
     Expr(Expr),
+}
+
+/// One step of an assignment target below its variable.
+#[derive(Debug)]
+pub enum Place {
+    Index(Expr),
+    Field(Sym),
 }
 
 pub type Program = Box<[Stmt]>;

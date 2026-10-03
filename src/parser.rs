@@ -2,7 +2,7 @@
 
 use std::rc::Rc;
 
-use crate::ast::{Ann, Binding, Block, Expr, FuncDef, Interner, Op, Program, Stmt, Sym};
+use crate::ast::{Ann, Binding, Block, Expr, FuncDef, Interner, Op, Place, Program, Stmt, Sym};
 use crate::error::Error;
 use crate::lexer::{Tok, Token, lex};
 
@@ -219,10 +219,38 @@ impl<'src> Parser<'_, 'src> {
 
         // expr_stmt: block expressions need no ';', nor does a block's trailing expr
         let expr = self.expr()?;
+        if self.at(Tok::Eq) {
+            return self.assign_path(expr);
+        }
         if !self.eat(Tok::Semi) && !expr.is_block_expr() && !self.at(Tok::RBrace) {
             return Err(self.error("Expected ';'"));
         }
         Ok(Stmt::Expr(expr))
+    }
+
+    /// `name[i].field = expr;`, with the target already parsed as an expression.
+    fn assign_path(&mut self, target: Expr) -> PResult<Stmt> {
+        let mut path = Vec::new();
+        let mut node = target;
+        let name = loop {
+            node = match node {
+                Expr::Var(name) => break name,
+                Expr::Index(base, index) => {
+                    path.push(Place::Index(*index));
+                    *base
+                }
+                Expr::Member(base, field) => {
+                    path.push(Place::Field(field));
+                    *base
+                }
+                _ => return Err(self.error("Can only assign to a variable, an element or a field")),
+            };
+        };
+        path.reverse();
+        self.pos += 1; // `=`
+        let expr = self.expr()?;
+        self.expect(Tok::Semi)?;
+        Ok(Stmt::AssignPath(name, path.into(), expr))
     }
 
     fn expr(&mut self) -> PResult<Expr> {
@@ -247,10 +275,19 @@ impl<'src> Parser<'_, 'src> {
 
     fn postfix(&mut self) -> PResult<Expr> {
         let mut node = self.primary()?;
-        while self.eat(Tok::Dot) {
-            node = Expr::Member(Box::new(node), self.ident()?);
+        loop {
+            if self.eat(Tok::Dot) {
+                node = Expr::Member(Box::new(node), self.ident()?);
+            } else if self.at(Tok::LBracket) && !node.is_block_expr() {
+                // `if c { .. } [1, 2]` is two statements, not an index
+                self.pos += 1;
+                let index = self.nested(true, Self::expr)?;
+                self.expect(Tok::RBracket)?;
+                node = Expr::Index(Box::new(node), Box::new(index));
+            } else {
+                return Ok(node);
+            }
         }
-        Ok(node)
     }
 
     fn args(&mut self) -> PResult<Vec<Expr>> {
@@ -350,6 +387,21 @@ impl<'src> Parser<'_, 'src> {
                     return Ok(Expr::Call(name, self.args()?.into()));
                 }
                 Ok(Expr::Var(name))
+            }
+            Tok::LBracket => {
+                self.pos += 1;
+                let items = self.nested(true, |p| {
+                    let mut items = Vec::new();
+                    while !p.at(Tok::RBracket) {
+                        items.push(p.expr()?);
+                        if !p.at(Tok::RBracket) {
+                            p.expect(Tok::Comma)?;
+                        }
+                    }
+                    Ok(items)
+                })?;
+                self.expect(Tok::RBracket)?;
+                Ok(Expr::Array(items.into()))
             }
             Tok::LParen => {
                 self.pos += 1;
