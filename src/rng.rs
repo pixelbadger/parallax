@@ -30,9 +30,8 @@ pub struct Rng(Xoshiro256PlusPlus);
 impl Rng {
     pub fn new(seed: u64) -> Self {
         let mut bytes = [0u8; 32];
-        for (k, chunk) in bytes.chunks_exact_mut(8).enumerate() {
-            let word = mix(seed.wrapping_add((k as u64).wrapping_mul(GOLDEN)));
-            chunk.copy_from_slice(&word.to_le_bytes());
+        for (k, chunk) in bytes.as_chunks_mut::<8>().0.iter_mut().enumerate() {
+            *chunk = mix(seed.wrapping_add((k as u64).wrapping_mul(GOLDEN))).to_le_bytes();
         }
         Rng(Xoshiro256PlusPlus::from_seed(bytes))
     }
@@ -40,9 +39,12 @@ impl Rng {
     /// Seed for a fork's own stream: derived from the current state without
     /// advancing it, so forking never changes what this stream draws next.
     pub fn fork_seed(&self) -> u64 {
-        self.0.state().chunks_exact(8).fold(FORK_SALT, |h, word| {
-            mix(h ^ u64::from_le_bytes(word.try_into().expect("8-byte chunk")))
-        })
+        let state = self.0.state();
+        state
+            .as_chunks::<8>()
+            .0
+            .iter()
+            .fold(FORK_SALT, |h, &word| mix(h ^ u64::from_le_bytes(word)))
     }
 
     pub fn next_u64(&mut self) -> u64 {
