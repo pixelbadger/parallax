@@ -1,13 +1,13 @@
 --- Executing simulations/reactor.spl ---
 == Every shift ==
-always full   | meltdowns 340 of 400 | mean output 36 | median 0
-heat gauge    | meltdowns 65 of 400 | mean output 154 | median 180
-forecast      | meltdowns 125 of 400 | mean output 135 | median 186
-risk (20 fwd) | meltdowns 37 of 400 | mean output 157 | median 174
-timeline edit | meltdowns 64 of 400 | mean output 188 | median 228
+always full   | meltdowns 362 of 400 | mean output 23 | median 0
+heat gauge    | meltdowns 74 of 400 | mean output 148 | median 174
+forecast      | meltdowns 126 of 400 | mean output 133 | median 180
+risk (20 fwd) | meltdowns 43 of 400 | mean output 153 | median 168
+timeline edit | meltdowns 73 of 400 | mean output 184 | median 228
 == Given the coolant pump failed ==
-always full   | meltdowns 167 of 171 | mean output 6 | median 0
-heat gauge    | meltdowns 65 of 171 | mean output 103 | median 144
-forecast      | meltdowns 95 of 171 | mean output 78 | median 0
-risk (20 fwd) | meltdowns 35 of 171 | mean output 119 | median 138
-timeline edit | meltdowns 64 of 171 | mean output 129 | median 174
+always full   | meltdowns 165 of 167 | mean output 3 | median 0
+heat gauge    | meltdowns 74 of 167 | mean output 92 | median 132
+forecast      | meltdowns 100 of 167 | mean output 72 | median 0
+risk (20 fwd) | meltdowns 43 of 167 | mean output 111 | median 138
+timeline edit | meltdowns 73 of 167 | mean output 117 | median 168
