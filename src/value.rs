@@ -1,6 +1,6 @@
 //! Runtime values, scopes and timeline copying.
 //!
-//! Collapsed values (integers, strings, `none`) are immutable and shared
+//! Collapsed values (numbers, strings, `none`) are immutable and shared
 //! freely. Open values and futures are shared mutable cells ([`Lazy`]) that
 //! collapse in place, so every holder sees the same outcome. Forks and
 //! universes run in a copy of the scope chain made by [`Copier`], which copies
@@ -28,12 +28,17 @@ pub enum Builtin {
     Len,
     Array,
     Push,
+    Sqrt,
+    Float,
+    Int,
 }
 
 #[derive(Clone, Debug)]
 pub enum Value {
     None,
     Int(i64),
+    /// Always finite: an operation that would make `inf` or `NaN` fails.
+    Float(f64),
     /// A thin pointer, which keeps `Value` at 16 bytes.
     Str(Rc<String>),
     Lazy(Rc<Lazy>),
@@ -65,7 +70,43 @@ impl Value {
     }
 }
 
-/// An Open value or a future: collapses in place to an integer.
+/// A collapsed number, as a lazy cell holds it once observed.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Num {
+    Int(i64),
+    Float(f64),
+}
+
+impl From<Num> for Value {
+    fn from(n: Num) -> Value {
+        match n {
+            Num::Int(n) => Value::Int(n),
+            Num::Float(x) => Value::Float(x),
+        }
+    }
+}
+
+impl Num {
+    pub fn as_f64(self) -> f64 {
+        match self {
+            Num::Int(n) => n as f64,
+            Num::Float(x) => x,
+        }
+    }
+}
+
+impl std::fmt::Display for Num {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Num::Int(n) => write!(f, "{n}"),
+            // Debug keeps the `.0` of a whole number and is the shortest
+            // form that reads back exactly, the same on every platform.
+            Num::Float(x) => write!(f, "{x:?}"),
+        }
+    }
+}
+
+/// An Open value or a future: collapses in place to a number.
 #[derive(Debug)]
 pub struct Lazy {
     pub state: RefCell<LazyState>,
@@ -77,7 +118,7 @@ pub enum LazyState {
     Open(Option<(Value, Value)>),
     /// A deferred operator; `Abs` ignores its second operand
     Future(Op, Value, Value),
-    Done(i64),
+    Done(Num),
 }
 
 impl Lazy {
@@ -91,7 +132,7 @@ impl Lazy {
         matches!(*self.state.borrow(), LazyState::Done(_))
     }
 
-    pub fn done(&self) -> Option<i64> {
+    pub fn done(&self) -> Option<Num> {
         match *self.state.borrow() {
             LazyState::Done(n) => Some(n),
             _ => None,
@@ -104,7 +145,7 @@ impl Drop for Lazy {
     // `x = x + open`); drop them iteratively rather than recursively.
     fn drop(&mut self) {
         fn take_children(state: &mut LazyState, out: &mut Vec<Value>) {
-            match std::mem::replace(state, LazyState::Done(0)) {
+            match std::mem::replace(state, LazyState::Done(Num::Int(0))) {
                 LazyState::Open(Some((a, b))) | LazyState::Future(_, a, b) => {
                     out.push(a);
                     out.push(b);
@@ -494,7 +535,9 @@ impl Copier {
 
     pub fn value(&mut self, v: &Value) -> Value {
         match v {
-            Value::None | Value::Int(_) | Value::Str(_) | Value::Builtin(_) => v.clone(),
+            Value::None | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Builtin(_) => {
+                v.clone()
+            }
             Value::Lazy(l) => {
                 if l.is_done() {
                     return v.clone();
@@ -502,7 +545,7 @@ impl Copier {
                 if let Some(copy) = self.lazies.get(&Rc::as_ptr(l)) {
                     return Value::Lazy(copy.clone());
                 }
-                let copy = Lazy::new(LazyState::Done(0));
+                let copy = Lazy::new(LazyState::Done(Num::Int(0)));
                 self.lazies.insert(Rc::as_ptr(l), copy.clone());
                 self.unfilled.push((l.clone(), copy.clone()));
                 Value::Lazy(copy)

@@ -26,7 +26,7 @@ It treats execution as observation (`observe`) and supports timeline management 
 
 `multiverse n { block }` evaluates `block` once per universe, each in an isolated copy of the current scope, observes the result, and returns:
 
-* for integer results, an `Ensemble { n, rejected, total, mean, min, max, median, hits, rate }`. `hits` counts non-zero results and `rate` is `hits` as a whole percentage, so a boolean condition gives a probability. `mean` is rounded; fields are `none` if every universe was rejected.
+* for number results, an `Ensemble { n, rejected, total, mean, min, max, median, hits, rate }`. `hits` counts non-zero results and `rate` is `hits` as a whole percentage, so a boolean condition gives a probability. For integers `mean` is rounded; if any universe produced a float, `total`, `mean`, `min`, `max` and `median` are floats and `mean` is exact. Fields are `none` if every universe was rejected.
 * for struct results, a struct of the same type whose every field is an `Ensemble`.
 
 Universe `i` is seeded from (current seed, `i`), so **two multiverses of the same size see the same random draws**: comparing policies in them is a fair, low-noise comparison (common random numbers). A multiverse also leaves the outer random stream exactly where it was.
@@ -42,7 +42,15 @@ Full studies live in [`simulations/`](simulations):
 * [`circumbinary.spl`](simulations/circumbinary.spl): a three-body problem. A habitat orbits a binary star from an uncertain launch. How often is it flung out or burnt up, and can mission control save it by forecasting thruster burns in forks, or by living three futures and committing the best?
 * [`island.spl`](simulations/island.spl): a spatial predator–prey ecology on a grid of patches, with seasons, droughts, disease and migration. A ranger's policies are compared on one surveyed island, held fixed with `pin` across universes and a re-seed. The final populations aggregate into a per-patch heat map.
 
-Values are 64-bit signed integers (and string literals for labels); `/` is integer division, rounding down. Arithmetic that overflows is an error.
+## Numbers
+
+Numbers are 64-bit signed integers or 64-bit floats (and string literals serve as labels).
+
+* **Integers**: `/` is integer division, rounding down. Arithmetic that overflows is an error.
+* **Floats** are written with a decimal point: `1.5`, `3.0` (no exponent form). If either operand is a float the result is one, so `7 / 2` is `3` but `7.0 / 2` is `3.5`. Comparisons work across the two: `1 == 1.0`. A float that would overflow is an error, as is division by zero, so a float is never `inf` or `NaN`. They print in the shortest form that reads back exactly, always with a `.0` or a fraction: `3.0`, `0.30000000000000004`.
+* `open(lo, hi)` with a float bound draws a uniform float in `lo..hi`. Integer bounds still draw integers, with the same draws as before.
+* **Determinism holds for floats too**: `+ - * /`, `sqrt` and comparisons are exactly specified by IEEE 754, so a seed gives the same floats on every platform. That is why there is no `sin` or `exp`: platform maths libraries disagree in the last bit.
+* Indices, `repeat` counts and `multiverse` counts must be integers: use `int(x)`.
 
 ## Arrays
 
@@ -80,6 +88,7 @@ Execution runs every top-level statement in order, then calls `main()` if it is 
 | `print(a, b, ...)` | Observes (collapses) each argument and prints it. |
 | `seed(n)` | Re-seeds the RNG with integer `n`. Pinned values are not affected. |
 | `min(a, b)`, `max(a, b)`, `abs(a)` | Like operators, these stay unobserved futures if an argument is. |
+| `sqrt(x)`, `float(x)`, `int(x)` | Square root (always a float; an error if `x` is negative), conversion to a float, and to an integer rounding down. Also futures if `x` is. |
 | `len(a)` | Number of elements in array `a`. |
 | `array(n, v)` | An array of `n` copies of `v`. |
 | `push(a, v)` | A new array: `a` with `v` appended (`a` is unchanged; this copies `a`). |
@@ -94,6 +103,7 @@ letter      = 'a'..'z' | 'A'..'Z' | '_' ;
 digit       = '0'..'9' ;
 identifier  = letter , { letter | digit } ;  (* except keywords *)
 integer     = digit , { digit } ;
+float       = digit , { digit } , '.' , digit , { digit } ;
 string      = '"' , { ? any character except '"' and newline ? } , '"' ;
 keyword     = 'fn' | 'let' | 'pin' | 'reset' | 'type' | 'commit' | 'discard'
             | 'fork' | 'observe' | 'open' | 'if' | 'else'
@@ -143,8 +153,9 @@ postfix     = primary , { '.' , identifier | '[' , expr , ']' } ;  (* member, el
 (* '[' directly after a block_expr starts a new statement, not an index. *)
 
 primary     = integer
+            | float
             | string                     (* only for print and '==' *)
-            | 'open' , [ '(' , expr , ',' , expr , ')' ]   (* 0..99, or lo..hi inclusive *)
+            | 'open' , [ '(' , expr , ',' , expr , ')' ]   (* 0..99, or lo..hi inclusive; float if a bound is *)
             | identifier , '(' , [ arg_list ] , ')'      (* call *)
             | identifier , '{' , [ field_inits ] , '}'   (* struct init *)
             | identifier                                 (* variable *)

@@ -35,6 +35,43 @@ fn arithmetic_and_precedence() {
 }
 
 #[test]
+fn floats() {
+    // A float operand makes the result a float; two integers stay integers
+    assert_eq!(
+        run("print(1.5 + 1, 7 / 2, 7.0 / 2, 0.1 + 0.2, 3.0, 1 == 1.0, 0.5 < 1);"),
+        "2.5 3 3.5 0.30000000000000004 3.0 1 1\n"
+    );
+    assert_eq!(
+        run("print(sqrt(2), float(3), int(2.7), int(0.0 - 2.5), abs(0.0 - 1.5), min(1, 2.5));"),
+        "1.4142135623730951 3.0 2 -3 1.5 1.0\n"
+    );
+    // `a[1].b` is still a member access, not the float `1.b`
+    assert_eq!(
+        run("type P = { b }; let a = [P { b: 4 }, P { b: 5 }]; print(a[1].b, 0.0 && 1);"),
+        "5 0\n"
+    );
+    // Built-ins on unobserved values stay futures, like `abs`
+    assert_eq!(
+        run("let s = sqrt(open(16, 16)); let f = fork { s }; print(f, s);"),
+        "4.0 4.0\n"
+    );
+}
+
+#[test]
+fn ranged_open_draws_floats_when_a_bound_is_one() {
+    let src = "let ok = 1; repeat 500 { let d = observe open(0.5, 1); ok = ok && d > 0.49 && d < 1.01 && d * 4 == int(d * 4) == 0; } print(ok, open(2.5, 2.5));";
+    assert_eq!(run(src), "1 2.5\n");
+}
+
+#[test]
+fn multiverse_aggregates_floats() {
+    let src = "let r = multiverse 4 { if (open < 50) { 1 } else { 0.5 } }; print(r.mean > 0.49 && r.mean < 1.01, r.min, r.max, r.hits);";
+    assert_eq!(run(src), "1 0.5 1.0 4\n");
+    // Integer universes still aggregate to integers
+    assert_eq!(run("print(multiverse 3 { 2 }.mean);"), "2\n");
+}
+
+#[test]
 fn observing_a_future_collapses_its_sources() {
     let out =
         run("let c = open; let d = c * 2; let seen = observe d; print(seen == c * 2, c < 100);");
@@ -294,7 +331,7 @@ fn long_future_chains_do_not_overflow() {
 fn runtime_errors() {
     let cases = [
         ("print(1 / 0);", "Division by zero"),
-        ("print(\"a\" + 1);", "'+' needs integers, got 'a', 1"),
+        ("print(\"a\" + 1);", "'+' needs numbers, got 'a', 1"),
         ("print(open(5, 1));", "open(5, 1): empty range"),
         ("type T = { a, a };", "Duplicate field in type 'T'"),
         (
@@ -314,10 +351,22 @@ fn runtime_errors() {
         ("let p = 1; print(p.x);", "Cannot access 'x' on <1>"),
         (
             "let q = multiverse 3 { \"s\" };",
-            "A universe must produce an integer, a struct or an array, got s",
+            "A universe must produce a number, a struct or an array, got s",
         ),
         ("fn f(n) = { f(n + 1) } f(0);", "Recursion too deep"),
         ("print(9223372036854775807 + 1);", "Integer overflow in '+'"),
+        ("print(1.5 / 0);", "Division by zero"),
+        (
+            "let b = 1.0; repeat 400 { b = b * 10; }",
+            "Float overflow in '*'",
+        ),
+        ("print(sqrt(0 - 1));", "sqrt() of a negative number: -1"),
+        (
+            "print(int(1.0 * 9223372036854775807 * 2));",
+            "int() out of range: 1.8446744073709552e19",
+        ),
+        ("print([1][0.0]);", "array index needs an integer, got 0.0"),
+        ("print(open(2.0, 1.0));", "open(2.0, 1.0): empty range"),
     ];
     for (src, expected) in cases {
         assert_eq!(error(src), expected, "for {src}");
@@ -432,7 +481,7 @@ fn array_errors() {
             "'P' has no field 'y'",
         ),
         ("print(len(3));", "len() needs an array, got <3>"),
-        ("print([1] + 1);", "'+' needs integers, got [1], 1"),
+        ("print([1] + 1);", "'+' needs numbers, got [1], 1"),
         ("q[0] = 1;", "Cannot assign to undefined variable 'q'"),
         (
             "let a = array(0 - 1, 0);",

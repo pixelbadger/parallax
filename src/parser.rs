@@ -324,6 +324,14 @@ impl<'src> Parser<'_, 'src> {
         };
         let text = self.tokens[self.pos].text;
         match t {
+            Tok::Number if text.contains('.') => {
+                let x: f64 = text.parse().expect("lexed as a float");
+                if !x.is_finite() {
+                    return Err(self.error("Float literal too large"));
+                }
+                self.pos += 1;
+                Ok(Expr::Float(x))
+            }
             Tok::Number => {
                 let n = text
                     .parse()
