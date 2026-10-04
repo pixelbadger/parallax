@@ -1,14 +1,17 @@
-//! Tree-walking evaluator.
+//! The runtime: the state a program runs against, and the operations its
+//! compiled code (see [`compile`](crate::compile)) calls into.
 
 use rustc_hash::FxHashMap as HashMap;
+use std::any::Any;
 use std::fmt::Write as _;
 use std::io::Write;
+use std::marker::PhantomData;
 use std::rc::Rc;
 
-use crate::ast::{
-    Ann, Block, Expr, FuncDef, Interner, Op, Place, Program, Stmt, Sym, well_known as wk,
-};
+use crate::ast::{Ann, Interner, Loc, Op, Ref, Sym, well_known as wk};
+use crate::compile::{Code, Func, Program};
 use crate::error::Error;
+use crate::resolve::Globals;
 use crate::rng::{Rng, universe_seed};
 use crate::stats::{Sample, aggregate};
 use crate::value::{Branch, Builtin, Callee, Copier, Lazy, LazyState, Scope, Slot, Struct, Value};
@@ -19,40 +22,144 @@ pub const STACK_SIZE: usize = 512 << 20;
 
 /// Stack kept in reserve below the recursion limit, for the evaluation
 /// between one call and the next (bounded by the parser's nesting limit).
+const STACK_MARGIN: usize = 32 << 20;
+
 /// Longest array `array(n, v)` will make.
 const MAX_ARRAY_LEN: usize = 1 << 28;
 
-const STACK_MARGIN: usize = 32 << 20;
-
 /// Why evaluation stopped early.
 #[derive(Debug)]
-enum Unwind {
+pub enum Unwind {
     /// A failed `given`: throw away the current universe.
     Rejected,
-    Error(Error),
+    /// Boxed to keep `R<Value>` small: every evaluation returns one.
+    Error(Box<Error>),
 }
 
 impl From<Error> for Unwind {
     fn from(e: Error) -> Self {
-        Unwind::Error(e)
+        Unwind::Error(Box::new(e))
     }
 }
 
 impl From<std::io::Error> for Unwind {
     fn from(e: std::io::Error) -> Self {
-        Unwind::Error(e.into())
+        Unwind::Error(Box::new(e.into()))
     }
 }
 
-type R<T> = Result<T, Unwind>;
+pub type R<T> = Result<T, Unwind>;
 
-fn fail<T>(msg: impl Into<String>) -> R<T> {
-    Err(Unwind::Error(Error::runtime(msg)))
+// Small enough to return in registers
+const _: () = assert!(std::mem::size_of::<R<Value>>() == 16);
+
+pub fn fail<T>(msg: impl Into<String>) -> R<T> {
+    Err(Error::runtime(msg).into())
 }
 
-pub struct Interpreter<W: Write> {
-    out: W,
+/// Where `print` writes. The runtime isn't generic over the writer, so
+/// that the compiled code isn't either.
+trait Output: Write {
+    fn as_any(&mut self) -> &mut dyn Any;
+    fn into_any(self: Box<Self>) -> Box<dyn Any>;
+}
+
+impl<W: Write + 'static> Output for W {
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
+    }
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
+    }
+}
+
+pub struct Interpreter<W: Write + 'static> {
+    m: Machine,
+    out: PhantomData<fn() -> W>,
+}
+
+impl<W: Write + 'static> Interpreter<W> {
+    pub fn new(seed: u64, out: W) -> Self {
+        let global = Scope::new(None);
+        let mut globals = Globals::default();
+        for (name, b) in [
+            (wk::PRINT, Builtin::Print),
+            (wk::SEED, Builtin::Seed),
+            (wk::MIN, Builtin::Min),
+            (wk::MAX, Builtin::Max),
+            (wk::ABS, Builtin::Abs),
+            (wk::LEN, Builtin::Len),
+            (wk::ARRAY, Builtin::Array),
+            (wk::PUSH, Builtin::Push),
+        ] {
+            global.set(globals.slot(name), Value::Builtin(b));
+        }
+        let m = Machine {
+            out: Box::new(out),
+            names: Interner::default(),
+            globals,
+            rng: Rng::new(seed),
+            seed,
+            pins: HashMap::default(),
+            types: HashMap::from_iter([(wk::ENSEMBLE, Rc::from(wk::ENSEMBLE_FIELDS))]),
+            global,
+            universe_depth: 0,
+            stack_base: 0,
+            stack_budget: STACK_SIZE - STACK_MARGIN,
+            force_stack: Vec::new(),
+        };
+        Interpreter {
+            m,
+            out: PhantomData,
+        }
+    }
+
+    pub fn seed(&self) -> u64 {
+        self.m.seed
+    }
+
+    pub fn out(&mut self) -> &mut W {
+        (*self.m.out)
+            .as_any()
+            .downcast_mut()
+            .expect("output is a W")
+    }
+
+    pub fn into_output(self) -> W {
+        *Output::into_any(self.m.out)
+            .downcast()
+            .expect("output is a W")
+    }
+
+    pub fn parse(&mut self, src: &str) -> Result<Program, Error> {
+        let mut program = crate::parser::parse(src, &mut self.m.names)?;
+        crate::resolve::resolve(&mut program, &mut self.m.globals);
+        Ok(crate::compile::program(program))
+    }
+
+    /// Runs every top-level statement in order, then `main()` if defined.
+    ///
+    /// Deep SPL recursion fails with "Recursion too deep" once it has used
+    /// most of [`STACK_SIZE`], so call this on a thread with that much stack
+    /// (as [`run_source`](crate::run_source) does).
+    pub fn run(&mut self, program: &Program) -> Result<(), Error> {
+        let marker = 0u8;
+        self.m.stack_base = std::ptr::addr_of!(marker) as usize;
+        let result = self.m.run(program);
+        self.m.out.flush()?;
+        match result {
+            Ok(()) => Ok(()),
+            Err(Unwind::Error(e)) => Err(*e),
+            Err(Unwind::Rejected) => Err(Error::runtime("'given' rejected outside a multiverse")),
+        }
+    }
+}
+
+/// The interpreter's state while a program runs.
+pub struct Machine {
+    out: Box<dyn Output>,
     names: Interner,
+    globals: Globals,
     rng: Rng,
     seed: u64,
     /// Pinned values live as long as the interpreter, surviving re-seeds,
@@ -68,208 +175,81 @@ pub struct Interpreter<W: Write> {
     force_stack: Vec<Rc<Lazy>>,
 }
 
-impl<W: Write> Interpreter<W> {
-    pub fn new(seed: u64, out: W) -> Self {
-        let global = Scope::new(None);
-        for (name, b) in [
-            (wk::PRINT, Builtin::Print),
-            (wk::SEED, Builtin::Seed),
-            (wk::MIN, Builtin::Min),
-            (wk::MAX, Builtin::Max),
-            (wk::ABS, Builtin::Abs),
-            (wk::LEN, Builtin::Len),
-            (wk::ARRAY, Builtin::Array),
-            (wk::PUSH, Builtin::Push),
-        ] {
-            global.set(name, Value::Builtin(b));
-        }
-        Interpreter {
-            out,
-            names: Interner::default(),
-            rng: Rng::new(seed),
-            seed,
-            pins: HashMap::default(),
-            types: HashMap::from_iter([(wk::ENSEMBLE, Rc::from(wk::ENSEMBLE_FIELDS))]),
-            global,
-            universe_depth: 0,
-            stack_base: 0,
-            stack_budget: STACK_SIZE - STACK_MARGIN,
-            force_stack: Vec::new(),
-        }
-    }
-
-    pub fn seed(&self) -> u64 {
-        self.seed
-    }
-
-    pub fn out(&mut self) -> &mut W {
-        &mut self.out
-    }
-
-    pub fn into_output(self) -> W {
-        self.out
-    }
-
-    pub fn parse(&mut self, src: &str) -> Result<Program, Error> {
-        crate::parser::parse(src, &mut self.names)
-    }
-
-    /// Runs every top-level statement in order, then `main()` if defined.
-    ///
-    /// Deep SPL recursion fails with "Recursion too deep" once it has used
-    /// most of [`STACK_SIZE`], so call this on a thread with that much stack
-    /// (as [`run_source`](crate::run_source) does).
-    pub fn run(&mut self, program: &Program) -> Result<(), Error> {
-        let marker = 0u8;
-        self.stack_base = std::ptr::addr_of!(marker) as usize;
-        let result = self.run_inner(program);
-        self.out.flush()?;
-        match result {
-            Ok(()) => Ok(()),
-            Err(Unwind::Error(e)) => Err(e),
-            Err(Unwind::Rejected) => Err(Error::runtime("'given' rejected outside a multiverse")),
-        }
-    }
-
-    fn run_inner(&mut self, program: &Program) -> R<()> {
+impl Machine {
+    fn run(&mut self, program: &Program) -> R<()> {
         let global = self.global.clone();
-        for stmt in program.iter() {
-            self.exec(stmt, &global)?;
-        }
-        let has_main = global.vars.borrow().iter().any(|v| {
-            v.name == wk::MAIN && matches!(v.slot, Slot::Fn(_) | Slot::Value(Value::Closure(_)))
-        });
-        if has_main {
-            self.call(wk::MAIN, &[], &global)?;
+        global.grow(self.globals.len());
+        program.run(self, &global)?;
+        let Some(slot) = self.globals.get(wk::MAIN) else {
+            return Ok(());
+        };
+        let callee = {
+            let vars = global.vars.borrow();
+            match &vars[slot as usize].slot {
+                Slot::Fn(f) => Some((f.clone(), global.clone())),
+                Slot::Value(Value::Closure(c)) => Some((c.def.clone(), c.env.clone())),
+                _ => None,
+            }
+        };
+        if let Some((f, env)) = callee {
+            let scope = self.enter(wk::MAIN, &f, env, 0)?;
+            (f.body)(self, &scope)?;
         }
         Ok(())
     }
 
-    fn name(&self, sym: Sym) -> &str {
+    pub fn name(&self, sym: Sym) -> &str {
         self.names.name(sym)
     }
 
-    // --- Statements ---
+    // --- Variables ---
 
-    fn exec_block(&mut self, block: &Block, env: &Rc<Scope>) -> R<Value> {
-        // A block evaluates to its last statement if that is an expression
-        let mut result = Value::None;
-        for stmt in block.stmts.iter() {
-            result = match stmt {
-                Stmt::Expr(e) => self.eval(e, env)?,
-                _ => {
-                    self.exec(stmt, env)?;
-                    Value::None
-                }
-            };
+    /// The scope and slot holding `var` as seen from `env`.
+    #[inline]
+    pub fn find<'s>(&self, env: &'s Rc<Scope>, var: &Ref) -> Option<(&'s Rc<Scope>, u32)> {
+        if let [Loc { up: 0, slot }] = *var.locs
+            && env.is_bound(slot)
+        {
+            return Some((env, slot));
         }
-        Ok(result)
+        self.find_slow(env, var)
     }
 
-    /// Runs a block in a scope of its own, if it declares anything.
-    fn exec_nested(&mut self, block: &Block, env: &Rc<Scope>) -> R<Value> {
-        if block.binds == 0 {
-            return self.exec_block(block, env);
-        }
-        let scope = Scope::with_capacity(Some(env.clone()), block.binds);
-        self.exec_block(block, &scope)
+    fn find_slow<'s>(&self, env: &'s Rc<Scope>, var: &Ref) -> Option<(&'s Rc<Scope>, u32)> {
+        env.find(&var.locs).or_else(|| self.find_late(env, var))
     }
 
-    fn exec(&mut self, stmt: &Stmt, env: &Rc<Scope>) -> R<()> {
-        match stmt {
-            Stmt::Expr(e) => {
-                self.eval(e, env)?;
-            }
-            Stmt::Let(b) => {
-                let v = self.eval(&b.expr, env)?;
-                self.validate(b.name, &v, &b.ann)?;
-                env.set(b.name, v);
-            }
-            Stmt::Assign(name, expr) => {
-                let v = self.eval(expr, env)?;
-                if !env.assign(*name, v) {
-                    return fail(format!(
-                        "Cannot assign to undefined variable '{}'",
-                        self.name(*name)
-                    ));
-                }
-            }
-            Stmt::AssignPath(name, path, expr) => {
-                // The value first, then the indices left to right
-                let v = self.eval(expr, env)?;
-                let mut steps = Vec::with_capacity(path.len());
-                for place in path.iter() {
-                    steps.push(match place {
-                        Place::Index(e) => {
-                            let i = self.eval(e, env)?;
-                            Step::Index(self.int_of(&i, "array index")?)
-                        }
-                        Place::Field(f) => Step::Field(*f),
-                    });
-                }
-                // Taking the value out leaves it uniquely owned, so the
-                // write happens in place unless someone else shares it.
-                let Some(mut target) = env.take(*name) else {
-                    return fail(format!(
-                        "Cannot assign to undefined variable '{}'",
-                        self.name(*name)
-                    ));
-                };
-                let result = self.write_path(&mut target, &steps, v);
-                env.assign(*name, target);
-                result?;
-            }
-            Stmt::Pin(b) => {
-                if let Some(saved) = self.pins.get(&b.name).cloned() {
-                    writeln!(
-                        self.out,
-                        "[SYS] Pinned '{}' retrieved.",
-                        self.names.name(b.name)
-                    )?;
-                    env.set(b.name, saved);
-                    return Ok(());
-                }
-                let v = self.eval(&b.expr, env)?;
-                let v = self.collapse(&v)?;
-                self.validate(b.name, &v, &b.ann)?;
-                self.pins.insert(b.name, v.clone());
-                env.set(b.name, v);
-            }
-            Stmt::Reset(name) => {
-                self.pins.remove(name);
-            }
-            Stmt::TypeDef(name, fields) => {
-                if fields
-                    .iter()
-                    .enumerate()
-                    .any(|(i, f)| fields[..i].contains(f))
-                {
-                    return fail(format!("Duplicate field in type '{}'", self.name(*name)));
-                }
-                self.types.insert(*name, fields.iter().copied().collect());
-            }
-            Stmt::Func(def) => env.set_slot(def.name, Slot::Fn(def.clone())),
-            Stmt::Commit(name) => {
-                let branch = self.settle(*name, env, "commit")?;
-                Scope::merge_chain(&branch.origin, &branch.env);
-            }
-            Stmt::Discard(name) => {
-                self.settle(*name, env, "discard")?;
-            }
-            Stmt::Given(cond) => {
-                let v = self.eval(cond, env)?;
-                if !self.truthy(&v)? {
-                    if self.universe_depth == 0 {
-                        return fail("'given' condition failed outside a multiverse");
-                    }
-                    return Err(Unwind::Rejected);
-                }
-            }
-        }
-        Ok(())
+    /// A global bound after `var` was resolved, by a later program.
+    #[cold]
+    fn find_late<'s>(&self, env: &'s Rc<Scope>, var: &Ref) -> Option<(&'s Rc<Scope>, u32)> {
+        let slot = self.globals.get(var.name)?;
+        env.find(&[Loc {
+            up: var.depth,
+            slot,
+        }])
     }
 
-    fn validate(&mut self, name: Sym, v: &Value, ann: &Ann) -> R<()> {
+    pub fn lookup(&self, env: &Rc<Scope>, var: &Ref) -> R<Value> {
+        match self.find(env, var) {
+            Some((scope, slot)) => Ok(scope.get(slot)),
+            None => self.undefined(var.name),
+        }
+    }
+
+    #[cold]
+    pub fn undefined<T>(&self, name: Sym) -> R<T> {
+        fail(format!("Undefined variable '{}'", self.name(name)))
+    }
+
+    #[cold]
+    pub fn unassignable<T>(&self, name: Sym) -> R<T> {
+        fail(format!(
+            "Cannot assign to undefined variable '{}'",
+            self.name(name)
+        ))
+    }
+
+    pub fn validate(&mut self, name: Sym, v: &Value, ann: &Ann) -> R<()> {
         let state = state_name(v);
         let (expected, ann) = match ann {
             Ann::Any => return Ok(()),
@@ -286,120 +266,70 @@ impl<W: Write> Interpreter<W> {
         Ok(())
     }
 
-    fn lookup(&self, env: &Rc<Scope>, name: Sym) -> R<Value> {
-        match env.lookup(name) {
-            Some(v) => Ok(v),
-            None => fail(format!("Undefined variable '{}'", self.name(name))),
+    pub fn pin(&mut self, name: Sym, slot: u32, value: &Code, ann: &Ann, env: &Rc<Scope>) -> R<()> {
+        if let Some(saved) = self.pins.get(&name).cloned() {
+            writeln!(
+                self.out,
+                "[SYS] Pinned '{}' retrieved.",
+                self.names.name(name)
+            )?;
+            env.set(slot, saved);
+            return Ok(());
         }
+        let v = value(self, env)?;
+        let v = self.collapse(&v)?;
+        self.validate(name, &v, ann)?;
+        self.pins.insert(name, v.clone());
+        env.set(slot, v);
+        Ok(())
     }
 
-    fn settle(&mut self, name: Sym, env: &Rc<Scope>, action: &str) -> R<Rc<Branch>> {
-        let Value::Branch(branch) = self.lookup(env, name)? else {
-            return fail(format!("Cannot {action} '{}': not a fork", self.name(name)));
+    pub fn reset(&mut self, name: Sym) {
+        self.pins.remove(&name);
+    }
+
+    pub fn define_type(&mut self, name: Sym, fields: &[Sym]) -> R<()> {
+        if fields
+            .iter()
+            .enumerate()
+            .any(|(i, f)| fields[..i].contains(f))
+        {
+            return fail(format!("Duplicate field in type '{}'", self.name(name)));
+        }
+        self.types.insert(name, fields.into());
+        Ok(())
+    }
+
+    pub fn settle(&self, var: &Ref, env: &Rc<Scope>, action: &str) -> R<Rc<Branch>> {
+        let Value::Branch(branch) = self.lookup(env, var)? else {
+            return fail(format!(
+                "Cannot {action} '{}': not a fork",
+                self.name(var.name)
+            ));
         };
         if branch.settled.replace(true) {
             return fail(format!(
                 "Cannot {action} '{}': fork already settled",
-                self.name(name)
+                self.name(var.name)
             ));
         }
         Ok(branch)
     }
 
-    // --- Expressions ---
-
-    fn eval(&mut self, expr: &Expr, env: &Rc<Scope>) -> R<Value> {
-        Ok(match expr {
-            Expr::Int(n) => Value::Int(*n),
-            Expr::Str(s) => Value::Str(s.clone()),
-            Expr::Var(name) => self.lookup(env, *name)?,
-            Expr::Open(None) => Value::Lazy(Lazy::new(LazyState::Open(None))),
-            Expr::Open(Some(bounds)) => {
-                let lo = self.eval(&bounds.0, env)?;
-                let hi = self.eval(&bounds.1, env)?;
-                Value::Lazy(Lazy::new(LazyState::Open(Some((lo, hi)))))
-            }
-            Expr::Binary(op, l, r) => {
-                let a = self.eval(l, env)?;
-                let b = self.eval(r, env)?;
-                match (&a, &b) {
-                    // Fast path: both already collapsed integers
-                    (Value::Int(_), Value::Int(_)) => Value::Int(self.apply(*op, &a, &b)?),
-                    _ => self.lazy(*op, &a, &b)?,
-                }
-            }
-            Expr::Call(name, args) => self.call(*name, args, env)?,
-            Expr::StructInit(name, fields) => self.struct_init(*name, fields, env)?,
-            Expr::Array(items) => {
-                let mut values = Vec::with_capacity(items.len());
-                for item in items.iter() {
-                    values.push(self.eval(item, env)?);
-                }
-                Value::Array(Rc::new(values))
-            }
-            Expr::Index(base, index) => {
-                let base = self.eval(base, env)?;
-                let index = self.eval(index, env)?;
-                let i = self.int_of(&index, "array index")?;
-                match base.resolved() {
-                    Value::Array(items) => element(items, i)?.clone(),
-                    _ => return fail(format!("Cannot index {}", self.repr(&base))),
-                }
-            }
-            Expr::Member(obj, member) => {
-                let obj = self.eval(obj, env)?;
-                if let Value::Struct(s) = obj.resolved()
-                    && let Some(field) = s.get(*member)
-                {
-                    field.clone()
-                } else {
-                    return fail(format!(
-                        "Cannot access '{}' on {}",
-                        self.name(*member),
-                        self.repr(&obj)
-                    ));
-                }
-            }
-            Expr::Observe(inner) => {
-                let v = self.eval(inner, env)?;
-                self.collapse(&v)?
-            }
-            Expr::Fork(block) => self.fork(block, env)?,
-            Expr::If(cond, then_b, else_b) => {
-                let c = self.eval(cond, env)?;
-                if self.truthy(&c)? {
-                    self.exec_nested(then_b, env)?
-                } else if let Some(else_b) = else_b {
-                    self.exec_nested(else_b, env)?
-                } else {
-                    Value::None
-                }
-            }
-            Expr::Repeat(count, block) => {
-                let n = self.eval(count, env)?;
-                let n = self.int_of(&n, "repeat count")?;
-                let mut result = Value::None;
-                for _ in 0..n {
-                    result = self.exec_nested(block, env)?;
-                }
-                result
-            }
-            Expr::While(cond, block) => {
-                let mut result = Value::None;
-                loop {
-                    let c = self.eval(cond, env)?;
-                    if !self.truthy(&c)? {
-                        break result;
-                    }
-                    result = self.exec_nested(block, env)?;
-                }
-            }
-            Expr::Multiverse(count, block) => self.multiverse(count, block, env)?,
-        })
+    pub fn given(&self, holds: bool) -> R<()> {
+        if holds {
+            Ok(())
+        } else if self.universe_depth == 0 {
+            fail("'given' condition failed outside a multiverse")
+        } else {
+            Err(Unwind::Rejected)
+        }
     }
 
+    // --- Operators ---
+
     /// Applies `op` now if every operand is collapsed, else returns a future.
-    fn lazy(&mut self, op: Op, a: &Value, b: &Value) -> R<Value> {
+    pub fn lazy(&self, op: Op, a: &Value, b: &Value) -> R<Value> {
         let (a, b) = (a.resolved(), b.resolved());
         for v in [a, b] {
             if matches!(v, Value::Closure(_) | Value::Builtin(_)) {
@@ -427,42 +357,22 @@ impl<W: Write> Interpreter<W> {
         {
             return Ok(i64::from(x == y));
         }
-        let (x, y) = match (int(a), int(b)) {
-            (Some(x), _) if op == Op::Abs => (x, 0),
-            (Some(x), Some(y)) => (x, y),
+        match (int(a), int(b)) {
+            (Some(x), _) if op == Op::Abs => apply_int(op, x, 0),
+            (Some(x), Some(y)) => apply_int(op, x, y),
             _ => {
                 let got = if op == Op::Abs {
                     self.py_repr(a)
                 } else {
                     format!("{}, {}", self.py_repr(a), self.py_repr(b))
                 };
-                return fail(format!("'{op}' needs integers, got {got}"));
+                fail(format!("'{op}' needs integers, got {got}"))
             }
-        };
-        let overflow = || Unwind::Error(Error::runtime(format!("Integer overflow in '{op}'")));
-        Ok(match op {
-            Op::Add => x.checked_add(y).ok_or_else(overflow)?,
-            Op::Sub => x.checked_sub(y).ok_or_else(overflow)?,
-            Op::Mul => x.checked_mul(y).ok_or_else(overflow)?,
-            Op::Div => {
-                if y == 0 {
-                    return fail("Division by zero");
-                }
-                floor_div(x, y).ok_or_else(overflow)?
-            }
-            Op::Gt => i64::from(x > y),
-            Op::Lt => i64::from(x < y),
-            Op::Eq => i64::from(x == y),
-            Op::And => i64::from(x != 0 && y != 0),
-            Op::Or => i64::from(x != 0 || y != 0),
-            Op::Min => x.min(y),
-            Op::Max => x.max(y),
-            Op::Abs => x.checked_abs().ok_or_else(overflow)?,
-        })
+        }
     }
 
     /// Observes a value: collapses it (and everything it depends on) in place.
-    fn collapse(&mut self, v: &Value) -> R<Value> {
+    pub fn collapse(&mut self, v: &Value) -> R<Value> {
         Ok(match v.resolved() {
             Value::Lazy(l) => Value::Int(self.force(l)?),
             Value::Closure(_) | Value::Builtin(_) => return fail("Cannot observe a function"),
@@ -470,7 +380,15 @@ impl<W: Write> Interpreter<W> {
         })
     }
 
-    fn truthy(&mut self, v: &Value) -> R<bool> {
+    #[inline]
+    pub fn truthy(&mut self, v: &Value) -> R<bool> {
+        match v {
+            Value::Int(n) => Ok(*n != 0),
+            _ => self.truthy_slow(v),
+        }
+    }
+
+    fn truthy_slow(&mut self, v: &Value) -> R<bool> {
         Ok(match self.collapse(v)? {
             Value::Int(n) => n != 0,
             Value::Str(s) => !s.is_empty(),
@@ -480,7 +398,15 @@ impl<W: Write> Interpreter<W> {
         })
     }
 
-    fn int_of(&mut self, v: &Value, what: &str) -> R<i64> {
+    #[inline]
+    pub fn int_of(&mut self, v: &Value, what: &str) -> R<i64> {
+        match v {
+            Value::Int(n) => Ok(*n),
+            _ => self.int_of_slow(v, what),
+        }
+    }
+
+    fn int_of_slow(&mut self, v: &Value, what: &str) -> R<i64> {
         match self.collapse(v)? {
             Value::Int(n) => Ok(n),
             other => fail(format!(
@@ -547,30 +473,169 @@ impl<W: Write> Interpreter<W> {
         }
     }
 
-    fn call(&mut self, name: Sym, args: &[Expr], env: &Rc<Scope>) -> R<Value> {
-        let Some(callee) = env.lookup_callee(name) else {
-            return fail(format!("Undefined variable '{}'", self.name(name)));
-        };
-        let mut argv = Vec::with_capacity(args.len());
-        for a in args {
-            argv.push(self.eval(a, env)?);
+    // --- Arrays and structs ---
+
+    pub fn member(&self, obj: &Value, member: Sym) -> R<Value> {
+        self.member_ref(obj, member).cloned()
+    }
+
+    pub fn member_ref<'v>(&self, obj: &'v Value, member: Sym) -> R<&'v Value> {
+        if let Value::Struct(s) = obj.resolved()
+            && let Some(field) = s.get(member)
+        {
+            return Ok(field);
         }
-        match callee {
-            Callee::Builtin(b) => self.builtin(b, argv),
-            Callee::Fn(def, closure_env) => self.apply_fn(name, &def, closure_env, argv),
-            Callee::NotAFunction => fail(format!("'{}' is not a function", self.name(name))),
+        fail(format!(
+            "Cannot access '{}' on {}",
+            self.name(member),
+            self.repr(obj)
+        ))
+    }
+
+    /// `base[index]`, with the index already observed.
+    pub fn element_ref<'v>(&self, base: &'v Value, i: i64) -> R<&'v Value> {
+        match base.resolved() {
+            Value::Array(items) => element(items, i),
+            _ => fail(format!("Cannot index {}", self.repr(base))),
         }
     }
 
-    fn apply_fn(&mut self, name: Sym, def: &FuncDef, env: Rc<Scope>, args: Vec<Value>) -> R<Value> {
-        if args.len() != def.params.len() {
+    pub fn struct_init(&mut self, ty: Sym, given: &[(Sym, Code)], env: &Rc<Scope>) -> R<Value> {
+        let Some(fields) = self.types.get(&ty).cloned() else {
+            return fail(format!("Unknown type '{}'", self.name(ty)));
+        };
+        let complete = fields.iter().all(|f| given.iter().any(|(k, _)| k == f))
+            && given.iter().all(|(k, _)| fields.contains(k));
+        if !complete {
+            let mut missing: Vec<&str> = fields
+                .iter()
+                .filter(|f| !given.iter().any(|(k, _)| k == *f))
+                .map(|f| self.name(*f))
+                .collect();
+            let mut extra: Vec<&str> = given
+                .iter()
+                .filter(|(k, _)| !fields.contains(k))
+                .map(|(k, _)| self.name(*k))
+                .collect();
+            missing.sort_unstable();
+            extra.sort_unstable();
+            extra.dedup();
             return fail(format!(
-                "'{}' expects {} argument(s), got {}",
-                self.name(name),
-                def.params.len(),
-                args.len()
+                "Bad fields for '{}': missing {}, unknown {}",
+                self.name(ty),
+                py_list(&missing),
+                py_list(&extra)
             ));
         }
+        // Fields are evaluated in the type's order; a repeated field's last value wins
+        let mut values = Vec::with_capacity(fields.len());
+        for &f in fields.iter() {
+            let code = &given
+                .iter()
+                .rev()
+                .find(|(k, _)| *k == f)
+                .expect("checked above")
+                .1;
+            values.push((f, code(self, env)?));
+        }
+        Ok(Value::Struct(Rc::new(Struct {
+            ty,
+            fields: values.into(),
+        })))
+    }
+
+    /// Writes `v` into `target` at `steps`, copying shared parts on the way.
+    pub fn write_path(&self, target: &mut Value, steps: &[Step], v: Value) -> R<()> {
+        let Some((step, rest)) = steps.split_first() else {
+            *target = v;
+            return Ok(());
+        };
+        match (step, &mut *target) {
+            (Step::Index(i), Value::Array(items)) => {
+                element(items, *i)?;
+                let slot = &mut Rc::make_mut(items)[*i as usize];
+                self.write_path(slot, rest, v)
+            }
+            (Step::Field(f), Value::Struct(s)) => {
+                let ty = s.ty;
+                match Rc::make_mut(s).fields.iter_mut().find(|(k, _)| k == f) {
+                    Some((_, slot)) => self.write_path(slot, rest, v),
+                    None => fail(format!(
+                        "'{}' has no field '{}'",
+                        self.name(ty),
+                        self.name(*f)
+                    )),
+                }
+            }
+            (Step::Index(_), other) => fail(format!("Cannot index {}", self.repr(other))),
+            (Step::Field(f), other) => fail(format!(
+                "Cannot access '{}' on {}",
+                self.name(*f),
+                self.repr(other)
+            )),
+        }
+    }
+
+    // --- Calls ---
+
+    /// Calls the function bound to `var` with arguments evaluated by `args`.
+    pub fn call(&mut self, var: &Ref, args: &[Code], env: &Rc<Scope>) -> R<Value> {
+        let Some((scope, slot)) = self.find(env, var) else {
+            return self.undefined(var.name);
+        };
+        match scope.callee(slot) {
+            Callee::Fn(f, closure_env) => {
+                if args.len() != f.params {
+                    // The arguments are evaluated before the count is checked
+                    for a in args {
+                        a(self, env)?;
+                    }
+                    return self.arity(var.name, &f, args.len());
+                }
+                let scope = Scope::with_size(Some(closure_env), f.size);
+                for (a, &p) in args.iter().zip(f.param_slots.iter()) {
+                    let v = a(self, env)?;
+                    scope.set(p, v);
+                }
+                self.check_stack()?;
+                (f.body)(self, &scope)
+            }
+            Callee::Builtin(b) => {
+                let mut argv = Vec::with_capacity(args.len());
+                for a in args {
+                    argv.push(a(self, env)?);
+                }
+                self.builtin(b, argv)
+            }
+            Callee::NotAFunction => {
+                for a in args {
+                    a(self, env)?;
+                }
+                fail(format!("'{}' is not a function", self.name(var.name)))
+            }
+        }
+    }
+
+    /// A scope for a call of `f` (as `name`) with `argc` arguments, not yet bound.
+    fn enter(&self, name: Sym, f: &Func, env: Rc<Scope>, argc: usize) -> R<Rc<Scope>> {
+        if argc != f.params {
+            return self.arity(name, f, argc);
+        }
+        self.check_stack()?;
+        Ok(Scope::with_size(Some(env), f.size))
+    }
+
+    #[cold]
+    fn arity<T>(&self, name: Sym, f: &Func, argc: usize) -> R<T> {
+        fail(format!(
+            "'{}' expects {} argument(s), got {}",
+            self.name(name),
+            f.params,
+            argc
+        ))
+    }
+
+    fn check_stack(&self) -> R<()> {
         let marker = 0u8;
         if self
             .stack_base
@@ -579,11 +644,7 @@ impl<W: Write> Interpreter<W> {
         {
             return fail("Recursion too deep");
         }
-        let scope = Scope::with_capacity(Some(env), def.params.len() + def.body.binds);
-        for (&p, a) in def.params.iter().zip(args) {
-            scope.set(p, a);
-        }
-        self.exec_block(&def.body, &scope)
+        Ok(())
     }
 
     fn builtin(&mut self, b: Builtin, args: Vec<Value>) -> R<Value> {
@@ -666,59 +727,15 @@ impl<W: Write> Interpreter<W> {
         self.rng = Rng::new(seed);
     }
 
-    fn struct_init(&mut self, ty: Sym, given: &[(Sym, Expr)], env: &Rc<Scope>) -> R<Value> {
-        let Some(fields) = self.types.get(&ty).cloned() else {
-            return fail(format!("Unknown type '{}'", self.name(ty)));
-        };
-        let complete = fields.iter().all(|f| given.iter().any(|(k, _)| k == f))
-            && given.iter().all(|(k, _)| fields.contains(k));
-        if !complete {
-            let mut missing: Vec<&str> = fields
-                .iter()
-                .filter(|f| !given.iter().any(|(k, _)| k == *f))
-                .map(|f| self.name(*f))
-                .collect();
-            let mut extra: Vec<&str> = given
-                .iter()
-                .filter(|(k, _)| !fields.contains(k))
-                .map(|(k, _)| self.name(*k))
-                .collect();
-            missing.sort_unstable();
-            extra.sort_unstable();
-            extra.dedup();
-            return fail(format!(
-                "Bad fields for '{}': missing {}, unknown {}",
-                self.name(ty),
-                py_list(&missing),
-                py_list(&extra)
-            ));
-        }
-        // Fields are evaluated in the type's order; a repeated field's last value wins
-        let mut values = Vec::with_capacity(fields.len());
-        for &f in fields.iter() {
-            let expr = &given
-                .iter()
-                .rev()
-                .find(|(k, _)| *k == f)
-                .expect("checked above")
-                .1;
-            values.push((f, self.eval(expr, env)?));
-        }
-        Ok(Value::Struct(Rc::new(Struct {
-            ty,
-            fields: values.into(),
-        })))
-    }
-
     // --- Timelines ---
 
-    fn fork(&mut self, block: &Block, env: &Rc<Scope>) -> R<Value> {
+    pub fn fork(&mut self, body: &Code, env: &Rc<Scope>) -> R<Value> {
         // The fork draws from its own stream, derived from (but not advancing)
         // this one, so this timeline sees the same draws whether or not it forked.
         let fork_rng = Rng::new(self.rng.fork_seed());
         let saved = std::mem::replace(&mut self.rng, fork_rng);
         let branch_env = Copier::timeline(env);
-        let result = self.exec_block(block, &branch_env);
+        let result = body(self, &branch_env);
         self.rng = saved;
         Ok(Value::Branch(Rc::new(Branch {
             val: result?,
@@ -728,8 +745,8 @@ impl<W: Write> Interpreter<W> {
         })))
     }
 
-    fn multiverse(&mut self, count: &Expr, block: &Block, env: &Rc<Scope>) -> R<Value> {
-        let count = self.eval(count, env)?;
+    pub fn multiverse(&mut self, count: &Code, body: &Code, env: &Rc<Scope>) -> R<Value> {
+        let count = count(self, env)?;
         let count = self.int_of(&count, "multiverse count")?;
         let (base, saved) = (self.seed, self.rng.clone());
         let mut samples = Vec::with_capacity(usize::try_from(count).unwrap_or(0).min(1 << 16));
@@ -739,10 +756,7 @@ impl<W: Write> Interpreter<W> {
         for i in 0..count.max(0) {
             self.reseed(universe_seed(base, i as u64));
             let universe = Copier::timeline(env);
-            match self
-                .exec_block(block, &universe)
-                .and_then(|v| self.sample(&v))
-            {
+            match body(self, &universe).and_then(|v| self.sample(&v)) {
                 Ok(s) => samples.push(s),
                 Err(Unwind::Rejected) => rejected += 1,
                 Err(e) => {
@@ -755,7 +769,7 @@ impl<W: Write> Interpreter<W> {
         self.seed = base;
         self.rng = saved;
         outcome?;
-        aggregate(samples, rejected).map_err(|e| Unwind::Error(Error::runtime(e)))
+        aggregate(samples, rejected).map_err(|e| Error::runtime(e).into())
     }
 
     /// Observes a universe's result fully: an integer, or a struct of samples.
@@ -783,38 +797,6 @@ impl<W: Write> Interpreter<W> {
                     "A universe must produce an integer, a struct or an array, got {shown}"
                 ))
             }
-        }
-    }
-
-    /// Writes `v` into `target` at `steps`, copying shared parts on the way.
-    fn write_path(&self, target: &mut Value, steps: &[Step], v: Value) -> R<()> {
-        let Some((step, rest)) = steps.split_first() else {
-            *target = v;
-            return Ok(());
-        };
-        match (step, &mut *target) {
-            (Step::Index(i), Value::Array(items)) => {
-                element(items, *i)?;
-                let slot = &mut Rc::make_mut(items)[*i as usize];
-                self.write_path(slot, rest, v)
-            }
-            (Step::Field(f), Value::Struct(s)) => {
-                let ty = s.ty;
-                match Rc::make_mut(s).fields.iter_mut().find(|(k, _)| k == f) {
-                    Some((_, slot)) => self.write_path(slot, rest, v),
-                    None => fail(format!(
-                        "'{}' has no field '{}'",
-                        self.name(ty),
-                        self.name(*f)
-                    )),
-                }
-            }
-            (Step::Index(_), other) => fail(format!("Cannot index {}", self.repr(other))),
-            (Step::Field(f), other) => fail(format!(
-                "Cannot access '{}' on {}",
-                self.name(*f),
-                self.repr(other)
-            )),
         }
     }
 
@@ -904,8 +886,42 @@ impl<W: Write> Interpreter<W> {
     }
 }
 
+/// `op` on two collapsed integers. `Abs` ignores `y`.
+#[inline]
+pub fn apply_int(op: Op, x: i64, y: i64) -> R<i64> {
+    let r = match op {
+        Op::Add => x.checked_add(y),
+        Op::Sub => x.checked_sub(y),
+        Op::Mul => x.checked_mul(y),
+        Op::Div => {
+            if y == 0 {
+                return fail("Division by zero");
+            }
+            floor_div(x, y)
+        }
+        Op::Gt => Some(i64::from(x > y)),
+        Op::Lt => Some(i64::from(x < y)),
+        Op::Eq => Some(i64::from(x == y)),
+        Op::And => Some(i64::from(x != 0 && y != 0)),
+        Op::Or => Some(i64::from(x != 0 || y != 0)),
+        Op::Min => Some(x.min(y)),
+        Op::Max => Some(x.max(y)),
+        Op::Abs => x.checked_abs(),
+    };
+    match r {
+        Some(n) => Ok(n),
+        None => overflow(op),
+    }
+}
+
+#[cold]
+fn overflow<T>(op: Op) -> R<T> {
+    fail(format!("Integer overflow in '{op}'"))
+}
+
 /// One resolved step of an assignment target.
-enum Step {
+#[derive(Clone, Copy)]
+pub enum Step {
     Index(i64),
     Field(Sym),
 }
