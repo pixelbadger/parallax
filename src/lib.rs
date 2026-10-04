@@ -6,10 +6,12 @@
 //! ```
 
 pub mod ast;
+pub mod compile;
 pub mod error;
 pub mod interp;
 pub mod lexer;
 pub mod parser;
+pub mod resolve;
 pub mod rng;
 pub mod stats;
 pub mod value;

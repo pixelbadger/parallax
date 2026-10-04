@@ -2,7 +2,9 @@
 
 use std::rc::Rc;
 
-use crate::ast::{Ann, Binding, Block, Expr, FuncDef, Interner, Op, Place, Program, Stmt, Sym};
+use crate::ast::{
+    Ann, Binding, Block, Expr, FuncDef, Interner, Op, Place, Program, Ref, Stmt, Sym,
+};
 use crate::error::Error;
 use crate::lexer::{Tok, Token, lex};
 
@@ -161,7 +163,12 @@ impl<'src> Parser<'_, 'src> {
         self.expect(Tok::Eq)?;
         let expr = self.expr()?;
         self.expect(Tok::Semi)?;
-        Ok(Binding { name, ann, expr })
+        Ok(Binding {
+            name,
+            slot: 0,
+            ann,
+            expr,
+        })
     }
 
     fn stmt(&mut self) -> PResult<Stmt> {
@@ -176,7 +183,7 @@ impl<'src> Parser<'_, 'src> {
                 self.pos += 1;
                 let expr = self.expr()?;
                 self.expect(Tok::Semi)?;
-                return Ok(Stmt::Assign(name, expr));
+                return Ok(Stmt::Assign(Ref::new(name), expr));
             }
             Tok::Given => {
                 self.pos += 1;
@@ -190,8 +197,8 @@ impl<'src> Parser<'_, 'src> {
                 self.expect(Tok::Semi)?;
                 return Ok(match t {
                     Tok::Reset => Stmt::Reset(name),
-                    Tok::Commit => Stmt::Commit(name),
-                    _ => Stmt::Discard(name),
+                    Tok::Commit => Stmt::Commit(Ref::new(name)),
+                    _ => Stmt::Discard(Ref::new(name)),
                 });
             }
             Tok::TypeDef => {
@@ -212,7 +219,13 @@ impl<'src> Parser<'_, 'src> {
                 self.expect(Tok::RParen)?;
                 self.expect(Tok::Eq)?;
                 let body = self.block()?;
-                return Ok(Stmt::Func(Rc::new(FuncDef { name, params, body })));
+                return Ok(Stmt::Func(Rc::new(FuncDef {
+                    name,
+                    slot: 0,
+                    params,
+                    param_slots: Box::default(),
+                    body,
+                })));
             }
             _ => {}
         }
@@ -320,7 +333,7 @@ impl<'src> Parser<'_, 'src> {
             }
             Tok::Str => {
                 self.pos += 1;
-                Ok(Expr::Str(text[1..text.len() - 1].into()))
+                Ok(Expr::Str(Rc::new(text[1..text.len() - 1].into())))
             }
             Tok::Open => {
                 self.pos += 1;
@@ -384,9 +397,9 @@ impl<'src> Parser<'_, 'src> {
                     return Ok(Expr::StructInit(name, fields.into()));
                 }
                 if self.at(Tok::LParen) {
-                    return Ok(Expr::Call(name, self.args()?.into()));
+                    return Ok(Expr::Call(Ref::new(name), self.args()?.into()));
                 }
-                Ok(Expr::Var(name))
+                Ok(Expr::Var(Ref::new(name)))
             }
             Tok::LBracket => {
                 self.pos += 1;

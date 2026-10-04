@@ -110,6 +110,82 @@ fn committed_function_keeps_the_forks_scope() {
 }
 
 #[test]
+fn a_name_is_found_where_it_is_bound_when_read() {
+    // Before a block's `let`, a name still means the outer binding
+    let src = r#"
+        let x = 1;
+        fn f() = { print(x); let x = 2; x }
+        print(f());
+        repeat 2 { print(x); let x = 5; print(x); }
+    "#;
+    assert_eq!(run(src), "1\n2\n1\n5\n1\n5\n");
+    // A function can use names bound after it
+    assert_eq!(
+        run("fn f() = { g() + y } fn g() = { 10 } let y = 5; print(f());"),
+        "15\n"
+    );
+}
+
+#[test]
+fn globals_carry_over_between_programs() {
+    let out = spl::with_stack(|| {
+        let mut interp = spl::Interpreter::new(0, Vec::new());
+        let first = interp.parse("fn f() = { later + 1 } let x = 1;").unwrap();
+        interp.run(&first).unwrap();
+        let second = interp.parse("let later = 41; print(f(), x);").unwrap();
+        interp.run(&second).unwrap();
+        String::from_utf8(interp.into_output()).unwrap()
+    });
+    assert_eq!(out, "42 1\n");
+}
+
+#[test]
+fn a_let_in_a_fork_binds_in_the_forking_scope() {
+    let src = r#"
+        let b = fork { let y = 7; y };
+        commit b;
+        fn h() = { let c = fork { let z = 3; z }; commit c; z }
+        print(y, h());
+    "#;
+    assert_eq!(run(src), "7 3\n");
+    // A block that binds nothing has no scope of its own, so the fork
+    // inside it forks the enclosing one
+    let src = "let b = 0; if 1 { b = fork { let y = 1; y }; } commit b; print(y);";
+    assert_eq!(run(src), "1\n");
+    let src = "let b = 0; if 1 { let q = 0; b = fork { let y = 1; y }; } commit b; print(y);";
+    assert_eq!(error(src), "Undefined variable 'y'");
+}
+
+#[test]
+fn each_loop_iteration_has_a_fresh_scope() {
+    let src = r#"
+        let fs = [];
+        let i = 0;
+        while (i < 3) { let k = i * 10; fn get() = { k } fs = push(fs, get); i = i + 1; }
+        fn call(f) = { f() }
+        print(call(fs[0]), call(fs[1]), call(fs[2]));
+        let saved = 0;
+        repeat 3 { let v = i; saved = fork { v = v + 100; v }; i = i + 1; }
+        commit saved;
+        print(saved, i);
+    "#;
+    assert_eq!(run(src), "0 10 20\n105 6\n");
+}
+
+#[test]
+fn an_index_is_evaluated_after_its_base() {
+    let src = r#"
+        let a = [1, 2, 3];
+        fn bump() = { a = [7, 8, 9]; 1 }
+        print(a[bump()], a[0]);
+        let s = [[1, 2], [3, 4]];
+        fn g() = { s[0][0] = 50; 0 }
+        print(s[g()][0], s[0][0]);
+    "#;
+    assert_eq!(run(src), "2 7\n1 50\n");
+}
+
+#[test]
 fn fork_does_not_collapse_parent_values() {
     let src = r#"
         let x = open;

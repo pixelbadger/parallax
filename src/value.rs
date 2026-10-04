@@ -15,7 +15,8 @@ use rustc_hash::FxHashMap as HashMap;
 use std::cell::{Cell, RefCell};
 use std::rc::{Rc, Weak};
 
-use crate::ast::{FuncDef, Op, Sym};
+use crate::ast::{Loc, Op, Sym};
+use crate::compile::Func;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Builtin {
@@ -33,7 +34,8 @@ pub enum Builtin {
 pub enum Value {
     None,
     Int(i64),
-    Str(Rc<str>),
+    /// A thin pointer, which keeps `Value` at 16 bytes.
+    Str(Rc<String>),
     Lazy(Rc<Lazy>),
     Struct(Rc<Struct>),
     /// Arrays have value semantics: writes copy on write, so no two
@@ -153,25 +155,39 @@ pub struct Branch {
 
 #[derive(Debug)]
 pub struct Closure {
-    pub def: Rc<FuncDef>,
+    pub def: Rc<Func>,
     pub env: Rc<Scope>,
 }
 
 #[derive(Debug)]
 pub enum Slot {
+    /// Allocated but not bound yet.
+    Unbound,
     Value(Value),
     /// A function closing over the scope that holds this slot.
-    Fn(Rc<FuncDef>),
+    Fn(Rc<Func>),
 }
 
 #[derive(Debug)]
 pub struct Var {
-    pub name: Sym,
     /// Bound or assigned here since this scope was created or copied.
     pub written: bool,
     pub slot: Slot,
 }
 
+impl Var {
+    const UNBOUND: Var = Var {
+        written: false,
+        slot: Slot::Unbound,
+    };
+
+    fn is_bound(&self) -> bool {
+        !matches!(self.slot, Slot::Unbound)
+    }
+}
+
+/// A scope's variables are slots laid out by [`resolve`](crate::resolve):
+/// scopes copied from one another have the same layout.
 #[derive(Debug, Default)]
 pub struct Scope {
     pub vars: RefCell<Vec<Var>>,
@@ -180,107 +196,154 @@ pub struct Scope {
 
 impl Scope {
     pub fn new(parent: Option<Rc<Scope>>) -> Rc<Scope> {
-        Scope::with_capacity(parent, 0)
+        Scope::with_size(parent, 0)
     }
 
-    pub fn with_capacity(parent: Option<Rc<Scope>>, n: usize) -> Rc<Scope> {
+    /// A scope with `n` unbound slots.
+    pub fn with_size(parent: Option<Rc<Scope>>, n: usize) -> Rc<Scope> {
+        let mut vars = Vec::with_capacity(n);
+        vars.resize_with(n, || Var::UNBOUND);
         Rc::new(Scope {
-            vars: RefCell::new(Vec::with_capacity(n)),
+            vars: RefCell::new(vars),
             parent,
         })
     }
 
-    /// Reads `name` from the nearest scope that defines it.
-    pub fn lookup(self: &Rc<Scope>, name: Sym) -> Option<Value> {
-        let mut scope = self;
-        loop {
-            if let Some(var) = scope.vars.borrow().iter().find(|v| v.name == name) {
-                return Some(match &var.slot {
-                    Slot::Value(v) => v.clone(),
-                    Slot::Fn(def) => Value::Closure(Rc::new(Closure {
-                        def: def.clone(),
-                        env: scope.clone(),
-                    })),
-                });
-            }
-            scope = scope.parent.as_ref()?;
+    /// Adds unbound slots up to `n`.
+    pub fn grow(&self, n: usize) {
+        let mut vars = self.vars.borrow_mut();
+        if vars.len() < n {
+            vars.resize_with(n, || Var::UNBOUND);
         }
     }
 
-    /// Like [`lookup`](Self::lookup), but does not allocate a closure for a function.
-    pub fn lookup_callee(self: &Rc<Scope>, name: Sym) -> Option<Callee> {
-        let mut scope = self;
-        loop {
-            if let Some(var) = scope.vars.borrow().iter().find(|v| v.name == name) {
-                return Some(match &var.slot {
-                    Slot::Fn(def) => Callee::Fn(def.clone(), scope.clone()),
-                    Slot::Value(Value::Closure(c)) => Callee::Fn(c.def.clone(), c.env.clone()),
-                    Slot::Value(Value::Builtin(b)) => Callee::Builtin(*b),
-                    Slot::Value(_) => Callee::NotAFunction,
-                });
-            }
-            scope = scope.parent.as_ref()?;
+    /// Unbinds every slot, as if newly created.
+    pub fn clear(&self) {
+        for var in self.vars.borrow_mut().iter_mut() {
+            *var = Var::UNBOUND;
         }
     }
 
-    /// Binds `name` in this scope.
-    pub fn set(self: &Rc<Scope>, name: Sym, value: Value) {
-        let slot = match value {
+    /// Reads `slot` of this scope, if it is bound.
+    #[inline(always)]
+    pub fn read(self: &Rc<Scope>, slot: u32) -> Option<Value> {
+        Some(match &self.vars.borrow().get(slot as usize)?.slot {
+            // Integers are most of what's read: skip the general clone
+            Slot::Value(Value::Int(n)) => Value::Int(*n),
+            Slot::Value(v) => v.clone(),
+            Slot::Fn(def) => self.closure(def),
+            Slot::Unbound => return None,
+        })
+    }
+
+    /// A function bound here, as a value.
+    #[cold]
+    fn closure(self: &Rc<Scope>, def: &Rc<Func>) -> Value {
+        Value::Closure(Rc::new(Closure {
+            def: def.clone(),
+            env: self.clone(),
+        }))
+    }
+
+    /// Whether `slot` of this scope is bound. (A copy of the global scope
+    /// made before a later program added globals is short.)
+    #[inline]
+    pub fn is_bound(&self, slot: u32) -> bool {
+        self.vars
+            .borrow()
+            .get(slot as usize)
+            .is_some_and(Var::is_bound)
+    }
+
+    /// Reads the first of `locs` that is bound.
+    #[inline]
+    pub fn read_at(self: &Rc<Scope>, locs: &[Loc]) -> Option<Value> {
+        let mut scope = self;
+        let mut up = 0;
+        for loc in locs {
+            while up < loc.up {
+                scope = scope
+                    .parent
+                    .as_ref()
+                    .expect("scope chain mirrors the source");
+                up += 1;
+            }
+            if let Some(v) = scope.read(loc.slot) {
+                return Some(v);
+            }
+        }
+        None
+    }
+
+    /// The first of `locs` that is bound: its scope and slot.
+    pub fn find(self: &Rc<Scope>, locs: &[Loc]) -> Option<(&Rc<Scope>, u32)> {
+        let mut scope = self;
+        let mut up = 0;
+        for loc in locs {
+            while up < loc.up {
+                scope = scope
+                    .parent
+                    .as_ref()
+                    .expect("scope chain mirrors the source");
+                up += 1;
+            }
+            if scope.is_bound(loc.slot) {
+                return Some((scope, loc.slot));
+            }
+        }
+        None
+    }
+
+    /// Reads a bound slot.
+    pub fn get(self: &Rc<Scope>, slot: u32) -> Value {
+        self.read(slot).expect("read an unbound slot")
+    }
+
+    /// Like [`get`](Self::get), but does not allocate a closure for a function.
+    pub fn callee(self: &Rc<Scope>, slot: u32) -> Callee {
+        match &self.vars.borrow()[slot as usize].slot {
+            Slot::Fn(def) => Callee::Fn(def.clone(), self.clone()),
+            Slot::Value(Value::Closure(c)) => Callee::Fn(c.def.clone(), c.env.clone()),
+            Slot::Value(Value::Builtin(b)) => Callee::Builtin(*b),
+            Slot::Value(_) => Callee::NotAFunction,
+            Slot::Unbound => unreachable!("read an unbound slot"),
+        }
+    }
+
+    /// Takes the value out of a bound slot, leaving `none`, so it can be
+    /// modified in place and put back with [`set`](Self::set). A function
+    /// binding is returned as a closure.
+    pub fn take(self: &Rc<Scope>, slot: u32) -> Value {
+        let mut vars = self.vars.borrow_mut();
+        match std::mem::replace(&mut vars[slot as usize].slot, Slot::Value(Value::None)) {
+            Slot::Value(v) => v,
+            Slot::Fn(def) => Value::Closure(Rc::new(Closure {
+                def,
+                env: self.clone(),
+            })),
+            Slot::Unbound => unreachable!("took an unbound slot"),
+        }
+    }
+
+    /// Binds `slot` in this scope.
+    pub fn set(self: &Rc<Scope>, slot: u32, value: Value) {
+        let slot_value = match value {
             Value::Closure(c) if Rc::ptr_eq(&c.env, self) => Slot::Fn(c.def.clone()),
             v => Slot::Value(v),
         };
-        self.set_slot(name, slot);
+        self.set_slot(slot, slot_value);
     }
 
-    /// Takes the value of `name` out of the nearest scope that defines it,
-    /// leaving `none`, so it can be modified in place and put back with
-    /// [`assign`](Self::assign). A function binding is returned as a closure.
-    pub fn take(self: &Rc<Scope>, name: Sym) -> Option<Value> {
-        let mut scope = self;
-        loop {
-            if let Some(var) = scope.vars.borrow_mut().iter_mut().find(|v| v.name == name) {
-                return Some(
-                    match std::mem::replace(&mut var.slot, Slot::Value(Value::None)) {
-                        Slot::Value(v) => v,
-                        Slot::Fn(def) => Value::Closure(Rc::new(Closure {
-                            def,
-                            env: scope.clone(),
-                        })),
-                    },
-                );
-            }
-            scope = scope.parent.as_ref()?;
-        }
-    }
-
-    pub fn set_slot(&self, name: Sym, slot: Slot) {
+    pub fn set_slot(&self, slot: u32, value: Slot) {
+        let slot = slot as usize;
         let mut vars = self.vars.borrow_mut();
-        match vars.iter_mut().find(|v| v.name == name) {
-            Some(var) => {
-                var.slot = slot;
-                var.written = true;
-            }
-            None => vars.push(Var {
-                name,
-                written: true,
-                slot,
-            }),
+        if slot >= vars.len() {
+            vars.resize_with(slot + 1, || Var::UNBOUND);
         }
-    }
-
-    /// Rebinds `name` in the nearest scope that defines it.
-    pub fn assign(self: &Rc<Scope>, name: Sym, value: Value) -> bool {
-        let mut scope = self;
-        loop {
-            if scope.vars.borrow().iter().any(|v| v.name == name) {
-                scope.set(name, value);
-                return true;
-            }
-            match &scope.parent {
-                Some(p) => scope = p,
-                None => return false,
-            }
-        }
+        vars[slot] = Var {
+            written: true,
+            slot: value,
+        };
     }
 
     /// The chain from this scope outwards, held weakly.
@@ -297,12 +360,13 @@ impl Scope {
         for level in origin {
             let Some(t) = theirs else { break };
             if let Some(ours) = level.upgrade() {
-                let written: Vec<(Sym, Value)> = t
+                let written: Vec<(u32, Value)> = t
                     .vars
                     .borrow()
                     .iter()
-                    .filter(|v| v.written)
-                    .map(|v| {
+                    .enumerate()
+                    .filter(|(_, v)| v.written)
+                    .map(|(i, v)| {
                         let value = match &v.slot {
                             Slot::Value(v) => v.clone(),
                             // Still closes over the forked scope, not ours
@@ -310,12 +374,13 @@ impl Scope {
                                 def: def.clone(),
                                 env: t.clone(),
                             })),
+                            Slot::Unbound => unreachable!("a written slot is bound"),
                         };
-                        (v.name, value)
+                        (i as u32, value)
                     })
                     .collect();
-                for (name, value) in written {
-                    ours.set(name, value);
+                for (slot, value) in written {
+                    ours.set(slot, value);
                 }
             }
             theirs = t.parent.as_ref();
@@ -324,7 +389,7 @@ impl Scope {
 }
 
 pub enum Callee {
-    Fn(Rc<FuncDef>, Rc<Scope>),
+    Fn(Rc<Func>, Rc<Scope>),
     Builtin(Builtin),
     NotAFunction,
 }
@@ -420,14 +485,11 @@ impl Copier {
 
     fn var(&mut self, var: &Var, written: bool) -> Var {
         let slot = match &var.slot {
+            Slot::Unbound => Slot::Unbound,
             Slot::Fn(def) => Slot::Fn(def.clone()),
             Slot::Value(v) => Slot::Value(self.value(v)),
         };
-        Var {
-            name: var.name,
-            written,
-            slot,
-        }
+        Var { written, slot }
     }
 
     pub fn value(&mut self, v: &Value) -> Value {

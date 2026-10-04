@@ -118,9 +118,13 @@ impl fmt::Display for Op {
 pub struct Block {
     pub stmts: Box<[Stmt]>,
     /// How many statements bind a name in the block's own scope. A block
-    /// that binds nothing runs in its parent's scope (one of its own would
-    /// be unobservable), and other scopes are allocated at the right size.
+    /// that binds nothing runs in its parent's scope. That shows only when a
+    /// `let` in a fork inside it is committed: it lands in the parent.
     pub binds: usize,
+    /// Slots in the block's scope, if it has one: every name bound in it,
+    /// including by `fork` and `multiverse` blocks that run in it. Set by
+    /// [`resolve`](crate::resolve).
+    pub size: usize,
 }
 
 impl Block {
@@ -132,6 +136,43 @@ impl Block {
         Block {
             stmts: stmts.into(),
             binds,
+            size: 0,
+        }
+    }
+}
+
+/// Where a variable may live: `up` scopes out from the current one, at
+/// index `slot`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Loc {
+    pub up: u32,
+    pub slot: u32,
+}
+
+/// A use of a variable, resolved to the scopes that may bind it.
+///
+/// A scope's slots are allocated when it is created but filled as its
+/// bindings run, so a slot can still be unbound when it is read (a use
+/// before the `let`, or a function called before a name it uses is bound).
+/// Lookup then falls back to the next candidate out, as a search by name
+/// would. The global scope is a candidate if the name was a global when
+/// this was resolved; a global bound later, by another program run by the
+/// same interpreter, is found from `depth`.
+#[derive(Debug)]
+pub struct Ref {
+    pub name: Sym,
+    /// Innermost first. Empty until resolved.
+    pub locs: Box<[Loc]>,
+    /// How many scopes out the global scope is.
+    pub depth: u32,
+}
+
+impl Ref {
+    pub fn new(name: Sym) -> Self {
+        Ref {
+            name,
+            locs: Box::default(),
+            depth: 0,
         }
     }
 }
@@ -139,12 +180,12 @@ impl Block {
 #[derive(Debug)]
 pub enum Expr {
     Int(i64),
-    Str(Rc<str>),
-    Var(Sym),
+    Str(Rc<String>),
+    Var(Ref),
     /// `open` (0..=99) or `open(lo, hi)`.
     Open(Option<Box<(Expr, Expr)>>),
     Binary(Op, Box<Expr>, Box<Expr>),
-    Call(Sym, Box<[Expr]>),
+    Call(Ref, Box<[Expr]>),
     StructInit(Sym, Box<[(Sym, Expr)]>),
     Member(Box<Expr>, Sym),
     /// `[a, b, c]`
@@ -185,6 +226,8 @@ pub enum Ann {
 #[derive(Debug)]
 pub struct Binding {
     pub name: Sym,
+    /// Slot in the current scope.
+    pub slot: u32,
     pub ann: Ann,
     pub expr: Expr,
 }
@@ -192,7 +235,11 @@ pub struct Binding {
 #[derive(Debug)]
 pub struct FuncDef {
     pub name: Sym,
+    /// Slot in the defining scope.
+    pub slot: u32,
     pub params: Box<[Sym]>,
+    /// Each parameter's slot in the body's scope (a repeated name shares one).
+    pub param_slots: Box<[u32]>,
     pub body: Block,
 }
 
@@ -200,13 +247,13 @@ pub struct FuncDef {
 pub enum Stmt {
     Let(Binding),
     Pin(Binding),
-    Assign(Sym, Expr),
+    Assign(Ref, Expr),
     /// `name[i].field[j] = expr;`: writes into part of a variable's value.
-    AssignPath(Sym, Box<[Place]>, Expr),
+    AssignPath(Ref, Box<[Place]>, Expr),
     Reset(Sym),
     TypeDef(Sym, Box<[Sym]>),
-    Commit(Sym),
-    Discard(Sym),
+    Commit(Ref),
+    Discard(Ref),
     Given(Expr),
     Func(Rc<FuncDef>),
     Expr(Expr),
