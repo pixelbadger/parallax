@@ -1,0 +1,13 @@
+--- Executing simulations/prewarm.spl ---
+Cell 1 C, battery 1% full:
+  calibrated plan: lead 15 min, cost 180.69 p, short 0.19 kWh
+  on uncertain batteries, planned lead: 15 min, mean 181.28 p, short >0.1 kWh on 90 % of nights
+  on uncertain batteries, best lead:    20 min, mean 181.17 p, short >0.1 kWh on 80 % of nights
+Cell -5 C, battery 30% full:
+  calibrated plan: lead 20 min, cost 126.44 p, short 0.0 kWh
+  on uncertain batteries, planned lead: 20 min, mean 126.86 p, short >0.1 kWh on 10 % of nights
+  on uncertain batteries, best lead:    25 min, mean 126.78 p, short >0.1 kWh on 10 % of nights
+Cell 5 C, battery 1% full:
+  calibrated plan: lead 0 min, cost 180.27 p, short 0.19 kWh
+  on uncertain batteries, planned lead: 0 min, mean 180.78 p, short >0.1 kWh on 92 % of nights
+  on uncertain batteries, best lead:    5 min, mean 180.68 p, short >0.1 kWh on 78 % of nights
