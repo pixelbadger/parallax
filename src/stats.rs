@@ -9,11 +9,12 @@ use crate::value::{Struct, Value};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Sample {
     Int(i64),
+    Float(f64),
     Struct(Sym, Box<[(Sym, Sample)]>),
     Array(Box<[Sample]>),
 }
 
-/// Ints aggregate to an `Ensemble`; structs to a struct of the same type
+/// Numbers aggregate to an `Ensemble`; structs to a struct of the same type
 /// whose every field is aggregated; arrays element by element.
 pub fn aggregate(samples: Vec<Sample>, rejected: i64) -> Result<Value, String> {
     if let Some(Sample::Array(first)) = samples.first() {
@@ -38,11 +39,25 @@ pub fn aggregate(samples: Vec<Sample>, rejected: i64) -> Result<Value, String> {
         return Ok(Value::Array(Rc::new(items)));
     }
     let Some(Sample::Struct(ty, shape)) = samples.first() else {
+        if samples.iter().any(|s| matches!(s, Sample::Float(_))) {
+            let floats: Option<Vec<f64>> = samples
+                .into_iter()
+                .map(|s| match s {
+                    Sample::Int(n) => Some(n as f64),
+                    Sample::Float(x) => Some(x),
+                    Sample::Struct(..) | Sample::Array(_) => None,
+                })
+                .collect();
+            return match floats {
+                Some(floats) => summarise_floats(floats, rejected),
+                None => Err(MIXED.into()),
+            };
+        }
         let ints: Option<Vec<i64>> = samples
             .into_iter()
             .map(|s| match s {
                 Sample::Int(n) => Some(n),
-                Sample::Struct(..) | Sample::Array(_) => None,
+                Sample::Float(_) | Sample::Struct(..) | Sample::Array(_) => None,
             })
             .collect();
         return match ints {
@@ -103,6 +118,38 @@ fn summarise(mut samples: Vec<i64>, rejected: i64) -> Result<Value, String> {
             ]
             .map(Value::Int),
         );
+    }
+    let fields = wk::ENSEMBLE_FIELDS.into_iter().zip(stats).collect();
+    Ok(Value::Struct(Rc::new(Struct {
+        ty: wk::ENSEMBLE,
+        fields,
+    })))
+}
+
+/// Statistics for a stream of numbers where some universe produced a float:
+/// as for integers, but `total`, `mean`, `min`, `max` and `median` are
+/// floats and `mean` is not rounded. Summed in universe order, so the
+/// result doesn't depend on anything but the seed.
+fn summarise_floats(mut samples: Vec<f64>, rejected: i64) -> Result<Value, String> {
+    let n = samples.len() as i64;
+    let mut stats = vec![Value::Int(n), Value::Int(rejected)];
+    if samples.is_empty() {
+        stats.resize(wk::ENSEMBLE_FIELDS.len(), Value::None);
+    } else {
+        let total: f64 = samples.iter().sum();
+        if !total.is_finite() {
+            return Err("Float overflow in multiverse total".into());
+        }
+        let hits = samples.iter().filter(|&&s| s != 0.0).count() as i64;
+        let min = samples.iter().copied().fold(f64::INFINITY, f64::min);
+        let max = samples.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+        let mid = (samples.len() - 1) / 2;
+        let median = *samples.select_nth_unstable_by(mid, f64::total_cmp).1;
+        stats.extend([total, total / n as f64, min, max, median].map(Value::Float));
+        stats.push(Value::Int(hits));
+        stats.push(Value::Int(
+            round_half_even(100 * i128::from(hits), i128::from(n)) as i64,
+        ));
     }
     let fields = wk::ENSEMBLE_FIELDS.into_iter().zip(stats).collect();
     Ok(Value::Struct(Rc::new(Struct {

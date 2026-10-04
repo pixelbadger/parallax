@@ -1,0 +1,141 @@
+# ============================================================
+# Pre-warm: when should a cold home battery start charging?
+#
+# A 10 kWh battery charges overnight in a 3-hour off-peak window (18p/kWh;
+# standard rate is 29p). Its BMS caps charge power by cell temperature:
+# ~120 W when near freezing, rising to 4.3 kW by 15 C. Charging warms
+# the pack (a heater adds ~0.24 C a minute below 14 C), so starting a
+# little before the window costs a few standard-rate minutes but buys a
+# warm pack and a fuller battery. What isn't charged by the end of the
+# window is bought at standard rate the next day.
+#
+# The model is a port of a planner calibrated on 8 winter nights, which
+# picks the cheapest lead (0-120 minutes before the window). Here every
+# universe draws a plausible battery instead: the power curve 80-115% of
+# the calibration, the heater 0.18-0.30 C a minute, a +/-1 C cell sensor
+# error and a +/-2 C ambient forecast error. Every lead is scored on the
+# same batteries, so the leads differ only by the plan.
+#
+# Is the calibrated plan still the best one, and how often does the
+# battery end the night short?
+# ============================================================
+
+let CAP_KWH = 10.0;
+let OFFPEAK_MIN = 180;
+let STANDARD_P = 29.0;
+let OFFPEAK_P = 18.0;
+let HEATER_CUTOFF_C = 14.0;
+let MINUTES_TO_WINDOW = 110;   # planning runs at 00:10, the window opens at 02:00
+let AMBIENT_C = 0.0 - 2.0;
+let UNIVERSES = 40;
+
+# Charge power cap (W) against cell temperature (C), interpolated
+let CURVE = [[0.0, 120.0], [2.0, 130.0], [3.0, 336.0], [4.0, 547.0], [5.0, 752.0],
+             [6.0, 1281.0], [7.0, 1816.0], [8.0, 2354.0], [9.0, 2897.0],
+             [10.0, 3713.0], [11.0, 4090.0], [15.0, 4300.0]];
+
+fn p_cap_w(t) = {
+    if (t > CURVE[0][0]) {
+        let i = 1;
+        let searching = 1;
+        # `&&` evaluates both sides, so the bounds check can't guard the index
+        while searching {
+            if (i == len(CURVE)) { searching = 0; }
+            else { if (t > CURVE[i][0]) { i = i + 1; } else { searching = 0; } }
+        }
+        if (i == len(CURVE)) { CURVE[i - 1][1] }
+        else {
+            let a = CURVE[i - 1];
+            let b = CURVE[i];
+            a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0])
+        }
+    } else { CURVE[0][1] }
+}
+
+type Battery = { cap_scale, warm };
+type Night = { pre, window, short };
+type Score = { cost, short };
+
+let CALIBRATED = Battery { cap_scale: 1.0, warm: 0.24 };
+
+# Charge minute by minute from `lead` minutes before the window to its end.
+fn charge(bat, temp, soc, lead) = {
+    let need = CAP_KWH * (1 - soc / 100.0);
+    let total = 0.0;
+    let pre = 0.0;
+    let minute = 0;
+    while (minute < lead + OFFPEAK_MIN && total < need) {
+        let power = p_cap_w(temp) * bat.cap_scale;
+        if (soc > 90) { power = min(power, 4300 * max(0.1, (98 - soc) / 8)); }   # taper near full
+        let kwh = min(power / 60000, need - total);
+        total = total + kwh;
+        soc = soc + kwh / CAP_KWH * 100;
+        if (minute < lead) { pre = pre + kwh; }
+        if (temp < HEATER_CUTOFF_C) { temp = temp + bat.warm; } else { temp = temp + 0.06; }
+        minute = minute + 1;
+    }
+    Night { pre: pre, window: total - pre, short: need - total }
+}
+
+# The pack cools toward ambient at 1 C an hour until charging starts.
+fn start_temp(temp, ambient, lead) = {
+    if (temp > ambient) { max(ambient, temp - max(0, MINUTES_TO_WINDOW - lead) / 60.0) } else { temp }
+}
+
+fn cost(n) = { n.pre * STANDARD_P + n.window * OFFPEAK_P + n.short * STANDARD_P }
+
+fn night(bat, temp, soc, ambient, lead) = {
+    charge(bat, start_temp(temp, ambient, lead), soc, lead)
+}
+
+# The planner: the cheapest lead on the calibrated battery, in 5-minute steps.
+fn plan(temp, soc) = {
+    let best = 0;
+    let best_cost = cost(night(CALIBRATED, temp, soc, AMBIENT_C, 0));
+    let lead = 5;
+    while (lead < 121) {
+        let c = cost(night(CALIBRATED, temp, soc, AMBIENT_C, lead));
+        if (c < best_cost - 0.000000001) { best = lead; best_cost = c; }
+        lead = lead + 5;
+    }
+    best
+}
+
+# One plausible battery, every lead scored on it.
+fn uncertain(temp, soc) = {
+    let bat = Battery { cap_scale: observe open(0.8, 1.15), warm: observe open(0.18, 0.30) };
+    let t = temp + observe open(0.0 - 1.0, 1.0);
+    let ambient = AMBIENT_C + observe open(0.0 - 2.0, 2.0);
+    let scores = [];
+    let lead = 0;
+    while (lead < 121) {
+        let n = night(bat, t, soc, ambient, lead);
+        scores = push(scores, Score { cost: cost(n), short: n.short > 0.1 });
+        lead = lead + 5;
+    }
+    scores
+}
+
+fn r2(x) = { int(x * 100 + 0.5) / 100.0 }   # two decimals, for printing
+
+fn study(label, temp, soc) = {
+    let planned = plan(temp, soc);
+    let n = night(CALIBRATED, temp, soc, AMBIENT_C, planned);
+    print(label);
+    print("  calibrated plan: lead", planned, "min, cost", r2(cost(n)), "p, short", r2(n.short), "kWh");
+    let e = multiverse UNIVERSES { uncertain(temp, soc) };
+    let best = 0;
+    let i = 1;
+    while (i < len(e)) { if (e[i].cost.mean < e[best].cost.mean) { best = i; } i = i + 1; }
+    let p = planned / 5;
+    print("  on uncertain batteries, planned lead:", planned, "min, mean", r2(e[p].cost.mean),
+          "p, short >0.1 kWh on", e[p].short.rate, "% of nights");
+    print("  on uncertain batteries, best lead:   ", best * 5, "min, mean", r2(e[best].cost.mean),
+          "p, short >0.1 kWh on", e[best].short.rate, "% of nights");
+}
+
+fn main() = {
+    study("Cell 1 C, battery 1% full:", 1.0, 1);
+    study("Cell -5 C, battery 30% full:", 0.0 - 5.0, 30);
+    study("Cell 5 C, battery 1% full:", 5.0, 1);
+}

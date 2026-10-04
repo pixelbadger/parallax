@@ -143,7 +143,7 @@ impl Resolver<'_> {
     fn collect_expr(&mut self, expr: &Expr) {
         let mut visit = |e: &Expr| self.collect_expr(e);
         match expr {
-            Expr::Int(_) | Expr::Str(_) | Expr::Var(_) | Expr::Open(None) => {}
+            Expr::Int(_) | Expr::Float(_) | Expr::Str(_) | Expr::Var(_) | Expr::Open(None) => {}
             Expr::Open(Some(b)) => {
                 visit(&b.0);
                 visit(&b.1);
@@ -221,7 +221,7 @@ impl Resolver<'_> {
 
     fn expr(&mut self, expr: &mut Expr) {
         match expr {
-            Expr::Int(_) | Expr::Str(_) | Expr::Open(None) => {}
+            Expr::Int(_) | Expr::Float(_) | Expr::Str(_) | Expr::Open(None) => {}
             Expr::Var(r) => self.reference(r),
             Expr::Open(Some(b)) => {
                 self.expr(&mut b.0);

@@ -36,6 +36,7 @@ cargo run --release -- --seed 0 simulations/reactor.spl
 - **Loop bodies reuse their scope** between iterations when nothing kept hold of it (`Body::run_again`: no other strong or weak reference). A closure or an escaped fork's origin keeps it, and the next iteration gets a fresh one.
 - **Reading `a.b[i]` in place** (`compile::access`) borrows the variable's slot while the indices are evaluated. That is only done when the indices can't write a variable (`no_writes`: no calls, no blocks), which also keeps "base before index" order observable-equivalent.
 - **Integers** are i64 with checked arithmetic, and overflow is an error. `/` floors.
+- **Floats** are f64, always finite: overflow and division by zero are errors, like integer overflow. Only correctly rounded operations are offered (`+ - * /`, `sqrt`, comparisons), so a seed replays identically on every platform; transcendentals would break that unless implemented in Rust (e.g. the `libm` crate). A collapsed lazy cell holds a `Num`. Int×int still takes the fast path (`apply_int`), and integer `open` bounds draw exactly as before, so no integer program's output changed.
 
 ## Provenance
 
@@ -51,6 +52,7 @@ This is a port of a Python interpreter, now removed. The port was verified byte-
 - Profile shape now: circumbinary and island spend ~15% reading variables (`Scope::read`, RefCell borrow, clone) and the rest spread thin. Reactor is bound by timeline copies and allocation (malloc/free ~25%, `Copier` ~12%): every fork and universe copies the scope chain, two allocations per scope.
 - Kept from before: the Int×Int fast path for binary operators and `Block::binds` elision.
 - Tried and **reverted**: splitting scope names into their own array (reactor got 6% slower from the extra allocation). Measure every change.
+- Adding floats cost +3.9% instructions on reactor, +2.2% island, +0.6% circumbinary, all integer-only: one more `Value` variant to match in the copier, drop and collapse, and shifted inlining. Kept `apply_int` `#[inline(always)]` and `num_of`'s inline fast path (each measured). Splitting `LazyState::Done` into int and float variants was measured and was worse.
 - Value semantics cost: `s = f(s)` copies `s`'s arrays, because the caller still holds `s`. Hot loops in the sims update a local in place instead (see the `fly` comment in `simulations/circumbinary.spl`).
 
 ## Open work

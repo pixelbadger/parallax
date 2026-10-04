@@ -73,6 +73,14 @@ impl Rng {
         };
         lo.wrapping_add(offset as i64)
     }
+
+    /// Uniform in `lo..=hi`; the caller guarantees `lo <= hi`, both finite.
+    /// One draw, scaled from its top 53 bits, so it is the same everywhere.
+    pub fn float_in(&mut self, lo: f64, hi: f64) -> f64 {
+        let u = (self.next_u64() >> 11) as f64 * (1.0 / (1u64 << 53) as f64);
+        // Not `lo + (hi - lo) * u`: the width can overflow when the bounds can't
+        (lo * (1.0 - u) + hi * u).clamp(lo, hi)
+    }
 }
 
 #[cfg(test)]
@@ -95,6 +103,16 @@ mod tests {
         }
         assert_eq!(r.int_in(5, 5), 5);
         r.int_in(i64::MIN, i64::MAX); // full range must not overflow
+    }
+
+    #[test]
+    fn float_in_respects_bounds() {
+        let mut r = Rng::new(1);
+        for _ in 0..10_000 {
+            assert!((-1.5..=2.5).contains(&r.float_in(-1.5, 2.5)));
+        }
+        assert_eq!(r.float_in(0.5, 0.5), 0.5);
+        assert!(r.float_in(-f64::MAX, f64::MAX).is_finite());
     }
 
     #[test]

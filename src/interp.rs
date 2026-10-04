@@ -14,7 +14,9 @@ use crate::error::Error;
 use crate::resolve::Globals;
 use crate::rng::{Rng, universe_seed};
 use crate::stats::{Sample, aggregate};
-use crate::value::{Branch, Builtin, Callee, Copier, Lazy, LazyState, Scope, Slot, Struct, Value};
+use crate::value::{
+    Branch, Builtin, Callee, Copier, Lazy, LazyState, Num, Scope, Slot, Struct, Value,
+};
 
 /// Stack the interpreter should run with: SPL recursion maps onto Rust
 /// recursion. See [`Interpreter::run`].
@@ -91,6 +93,9 @@ impl<W: Write + 'static> Interpreter<W> {
             (wk::LEN, Builtin::Len),
             (wk::ARRAY, Builtin::Array),
             (wk::PUSH, Builtin::Push),
+            (wk::SQRT, Builtin::Sqrt),
+            (wk::FLOAT, Builtin::Float),
+            (wk::INT, Builtin::Int),
         ] {
             global.set(globals.slot(name), Value::Builtin(b));
         }
@@ -333,7 +338,7 @@ impl Machine {
         let (a, b) = (a.resolved(), b.resolved());
         for v in [a, b] {
             if matches!(v, Value::Closure(_) | Value::Builtin(_)) {
-                return fail(format!("'{op}' needs integers, got a function"));
+                return fail(format!("'{op}' needs numbers, got a function"));
             }
         }
         if a.pending().is_some() || b.pending().is_some() {
@@ -343,30 +348,33 @@ impl Machine {
                 b.clone(),
             ))));
         }
-        Ok(Value::Int(self.apply(op, a, b)?))
+        Ok(self.apply(op, a, b)?.into())
     }
 
-    fn apply(&self, op: Op, a: &Value, b: &Value) -> R<i64> {
-        let int = |v: &Value| match v {
-            Value::Int(n) => Some(*n),
+    fn apply(&self, op: Op, a: &Value, b: &Value) -> R<Num> {
+        let num = |v: &Value| match v {
+            Value::Int(n) => Some(Num::Int(*n)),
+            Value::Float(x) => Some(Num::Float(*x)),
             Value::Lazy(l) => l.done(),
             _ => None,
         };
         if op == Op::Eq
             && let (Value::Str(x), Value::Str(y)) = (a, b)
         {
-            return Ok(i64::from(x == y));
+            return Ok(Num::Int(i64::from(x == y)));
         }
-        match (int(a), int(b)) {
-            (Some(x), _) if op == Op::Abs => apply_int(op, x, 0),
-            (Some(x), Some(y)) => apply_int(op, x, y),
+        let unary = matches!(op, Op::Abs | Op::Sqrt | Op::ToFloat | Op::ToInt);
+        match (num(a), num(b)) {
+            (Some(Num::Int(x)), Some(Num::Int(y))) if !unary => apply_int(op, x, y).map(Num::Int),
+            (Some(x), _) if unary => apply_unary(op, x),
+            (Some(x), Some(y)) => apply_float(op, x.as_f64(), y.as_f64()),
             _ => {
-                let got = if op == Op::Abs {
+                let got = if unary {
                     self.py_repr(a)
                 } else {
                     format!("{}, {}", self.py_repr(a), self.py_repr(b))
                 };
-                fail(format!("'{op}' needs integers, got {got}"))
+                fail(format!("'{op}' needs numbers, got {got}"))
             }
         }
     }
@@ -374,7 +382,7 @@ impl Machine {
     /// Observes a value: collapses it (and everything it depends on) in place.
     pub fn collapse(&mut self, v: &Value) -> R<Value> {
         Ok(match v.resolved() {
-            Value::Lazy(l) => Value::Int(self.force(l)?),
+            Value::Lazy(l) => self.force(l)?.into(),
             Value::Closure(_) | Value::Builtin(_) => return fail("Cannot observe a function"),
             other => other.clone(),
         })
@@ -391,6 +399,7 @@ impl Machine {
     fn truthy_slow(&mut self, v: &Value) -> R<bool> {
         Ok(match self.collapse(v)? {
             Value::Int(n) => n != 0,
+            Value::Float(x) => x != 0.0,
             Value::Str(s) => !s.is_empty(),
             Value::Struct(s) => !s.fields.is_empty(),
             Value::Array(items) => !items.is_empty(),
@@ -416,8 +425,28 @@ impl Machine {
         }
     }
 
+    #[inline]
+    fn num_of(&mut self, v: &Value, what: &str) -> R<Num> {
+        match v {
+            Value::Int(n) => Ok(Num::Int(*n)),
+            Value::Float(x) => Ok(Num::Float(*x)),
+            _ => self.num_of_slow(v, what),
+        }
+    }
+
+    fn num_of_slow(&mut self, v: &Value, what: &str) -> R<Num> {
+        match self.collapse(v)? {
+            Value::Int(n) => Ok(Num::Int(n)),
+            Value::Float(x) => Ok(Num::Float(x)),
+            other => fail(format!(
+                "{what} needs a number, got {}",
+                self.py_repr(&other)
+            )),
+        }
+    }
+
     /// Collapses a lazy cell, depth first and left to right, without recursion.
-    fn force(&mut self, root: &Rc<Lazy>) -> R<i64> {
+    fn force(&mut self, root: &Rc<Lazy>) -> R<Num> {
         if let Some(n) = root.done() {
             return Ok(n);
         }
@@ -454,17 +483,20 @@ impl Machine {
     }
 
     /// Evaluates a lazy cell whose operands have all collapsed.
-    fn compute(&mut self, state: &LazyState) -> R<i64> {
+    fn compute(&mut self, state: &LazyState) -> R<Num> {
         match state {
             LazyState::Done(n) => Ok(*n),
-            LazyState::Open(None) => Ok(self.rng.int_in(0, 99)),
+            LazyState::Open(None) => Ok(Num::Int(self.rng.int_in(0, 99))),
             LazyState::Open(Some((lo, hi))) => {
-                let lo = self.int_of(lo, "open() bound")?;
-                let hi = self.int_of(hi, "open() bound")?;
-                if lo > hi {
+                let lo = self.num_of(lo, "open() bound")?;
+                let hi = self.num_of(hi, "open() bound")?;
+                if lo.as_f64() > hi.as_f64() {
                     return fail(format!("open({lo}, {hi}): empty range"));
                 }
-                Ok(self.rng.int_in(lo, hi))
+                Ok(match (lo, hi) {
+                    (Num::Int(lo), Num::Int(hi)) => Num::Int(self.rng.int_in(lo, hi)),
+                    (lo, hi) => Num::Float(self.rng.float_in(lo.as_f64(), hi.as_f64())),
+                })
             }
             LazyState::Future(op, a, b) => {
                 let (a, b) = (self.collapse(a)?, self.collapse(b)?);
@@ -691,6 +723,15 @@ impl Machine {
                 arity("abs", 1)?;
                 self.lazy(Op::Abs, &args[0], &Value::None)
             }
+            Builtin::Sqrt | Builtin::Float | Builtin::Int => {
+                let (name, op) = match b {
+                    Builtin::Sqrt => ("sqrt", Op::Sqrt),
+                    Builtin::Float => ("float", Op::ToFloat),
+                    _ => ("int", Op::ToInt),
+                };
+                arity(name, 1)?;
+                self.lazy(op, &args[0], &Value::None)
+            }
             Builtin::Len => {
                 arity("len", 1)?;
                 match args[0].resolved() {
@@ -776,6 +817,7 @@ impl Machine {
     fn sample(&mut self, v: &Value) -> R<Sample> {
         match self.collapse(v)? {
             Value::Int(n) => Ok(Sample::Int(n)),
+            Value::Float(x) => Ok(Sample::Float(x)),
             Value::Struct(s) => {
                 let mut fields = Vec::with_capacity(s.fields.len());
                 for (k, f) in s.fields.iter() {
@@ -794,7 +836,7 @@ impl Machine {
                 let mut shown = String::new();
                 self.format(&other, &mut shown)?;
                 fail(format!(
-                    "A universe must produce an integer, a struct or an array, got {shown}"
+                    "A universe must produce a number, a struct or an array, got {shown}"
                 ))
             }
         }
@@ -832,6 +874,7 @@ impl Machine {
             }
             Value::None => out.push_str("none"),
             Value::Int(n) => write!(out, "{n}").expect("write to String"),
+            Value::Float(x) => write!(out, "{}", Num::Float(*x)).expect("write to String"),
             Value::Str(s) => out.push_str(s),
             other => out.push_str(&self.repr(other)),
         }
@@ -843,15 +886,18 @@ impl Machine {
         match v {
             Value::None => "<None>".into(),
             Value::Int(n) => format!("<{n}>"),
+            Value::Float(x) => format!("<{}>", Num::Float(*x)),
             Value::Str(s) => format!("<{s}>"),
             Value::Lazy(l) => match &*l.state.borrow() {
                 LazyState::Done(n) => format!("<{n}>"),
                 LazyState::Open(_) => "<?Int (Open)>".into(),
                 LazyState::Future(op, ..) => {
-                    format!(
-                        "<{} (Future)>",
-                        if op.is_boolean() { "~Bool" } else { "~Int" }
-                    )
+                    let ty = match op {
+                        _ if op.is_boolean() => "~Bool",
+                        Op::Sqrt | Op::ToFloat => "~Float",
+                        _ => "~Int",
+                    };
+                    format!("<{ty} (Future)>")
                 }
             },
             Value::Struct(s) => format!("Struct<{}>", self.name(s.ty)),
@@ -862,13 +908,14 @@ impl Machine {
         }
     }
 
-    /// A collapsed value as it appears inside "needs integers" errors.
+    /// A collapsed value as it appears inside "needs numbers" errors.
     fn py_repr(&self, v: &Value) -> String {
         match v.resolved() {
             Value::None => "None".into(),
             Value::Int(n) => n.to_string(),
+            Value::Float(x) => Num::Float(*x).to_string(),
             Value::Str(s) => format!("'{s}'"),
-            Value::Lazy(l) if l.is_done() => l.done().unwrap_or_default().to_string(),
+            Value::Lazy(l) if let Some(n) = l.done() => n.to_string(),
             Value::Struct(s) => {
                 let fields: Vec<String> = s
                     .fields
@@ -887,7 +934,7 @@ impl Machine {
 }
 
 /// `op` on two collapsed integers. `Abs` ignores `y`.
-#[inline]
+#[inline(always)]
 pub fn apply_int(op: Op, x: i64, y: i64) -> R<i64> {
     let r = match op {
         Op::Add => x.checked_add(y),
@@ -907,10 +954,66 @@ pub fn apply_int(op: Op, x: i64, y: i64) -> R<i64> {
         Op::Min => Some(x.min(y)),
         Op::Max => Some(x.max(y)),
         Op::Abs => x.checked_abs(),
+        Op::Sqrt | Op::ToFloat | Op::ToInt => unreachable!("'{op}' is not an integer operator"),
     };
     match r {
         Some(n) => Ok(n),
         None => overflow(op),
+    }
+}
+
+/// `op` on two numbers, at least one a float. The result is finite: a
+/// float that overflows is an error, as an integer that overflows is.
+#[inline(never)]
+fn apply_float(op: Op, x: f64, y: f64) -> R<Num> {
+    let flag = |b: bool| Ok(Num::Int(i64::from(b)));
+    let r = match op {
+        Op::Add => x + y,
+        Op::Sub => x - y,
+        Op::Mul => x * y,
+        Op::Div => {
+            if y == 0.0 {
+                return fail("Division by zero");
+            }
+            x / y
+        }
+        Op::Gt => return flag(x > y),
+        Op::Lt => return flag(x < y),
+        Op::Eq => return flag(x == y),
+        Op::And => return flag(x != 0.0 && y != 0.0),
+        Op::Or => return flag(x != 0.0 || y != 0.0),
+        Op::Min => x.min(y),
+        Op::Max => x.max(y),
+        Op::Abs | Op::Sqrt | Op::ToFloat | Op::ToInt => unreachable!("'{op}' is unary"),
+    };
+    if r.is_finite() {
+        Ok(Num::Float(r))
+    } else {
+        fail(format!("Float overflow in '{op}'"))
+    }
+}
+
+/// A unary built-in on a number. `sqrt` is correctly rounded (IEEE 754),
+/// so like `+ - * /` it gives the same result on every platform.
+#[inline(never)]
+fn apply_unary(op: Op, x: Num) -> R<Num> {
+    match (op, x) {
+        (Op::Abs, Num::Int(n)) => apply_int(op, n, 0).map(Num::Int),
+        (Op::Abs, Num::Float(x)) => Ok(Num::Float(x.abs())),
+        (Op::Sqrt, x) if x.as_f64() < 0.0 => fail(format!("sqrt() of a negative number: {x}")),
+        (Op::Sqrt, x) => Ok(Num::Float(x.as_f64().sqrt())),
+        (Op::ToFloat, x) => Ok(Num::Float(x.as_f64())),
+        (Op::ToInt, Num::Int(n)) => Ok(Num::Int(n)),
+        (Op::ToInt, Num::Float(x)) => {
+            let x = x.floor();
+            // i64's range is [-2^63, 2^63), and both ends are exact floats
+            if (-9_223_372_036_854_775_808.0..9_223_372_036_854_775_808.0).contains(&x) {
+                Ok(Num::Int(x as i64))
+            } else {
+                fail(format!("int() out of range: {}", Num::Float(x)))
+            }
+        }
+        _ => unreachable!("'{op}' is binary"),
     }
 }
 

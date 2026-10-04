@@ -289,6 +289,7 @@ fn assign_path(var: Ref, path: Box<[Place]>, e: Expr) -> Run {
 fn expr(e: Expr) -> Code {
     match e {
         Expr::Int(n) => Box::new(move |_, _| Ok(Value::Int(n))),
+        Expr::Float(x) => Box::new(move |_, _| Ok(Value::Float(x))),
         Expr::Str(s) => Box::new(move |_, _| Ok(Value::Str(s.clone()))),
         Expr::Var(var) => variable(var),
         Expr::Open(None) => Box::new(|_, _| Ok(Value::Lazy(Lazy::new(LazyState::Open(None))))),
@@ -405,6 +406,7 @@ fn variable(var: Ref) -> Code {
 /// in place rather than by a call.
 enum Operand {
     Int(i64),
+    Float(f64),
     /// A variable in the current scope (its only location).
     Local(u32, Ref),
     /// A variable with one possible location further out.
@@ -415,6 +417,7 @@ enum Operand {
 fn operand(e: Expr) -> Operand {
     match e {
         Expr::Int(n) => Operand::Int(n),
+        Expr::Float(x) => Operand::Float(x),
         Expr::Var(var) => match *var.locs {
             [Loc { up: 0, slot }] => Operand::Local(slot, var),
             [loc] => Operand::Outer(loc, var),
@@ -429,6 +432,7 @@ impl Operand {
     fn eval(&self, m: &mut Machine, env: &Rc<Scope>) -> R<Value> {
         match self {
             Operand::Int(n) => Ok(Value::Int(*n)),
+            Operand::Float(x) => Ok(Value::Float(*x)),
             Operand::Local(slot, var) => match env.read(*slot) {
                 Some(v) => Ok(v),
                 None => m.lookup(env, var),
@@ -455,10 +459,11 @@ fn binary(op: Op, l: Operand, r: Operand) -> Code {
                         (a, b) => m.lazy(Op::$op, &a, &b),
                     }
                 }),)*
+                Op::Abs | Op::Sqrt | Op::ToFloat | Op::ToInt => unreachable!("'{op}' is unary"),
             }
         };
     }
-    with_op!(Or And Eq Gt Lt Add Sub Mul Div Min Max Abs)
+    with_op!(Or And Eq Gt Lt Add Sub Mul Div Min Max)
 }
 
 /// A step of a member or index access.
@@ -543,7 +548,7 @@ fn walk(m: &mut Machine, env: &Rc<Scope>, mut cur: &Value, steps: &[Access]) -> 
 /// and runs no block. Such an expression only reads scopes.
 fn no_writes(e: &Expr) -> bool {
     match e {
-        Expr::Int(_) | Expr::Str(_) | Expr::Var(_) | Expr::Open(None) => true,
+        Expr::Int(_) | Expr::Float(_) | Expr::Str(_) | Expr::Var(_) | Expr::Open(None) => true,
         Expr::Open(Some(b)) => no_writes(&b.0) && no_writes(&b.1),
         Expr::Binary(_, a, b) | Expr::Index(a, b) => no_writes(a) && no_writes(b),
         Expr::Member(e, _) | Expr::Observe(e) => no_writes(e),

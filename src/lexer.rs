@@ -133,7 +133,16 @@ pub fn lex(src: &str) -> Result<Vec<Token<'_>>, Error> {
                 let end = take_while(pos, |b| b.is_ascii_alphanumeric() || b == b'_');
                 (keyword(&src[pos..end]).unwrap_or(Tok::Id), end)
             }
-            b'0'..=b'9' => (Tok::Number, take_while(pos, |b| b.is_ascii_digit())),
+            b'0'..=b'9' => {
+                let mut end = take_while(pos, |b| b.is_ascii_digit());
+                // `1.5` is a float; `a[1].b` is still a member access
+                if bytes.get(end) == Some(&b'.')
+                    && bytes.get(end + 1).is_some_and(u8::is_ascii_digit)
+                {
+                    end = take_while(end + 1, |b| b.is_ascii_digit());
+                }
+                (Tok::Number, end)
+            }
             b'"' => match bytes[pos + 1..]
                 .iter()
                 .position(|&b| b == b'"' || b == b'\n')

@@ -35,9 +35,12 @@ pub mod well_known {
     pub const LEN: Sym = Sym(14);
     pub const ARRAY: Sym = Sym(15);
     pub const PUSH: Sym = Sym(16);
-    pub(super) const NAMES: [&str; 17] = [
+    pub const SQRT: Sym = Sym(17);
+    pub const FLOAT: Sym = Sym(18);
+    pub const INT: Sym = Sym(19);
+    pub(super) const NAMES: [&str; 20] = [
         "main", "Ensemble", "print", "seed", "min", "max", "abs", "n", "rejected", "total", "mean",
-        "median", "hits", "rate", "len", "array", "push",
+        "median", "hits", "rate", "len", "array", "push", "sqrt", "float", "int",
     ];
     /// Fields of the `Ensemble` struct a multiverse produces, in order.
     pub const ENSEMBLE_FIELDS: [Sym; 9] = [N, REJECTED, TOTAL, MEAN, MIN, MAX, MEDIAN, HITS, RATE];
@@ -86,6 +89,12 @@ pub enum Op {
     Min,
     Max,
     Abs,
+    /// The unary built-ins below, like `Abs`, ignore their second operand.
+    Sqrt,
+    /// `float(x)`
+    ToFloat,
+    /// `int(x)`, rounding down
+    ToInt,
 }
 
 impl Op {
@@ -110,6 +119,9 @@ impl fmt::Display for Op {
             Op::Min => "min",
             Op::Max => "max",
             Op::Abs => "abs",
+            Op::Sqrt => "sqrt",
+            Op::ToFloat => "float",
+            Op::ToInt => "int",
         })
     }
 }
@@ -180,6 +192,7 @@ impl Ref {
 #[derive(Debug)]
 pub enum Expr {
     Int(i64),
+    Float(f64),
     Str(Rc<String>),
     Var(Ref),
     /// `open` (0..=99) or `open(lo, hi)`.
