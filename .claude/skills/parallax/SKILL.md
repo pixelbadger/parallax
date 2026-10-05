@@ -10,6 +10,19 @@ study. Every candidate policy is run in the same possible worlds, and the
 runtime returns typed JSON. Full reference: `README.md`. Tested examples:
 `examples.md`. Larger programs: `simulations/*.px`.
 
+## Getting the binary
+
+Use the released `parallax` binary:
+
+```sh
+parallax --version || scripts/install.sh   # installs the latest release (needs `gh` logged in)
+```
+
+`scripts/install.sh` puts it in `~/.local/bin`; make sure that's on `PATH`.
+If there's no prebuilt binary for the platform or `gh` isn't available, or
+you're changing the language itself (the release can lag the source), run
+from source instead: `cargo run --release -- <args>` in place of `parallax`.
+
 ## Workflow
 
 1. **Frame the decision.** Before writing code, write down:
@@ -23,10 +36,10 @@ runtime returns typed JSON. Full reference: `README.md`. Tested examples:
 2. **Write the program** in this order: inputs → constants → types → action
    → world → helper `fn`s → model → policies → study. Start from a template
    below.
-3. **Check it:** `cargo run --release -- check model.px`. Fix errors (the
+3. **Check it:** `parallax check model.px`. Fix errors (the
    messages say what to do), read the input schema, and look at
    `estimated_operations`: aim for under ~1e9 while iterating.
-4. **Run it:** `cargo run --release -- run model.px [--inputs in.json]
+4. **Run it:** `parallax run model.px [--inputs in.json]
    [--input name=value] [--worlds N]`. Use a few hundred worlds while
    iterating, and more for the final answer.
 5. **Interpret it** (see below). Report the recommendation with its
