@@ -1,9 +1,321 @@
---- Executing simulations/circumbinary.spl ---
-== Every launch: 24 universes ==
-drift    | kept 83 % | ejected 8 % | crashed 8 % | habitable 55 % of the time | burns 0
-forecast | kept 83 % | ejected 4 % | crashed 12 % | habitable 69 % of the time | burns 2
-edit     | kept 96 % | ejected 4 % | crashed 0 % | habitable 77 % of the time | burns 2
-median distance from the stars (0.1 AU), every 150 steps, drifting: [21, 24, 26, 27, 27]
-== Given it started inside 2 AU: 11 of 24 launches ==
-drift    | kept 64 % | ejected 18 % | crashed 18 % | habitable 35 % of the time | burns 0
-edit     | kept 91 % | ejected 9 % | crashed 0 % | habitable 57 % of the time | burns 3
+{
+  "runtime": "parallax 0.1.0",
+  "model_sha256": "7dabb50963f499a6e79958d29ec826182eeff0521fc5b4c1db5c8338f9b12117",
+  "studies": [
+    {
+      "study": "launch",
+      "model": "voyage",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "7dabb50963f499a6e79958d29ec826182eeff0521fc5b4c1db5c8338f9b12117",
+        "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "seed": 1,
+        "worlds": 48,
+        "world_ids": [
+          0,
+          47
+        ]
+      },
+      "inputs": {},
+      "objectives": [
+        {
+          "sense": "maximize",
+          "metric": "probability(kept)"
+        },
+        {
+          "sense": "maximize",
+          "metric": "mean(habitable)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "drift",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 48,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "probability(kept)",
+              "value": 0.9166666666666666,
+              "ci95": [
+                0.8044669820963272,
+                0.9671162431819081
+              ]
+            },
+            {
+              "metric": "mean(habitable)",
+              "value": 63.98611111111111,
+              "unit": "%",
+              "ci95": [
+                54.26959002219902,
+                73.7026322000232
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(ejected)",
+              "value": 0.041666666666666664,
+              "ci95": [
+                0.011501893489386586,
+                0.13975655870455445
+              ]
+            },
+            {
+              "metric": "probability(crashed)",
+              "value": 0.041666666666666664,
+              "ci95": [
+                0.011501893489386586,
+                0.13975655870455445
+              ]
+            },
+            {
+              "metric": "mean(burns)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "median(track)",
+              "value": [
+                2.3192557936096176,
+                2.41219090739589,
+                2.5240504795687384,
+                2.6196385274517526,
+                2.7484381115197136
+              ]
+            },
+            {
+              "metric": "probability(inner)",
+              "value": 0.3333333333333333,
+              "ci95": [
+                0.21676780694818568,
+                0.4745989029405201
+              ]
+            },
+            {
+              "metric": "probability(kept where inner)",
+              "value": 0.75
+            },
+            {
+              "metric": "mean(habitable where inner)",
+              "value": 42.50000000000001,
+              "unit": "%"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.0625,
+            "ci95": [
+              -0.13170298200668817,
+              0.006702982006688174
+            ],
+            "worlds": 48
+          },
+          "of_oracle": 0.9361702127659575,
+          "work": {
+            "estimated_operations": 34464192,
+            "operations": 22234723
+          }
+        },
+        {
+          "name": "foresee",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 48,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "probability(kept)",
+              "value": 0.9791666666666666,
+              "ci95": [
+                0.8910078200474814,
+                0.9963128890224893
+              ]
+            },
+            {
+              "metric": "mean(habitable)",
+              "value": 85.43055555555554,
+              "unit": "%",
+              "ci95": [
+                78.69004498552454,
+                92.17106612558653
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(ejected)",
+              "value": 0.020833333333333332,
+              "ci95": [
+                0.003687110977510649,
+                0.10899217995251861
+              ]
+            },
+            {
+              "metric": "probability(crashed)",
+              "value": 0.0,
+              "ci95": [
+                6.938893903907228e-18,
+                0.07410012966611748
+              ]
+            },
+            {
+              "metric": "mean(burns)",
+              "value": 2.0,
+              "ci95": [
+                1.5832471012755722,
+                2.4167528987244276
+              ]
+            },
+            {
+              "metric": "median(track)",
+              "value": [
+                2.338294373333802,
+                2.201979251547722,
+                2.335161468618516,
+                2.3981882431841095,
+                2.351087229685909
+              ]
+            },
+            {
+              "metric": "probability(inner)",
+              "value": 0.3333333333333333,
+              "ci95": [
+                0.21676780694818568,
+                0.4745989029405201
+              ]
+            },
+            {
+              "metric": "probability(kept where inner)",
+              "value": 0.9375
+            },
+            {
+              "metric": "mean(habitable where inner)",
+              "value": 68.32499999999999,
+              "unit": "%"
+            }
+          ],
+          "of_oracle": 1.0,
+          "work": {
+            "estimated_operations": 448079952,
+            "operations": 299057042
+          }
+        },
+        {
+          "name": "edit",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 48,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "probability(kept)",
+              "value": 0.9791666666666666,
+              "ci95": [
+                0.8910078200474814,
+                0.9963128890224893
+              ]
+            },
+            {
+              "metric": "mean(habitable)",
+              "value": 85.17777777777776,
+              "unit": "%",
+              "ci95": [
+                78.41701367380779,
+                91.93854188174774
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(ejected)",
+              "value": 0.020833333333333332,
+              "ci95": [
+                0.003687110977510649,
+                0.10899217995251861
+              ]
+            },
+            {
+              "metric": "probability(crashed)",
+              "value": 0.0,
+              "ci95": [
+                6.938893903907228e-18,
+                0.07410012966611748
+              ]
+            },
+            {
+              "metric": "mean(burns)",
+              "value": 1.875,
+              "ci95": [
+                1.4808196416984762,
+                2.2691803583015235
+              ]
+            },
+            {
+              "metric": "median(track)",
+              "value": [
+                2.338294373333802,
+                2.201979251547722,
+                2.335161468618516,
+                2.3912400433442267,
+                2.383495496098409
+              ]
+            },
+            {
+              "metric": "probability(inner)",
+              "value": 0.3333333333333333,
+              "ci95": [
+                0.21676780694818568,
+                0.4745989029405201
+              ]
+            },
+            {
+              "metric": "probability(kept where inner)",
+              "value": 0.9375
+            },
+            {
+              "metric": "mean(habitable where inner)",
+              "value": 67.90833333333333,
+              "unit": "%"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 48
+          },
+          "work": {
+            "estimated_operations": 137867712,
+            "operations": 92059718
+          }
+        }
+      ],
+      "ranking": [
+        "foresee",
+        "drift"
+      ],
+      "recommended": "foresee",
+      "best_oracle": "edit",
+      "errors": [],
+      "work": {
+        "estimated_operations": 620411856,
+        "estimated_transitions": 4320,
+        "operations": 413351483,
+        "max_forecast_worlds": 4
+      }
+    }
+  ]
+}

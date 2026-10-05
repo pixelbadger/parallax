@@ -1,13 +1,5271 @@
---- Executing simulations/prewarm.spl ---
-Cell 1 C, battery 1% full:
-  calibrated plan: lead 15 min, cost 180.69 p, short 0.19 kWh
-  on uncertain batteries, planned lead: 15 min, mean 181.28 p, short >0.1 kWh on 90 % of nights
-  on uncertain batteries, best lead:    20 min, mean 181.17 p, short >0.1 kWh on 80 % of nights
-Cell -5 C, battery 30% full:
-  calibrated plan: lead 20 min, cost 126.44 p, short 0.0 kWh
-  on uncertain batteries, planned lead: 20 min, mean 126.86 p, short >0.1 kWh on 10 % of nights
-  on uncertain batteries, best lead:    25 min, mean 126.78 p, short >0.1 kWh on 10 % of nights
-Cell 5 C, battery 1% full:
-  calibrated plan: lead 0 min, cost 180.27 p, short 0.19 kWh
-  on uncertain batteries, planned lead: 0 min, mean 180.78 p, short >0.1 kWh on 92 % of nights
-  on uncertain batteries, best lead:    5 min, mean 180.68 p, short >0.1 kWh on 78 % of nights
+{
+  "runtime": "parallax 0.1.0",
+  "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
+  "studies": [
+    {
+      "study": "cold_and_empty",
+      "model": "overnight",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
+        "inputs_sha256": "3a9c7ba3c39048fde9753ab8304b56eb1c936265b7ef87ab818fd4024d585e71",
+        "seed": 42,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "cell_temp": {
+          "value": 1.0,
+          "unit": "°C"
+        },
+        "soc": {
+          "value": 1.0,
+          "unit": "%"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(cost)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "lead[0 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 184.40569474608665,
+              "unit": "p",
+              "ci95": [
+                183.5161197644018,
+                185.2952697277715
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 194.38621116796395,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 1.0,
+              "ci95": [
+                0.9630065017930143,
+                1.0
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 195.91431587755557,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 3.067272755044031,
+            "ci95": [
+              2.398591481245935,
+              3.735954028842127
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9825778168811956,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3700365
+          }
+        },
+        {
+          "name": "lead[5 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 183.11288192552078,
+              "unit": "p",
+              "ci95": [
+                182.44230694815144,
+                183.7834569028901
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 191.08502212325527,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.99,
+              "ci95": [
+                0.9455138038212946,
+                0.9982325679358593
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 192.53823612646124,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.7744599344780632,
+            "ci95": [
+              1.3226764587418072,
+              2.226243410214319
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9895150087680249,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3818845
+          }
+        },
+        {
+          "name": "lead[10 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": {
+            "value": 10.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 10.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 182.14329889963207,
+              "unit": "p",
+              "ci95": [
+                181.66574784339315,
+                182.620849955871
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 187.7660406185867,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.98,
+              "ci95": [
+                0.929988209271456,
+                0.9944980324498376
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 189.15645679720777,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.8048769085894945,
+            "ci95": [
+              0.5454875079030432,
+              1.0642663092759457
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9947823832043046,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3938669
+          }
+        },
+        {
+          "name": "lead[15 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.53038735487826,
+              "unit": "p",
+              "ci95": [
+                181.2024128487511,
+                181.85836186100545
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 185.12186389108044,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.93,
+              "ci95": [
+                0.8625048526092651,
+                0.9656807389327273
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 186.11829952529996,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.1919653638356369,
+            "ci95": [
+              0.08644547785343816,
+              0.29748524981783564
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9981411244931208,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4058498
+          }
+        },
+        {
+          "name": "lead[20 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.33842199104262,
+              "unit": "p",
+              "ci95": [
+                181.10455127545941,
+                181.57229270662583
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.78356277117877,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.81,
+              "ci95": [
+                0.7222115462093562,
+                0.8748524849023126
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 184.27560740071138,
+              "unit": "p"
+            }
+          ],
+          "of_oracle": 0.9991977594964413,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4177689
+          }
+        },
+        {
+          "name": "lead[25 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.5987968526781,
+              "unit": "p",
+              "ci95": [
+                181.414777060181,
+                181.78281664517522
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.19073920674228,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.47389856714446,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.2603748616355357,
+            "ci95": [
+              0.1718003683642885,
+              0.34894935490678286
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9977651179653059,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4295232
+          }
+        },
+        {
+          "name": "lead[30 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "parameter": {
+            "value": 30.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 30.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 182.4428186519007,
+              "unit": "p",
+              "ci95": [
+                182.2527661375915,
+                182.63287116620987
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 184.00336450906116,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.57,
+              "ci95": [
+                0.47215389549212305,
+                0.6626670147588988
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 184.2478570690113,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.104396660858023,
+            "ci95": [
+              0.9084357291539682,
+              1.3003575925620774
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9931492305530785,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4408470
+          }
+        },
+        {
+          "name": "lead[35 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 35.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 35.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 183.9753001592028,
+              "unit": "p",
+              "ci95": [
+                183.7068778329577,
+                184.24372248544785
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 186.378540282163,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.42,
+              "ci95": [
+                0.3279838267435473,
+                0.5179351329695703
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 186.97105092061796,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.636878168160237,
+            "ci95": [
+              2.3045489665691585,
+              2.9692073697513157
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9848764742184136,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4506473
+          }
+        },
+        {
+          "name": "lead[40 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 40.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 40.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 186.23248975343446,
+              "unit": "p",
+              "ci95": [
+                185.8261917255675,
+                186.63878778130143
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 189.72076399949057,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.32,
+              "ci95": [
+                0.23669147324999093,
+                0.41662618610452384
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 190.725190491485,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 4.8940677623919004,
+            "ci95": [
+              4.3941822248341555,
+              5.3939532999496445
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9729394973130807,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4592859
+          }
+        },
+        {
+          "name": "lead[45 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 45.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 45.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 189.14178813653277,
+              "unit": "p",
+              "ci95": [
+                188.5906300274018,
+                189.69294624566373
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 193.3809508416495,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.21,
+              "ci95": [
+                0.141656540619153,
+                0.29979968834089865
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 194.98029366321845,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 7.803366145490148,
+            "ci95": [
+              7.138722827220838,
+              8.468009463759458
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9579741565796931,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4662737
+          }
+        },
+        {
+          "name": "lead[50 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "parameter": {
+            "value": 50.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 50.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 192.52312420857058,
+              "unit": "p",
+              "ci95": [
+                191.85520718365655,
+                193.1910412334846
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 197.70176748933176,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.11,
+              "ci95": [
+                0.06254196357064568,
+                0.18631296503080313
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 199.48294590051773,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 11.18470221752793,
+            "ci95": [
+              10.387046936451046,
+              11.982357498604811
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9411489955241636,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4717448
+          }
+        },
+        {
+          "name": "lead[55 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "parameter": {
+            "value": 55.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 55.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 196.2026363694744,
+              "unit": "p",
+              "ci95": [
+                195.4487062061275,
+                196.95656653282128
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 202.17526805454895,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.05,
+              "ci95": [
+                0.02154367915436796,
+                0.11175046923191913
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 204.0533409554539,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 14.86421437843182,
+            "ci95": [
+              13.965639517505998,
+              15.762789239357641
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9234990330245142,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4756375
+          }
+        },
+        {
+          "name": "lead[60 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 15,
+          "parameter": {
+            "value": 60.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 60.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 200.047813106662,
+              "unit": "p",
+              "ci95": [
+                199.22757226705716,
+                200.86805394626683
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 206.65755131068036,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 208.63202545992183,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 18.70939111561938,
+            "ci95": [
+              17.730617620320103,
+              19.68816461091865
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9057481916458696,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4783080
+          }
+        },
+        {
+          "name": "lead[65 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 16,
+          "parameter": {
+            "value": 65.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 65.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 203.9958921977707,
+              "unit": "p",
+              "ci95": [
+                203.11726501676742,
+                204.87451937877398
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 211.16726215187592,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 213.23293702326018,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 22.65747020672798,
+            "ci95": [
+              21.608333147684753,
+              23.706607265771208
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.888218596031367,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4798467
+          }
+        },
+        {
+          "name": "lead[70 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 17,
+          "parameter": {
+            "value": 70.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 70.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 208.00838620707432,
+              "unit": "p",
+              "ci95": [
+                207.07496156734834,
+                208.9418108468003
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 215.7021516199444,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 217.85162366438038,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 26.669964216031715,
+            "ci95": [
+              25.55653282185526,
+              27.78339561020817
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8710848070504748,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4805549
+          }
+        },
+        {
+          "name": "lead[75 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 18,
+          "parameter": {
+            "value": 75.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 75.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 212.0584237587813,
+              "unit": "p",
+              "ci95": [
+                211.0737275309619,
+                213.0431199866007
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 220.17413913157483,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 222.45910716545282,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 30.720001767738676,
+            "ci95": [
+              29.54829816360448,
+              31.89170537187287
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8544482305978982,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4805729
+          }
+        },
+        {
+          "name": "lead[80 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 19,
+          "parameter": {
+            "value": 80.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 80.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 216.1230110271509,
+              "unit": "p",
+              "ci95": [
+                215.08552836205487,
+                217.16049369224692
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 224.58018025191717,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 227.0605435741976,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 34.784589036108294,
+            "ci95": [
+              33.554161581865436,
+              36.01501649035115
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8383787737498588,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4803898
+          }
+        },
+        {
+          "name": "lead[85 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 20,
+          "parameter": {
+            "value": 85.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 85.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 220.1926713482249,
+              "unit": "p",
+              "ci95": [
+                219.09934685964728,
+                221.28599583680253
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 229.015121412198,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 231.6739549874076,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 38.854249357182326,
+            "ci95": [
+              37.56301553428099,
+              40.14548318008366
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8228836312064238,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4802214
+          }
+        },
+        {
+          "name": "lead[90 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 21,
+          "parameter": {
+            "value": 90.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 90.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 224.26756518424304,
+              "unit": "p",
+              "ci95": [
+                223.11607891549187,
+                225.4190514529942
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 233.45046088782078,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 236.2933248024115,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 42.929143193200446,
+            "ci95": [
+              41.57566090058081,
+              44.282625485820084
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8079320111011778,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4800882
+          }
+        },
+        {
+          "name": "lead[95 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 22,
+          "parameter": {
+            "value": 95.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 95.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 228.34326521454443,
+              "unit": "p",
+              "ci95": [
+                227.13257188937357,
+                229.55395853971527
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 237.85448327706334,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 240.8829554973801,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 47.00484322350173,
+            "ci95": [
+              45.588752339282316,
+              48.42093410772114
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7935112287801727,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4798906
+          }
+        },
+        {
+          "name": "lead[100 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 23,
+          "parameter": {
+            "value": 100.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 100.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 232.42214434409104,
+              "unit": "p",
+              "ci95": [
+                231.14999059645464,
+                233.6942980917274
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 242.38028366164932,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 245.51171245787424,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 51.08372235304842,
+            "ci95": [
+              49.603370905083715,
+              52.56407380101312
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7795855488529595,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4798947
+          }
+        },
+        {
+          "name": "lead[105 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 24,
+          "parameter": {
+            "value": 105.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 105.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 236.5060424481014,
+              "unit": "p",
+              "ci95": [
+                235.16951497386245,
+                237.84256992234035
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 246.96427086554905,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 250.15771306958806,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 55.16762045705889,
+            "ci95": [
+              53.620607939527666,
+              56.7146329745901
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7661239564474585,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4796525
+          }
+        },
+        {
+          "name": "lead[110 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 25,
+          "parameter": {
+            "value": 110.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 110.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 240.58530024779964,
+              "unit": "p",
+              "ci95": [
+                239.18342126803424,
+                241.98717922756504
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 251.57892068493632,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 254.79103693128144,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 59.246878256757086,
+            "ci95": [
+              57.63261707760743,
+              60.86113943590674
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7531338979457335,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4794056
+          }
+        },
+        {
+          "name": "lead[115 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 26,
+          "parameter": {
+            "value": 115.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 115.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 244.39794040456036,
+              "unit": "p",
+              "ci95": [
+                242.93080744230048,
+                245.86507336682027
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 255.9001809015834,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 259.16907119738653,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 63.059518413517765,
+            "ci95": [
+              61.378688627598166,
+              64.74034819943736
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7413849096442263,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4796556
+          }
+        },
+        {
+          "name": "lead[120 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 27,
+          "parameter": {
+            "value": 120.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 120.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 248.21058056132102,
+              "unit": "p",
+              "ci95": [
+                246.6773283150003,
+                249.74383280764172
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 260.22144111823053,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 263.54710546349156,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 66.87215857027842,
+            "ci95": [
+              65.1241004331399,
+              68.62021670741693
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7299968621575575,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4799056
+          }
+        },
+        {
+          "name": "calibrated",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.53038735487826,
+              "unit": "p",
+              "ci95": [
+                181.2024128487511,
+                181.85836186100545
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 185.12186389108044,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.93,
+              "ci95": [
+                0.8625048526092651,
+                0.9656807389327273
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 186.11829952529996,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.1919653638356369,
+            "ci95": [
+              0.08644547785343816,
+              0.29748524981783564
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9981411244931208,
+          "work": {
+            "estimated_operations": 9724310,
+            "operations": 5181453
+          }
+        },
+        {
+          "name": "robust",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "action": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.33842199104262,
+              "unit": "p",
+              "ci95": [
+                181.10455127545941,
+                181.57229270662583
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.78356277117877,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.81,
+              "ci95": [
+                0.7222115462093562,
+                0.8748524849023126
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 184.27560740071138,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9991977594964413,
+          "work": {
+            "estimated_operations": 85584160,
+            "operations": 49555627
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.19294496407,
+              "unit": "p",
+              "ci95": [
+                180.98074637174128,
+                181.40514355639868
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.19073920674228,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.370583575347,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.14547702697263132,
+            "ci95": [
+              -0.19490718278770947,
+              -0.09604687115755316
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 202298400,
+            "operations": 118187282
+          }
+        }
+      ],
+      "ranking": [
+        "lead[20 min]",
+        "robust",
+        "lead[15 min]",
+        "calibrated",
+        "lead[25 min]",
+        "lead[10 min]",
+        "lead[30 min]",
+        "lead[5 min]",
+        "lead[35 min]",
+        "lead[0 min]",
+        "lead[40 min]",
+        "lead[45 min]",
+        "lead[50 min]",
+        "lead[55 min]",
+        "lead[60 min]",
+        "lead[65 min]",
+        "lead[70 min]",
+        "lead[75 min]",
+        "lead[80 min]",
+        "lead[85 min]",
+        "lead[90 min]",
+        "lead[95 min]",
+        "lead[100 min]",
+        "lead[105 min]",
+        "lead[110 min]",
+        "lead[115 min]",
+        "lead[120 min]"
+      ],
+      "recommended": "lead[20 min]",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 492104395,
+        "estimated_transitions": 6300,
+        "operations": 286941887,
+        "max_forecast_worlds": 40
+      }
+    },
+    {
+      "study": "frozen_and_part_charged",
+      "model": "overnight",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
+        "inputs_sha256": "8ae4e3b7d2f9e362b518f6900f44b79f43acba7c66bfe33b21ad43460b4eb745",
+        "seed": 42,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "cell_temp": {
+          "value": -5.0,
+          "unit": "°C"
+        },
+        "soc": {
+          "value": 30.0,
+          "unit": "%"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(cost)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "lead[0 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.96030972686188,
+              "unit": "p",
+              "ci95": [
+                127.77173784171356,
+                128.1488816120102
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 129.50364319863905,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.78,
+              "ci95": [
+                0.6892964648501421,
+                0.8499871761539459
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 129.943281352454,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.0781930899981522,
+            "ci95": [
+              0.9247546822792588,
+              1.2316314977170455
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9893226373229796,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3486350
+          }
+        },
+        {
+          "name": "lead[5 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.66449267447362,
+              "unit": "p",
+              "ci95": [
+                127.48855285985827,
+                127.84043248908895
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 129.10622393741755,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.65,
+              "ci95": [
+                0.5525444329688796,
+                0.7363575175690247
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 129.38219468720092,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.7823760376098792,
+            "ci95": [
+              0.6399427874769096,
+              0.9248092877428487
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9916150406396959,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3599632
+          }
+        },
+        {
+          "name": "lead[10 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 10.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 10.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.39967024697589,
+              "unit": "p",
+              "ci95": [
+                127.2341988353223,
+                127.56514165862949
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 128.8028819842812,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.53,
+              "ci95": [
+                0.4328885697009936,
+                0.6248918204065872
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 129.03400995766927,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.5175536101121683,
+            "ci95": [
+              0.38733401355647473,
+              0.6477732066678619
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9936762853956389,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3708831
+          }
+        },
+        {
+          "name": "lead[15 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "parameter": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.17801338801024,
+              "unit": "p",
+              "ci95": [
+                127.02966420124126,
+                127.32636257477922
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 128.49955984366042,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.35,
+              "ci95": [
+                0.26364248243097527,
+                0.44745556703112027
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 128.73113646401515,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.29589675114655445,
+            "ci95": [
+              0.18638634626070802,
+              0.40540715603240085
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9954081505064539,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3808078
+          }
+        },
+        {
+          "name": "lead[20 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "parameter": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.01227873382533,
+              "unit": "p",
+              "ci95": [
+                126.88884332505627,
+                127.13571414259437
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 128.19623770303966,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.21,
+              "ci95": [
+                0.141656540619153,
+                0.29979968834089865
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 128.42880807069082,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.13016209696157355,
+            "ci95": [
+              0.05101478101677898,
+              0.2093094129063681
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9967070298529364,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3890521
+          }
+        },
+        {
+          "name": "lead[25 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 126.89850432319918,
+              "unit": "p",
+              "ci95": [
+                126.80281622026624,
+                126.99419242613212
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 127.89291556241892,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.14,
+              "ci95": [
+                0.08526343659939134,
+                0.22137188210963837
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 128.12656106435824,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.01638768633550436,
+            "ci95": [
+              -0.027029726233530373,
+              0.0598050989045391
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9976006554751866,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3959114
+          }
+        },
+        {
+          "name": "lead[30 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": {
+            "value": 30.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 30.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 126.88211663686373,
+              "unit": "p",
+              "ci95": [
+                126.81583610768494,
+                126.94839716604251
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 127.59080931215256,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.05,
+              "ci95": [
+                0.02154367915436796,
+                0.11175046923191913
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 127.82584637481855,
+              "unit": "p"
+            }
+          ],
+          "of_oracle": 0.9977295023691642,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4010473
+          }
+        },
+        {
+          "name": "lead[35 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": {
+            "value": 35.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 35.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.04798789311164,
+              "unit": "p",
+              "ci95": [
+                126.9966945256261,
+                127.0992812605972
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 127.5665041783635,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 127.69984059414074,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.16587125624789611,
+            "ci95": [
+              0.11045908909778378,
+              0.22128342339800844
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9964268871235548,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4043206
+          }
+        },
+        {
+          "name": "lead[40 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 40.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 40.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.46386401345974,
+              "unit": "p",
+              "ci95": [
+                127.36232477787739,
+                127.5654032490421
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 128.4864917275552,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 128.83250756361176,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.5817473765959824,
+            "ci95": [
+              0.45321407703522426,
+              0.7102806761567406
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9931758469072961,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4064568
+          }
+        },
+        {
+          "name": "lead[45 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 45.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 45.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 128.24959069718983,
+              "unit": "p",
+              "ci95": [
+                128.04869957658343,
+                128.45048181779623
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 130.15641725150607,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 130.76764521156542,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.3674740603261177,
+            "ci95": [
+              1.1377367722126233,
+              1.597211348439612
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9870911119751292,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4077083
+          }
+        },
+        {
+          "name": "lead[50 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "parameter": {
+            "value": 50.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 50.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 129.4974034257262,
+              "unit": "p",
+              "ci95": [
+                129.16083289161648,
+                129.8339739598359
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 132.5450402999436,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 133.46745675376528,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.6152867888624556,
+            "ci95": [
+              2.2505615418153297,
+              2.9800120359095814
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9775796868718906,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4082092
+          }
+        },
+        {
+          "name": "lead[55 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "parameter": {
+            "value": 55.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 55.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 131.2803488506752,
+              "unit": "p",
+              "ci95": [
+                130.77194172804244,
+                131.78875597330799
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 135.84674485655017,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 137.0385849029384,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 4.398232213811461,
+            "ci95": [
+              3.862188783116966,
+              4.934275644505957
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9643029760351921,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4084595
+          }
+        },
+        {
+          "name": "lead[60 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 15,
+          "parameter": {
+            "value": 60.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 60.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 133.6060435528248,
+              "unit": "p",
+              "ci95": [
+                132.91244669600962,
+                134.29964040963995
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 139.5765047631528,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 140.98902437260358,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 6.723926915960972,
+            "ci95": [
+              6.001879384721198,
+              7.445974447200745
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9475172509063328,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4087095
+          }
+        },
+        {
+          "name": "lead[65 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 16,
+          "parameter": {
+            "value": 65.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 65.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 136.3895111432896,
+              "unit": "p",
+              "ci95": [
+                135.52486886139639,
+                137.25415342518284
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 143.56848202993456,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 145.18571874579192,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 9.50739450642591,
+            "ci95": [
+              8.612839185863153,
+              10.401949826988666
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9281801073298499,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4089595
+          }
+        },
+        {
+          "name": "lead[70 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 17,
+          "parameter": {
+            "value": 70.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 70.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 139.52031921641645,
+              "unit": "p",
+              "ci95": [
+                138.51377238955658,
+                140.52686604327633
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 147.7871283604796,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 149.48346895755057,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 12.63820257955273,
+            "ci95": [
+              11.600300135316274,
+              13.676105023789189
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9073519312644234,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4092095
+          }
+        },
+        {
+          "name": "lead[75 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 18,
+          "parameter": {
+            "value": 75.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 75.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 142.915672748562,
+              "unit": "p",
+              "ci95": [
+                141.80204708442608,
+                144.02929841269793
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 152.03494148914262,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 153.80994132662246,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 16.03355611169831,
+            "ci95": [
+              14.887270996838167,
+              17.17984122655845
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8857952991227694,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4094595
+          }
+        },
+        {
+          "name": "lead[80 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 19,
+          "parameter": {
+            "value": 80.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 80.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 146.4943890702971,
+              "unit": "p",
+              "ci95": [
+                145.30431957528762,
+                147.68445856530658
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 156.22149000738756,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 158.1522420147095,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 19.612272433433382,
+            "ci95": [
+              18.38851572009267,
+              20.836029146774095
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8641561761856738,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4097095
+          }
+        },
+        {
+          "name": "lead[85 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 20,
+          "parameter": {
+            "value": 85.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 85.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 150.18004396935382,
+              "unit": "p",
+              "ci95": [
+                148.9336691590471,
+                151.42641877966057
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 160.39815291915048,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 162.50563110790398,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 23.297927332490122,
+            "ci95": [
+              22.01709239611436,
+              24.578762268865887
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8429484220784851,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4099595
+          }
+        },
+        {
+          "name": "lead[90 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 21,
+          "parameter": {
+            "value": 90.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 90.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 153.9257554122777,
+              "unit": "p",
+              "ci95": [
+                152.63472563722306,
+                155.21678518733236
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 164.57982326232494,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 166.86178988927907,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 27.043638775413932,
+            "ci95": [
+              25.71748516616829,
+              28.36979238465957
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8224356655101183,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4102095
+          }
+        },
+        {
+          "name": "lead[95 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 22,
+          "parameter": {
+            "value": 95.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 95.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 157.70263029348817,
+              "unit": "p",
+              "ci95": [
+                156.37125943856253,
+                159.03400114841378
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 168.76149360549945,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 171.2179486706541,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 30.82051365662446,
+            "ci95": [
+              29.453434984600683,
+              32.187592328648236
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8027388690730773,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4104595
+          }
+        },
+        {
+          "name": "lead[100 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 23,
+          "parameter": {
+            "value": 100.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 100.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 161.49487020561705,
+              "unit": "p",
+              "ci95": [
+                160.12339265012162,
+                162.86634776111248
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 172.94316394867397,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 175.57410745202915,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 34.61275356875334,
+            "ci95": [
+              33.20508468535733,
+              36.020422452149354
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7838888686090363,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4107095
+          }
+        },
+        {
+          "name": "lead[105 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 24,
+          "parameter": {
+            "value": 105.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 105.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 165.29597438287135,
+              "unit": "p",
+              "ci95": [
+                163.88338782504732,
+                166.70856094069538
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 177.12483429184846,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 179.93026623340418,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 38.41385774600766,
+            "ci95": [
+              36.96469375783696,
+              39.863021734178346
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7658627596000457,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4109595
+          }
+        },
+        {
+          "name": "lead[110 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 25,
+          "parameter": {
+            "value": 110.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 110.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 169.1027815799722,
+              "unit": "p",
+              "ci95": [
+                167.64770316977416,
+                170.55785999017024
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 181.30650463502292,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 184.28642501477918,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 42.22066494310844,
+            "ci95": [
+              40.72871092358798,
+              43.71261896262889
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7486218139574208,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4112095
+          }
+        },
+        {
+          "name": "lead[115 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 26,
+          "parameter": {
+            "value": 115.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 115.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 172.91163176492404,
+              "unit": "p",
+              "ci95": [
+                171.4129703971092,
+                174.41029313273884
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 185.4881749781974,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 188.62177923475934,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 46.02951512806043,
+            "ci95": [
+              44.493737077125786,
+              47.56529317899508
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7321313771635144,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4114595
+          }
+        },
+        {
+          "name": "lead[120 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 27,
+          "parameter": {
+            "value": 120.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 120.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 176.69731059947983,
+              "unit": "p",
+              "ci95": [
+                175.16521654743724,
+                178.22940465152243
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 189.6698453213719,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 192.54632149104597,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 49.81519396261605,
+            "ci95": [
+              48.24541378173717,
+              51.38497414349493
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.716445715343089,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4117095
+          }
+        },
+        {
+          "name": "calibrated",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "action": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 127.01227873382533,
+              "unit": "p",
+              "ci95": [
+                126.88884332505627,
+                127.13571414259437
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 128.19623770303966,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.21,
+              "ci95": [
+                0.141656540619153,
+                0.29979968834089865
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 128.42880807069082,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.13016209696157355,
+            "ci95": [
+              0.05101478101677898,
+              0.2093094129063681
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9967070298529364,
+          "work": {
+            "estimated_operations": 9724310,
+            "operations": 4872526
+          }
+        },
+        {
+          "name": "robust",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "action": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 126.89850432319918,
+              "unit": "p",
+              "ci95": [
+                126.80281622026624,
+                126.99419242613212
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 127.89291556241892,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.14,
+              "ci95": [
+                0.08526343659939134,
+                0.22137188210963837
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 128.12656106435824,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.01638768633550436,
+            "ci95": [
+              -0.027029726233530373,
+              0.0598050989045391
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9976006554751866,
+          "work": {
+            "estimated_operations": 85584160,
+            "operations": 43834470
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 126.59403109164431,
+              "unit": "p",
+              "ci95": [
+                126.53742203481006,
+                126.65064014847856
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 127.09762050723853,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 127.24433684101201,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.2880855452194746,
+            "ci95": [
+              -0.33631020192943534,
+              -0.23986088850951387
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 202298400,
+            "operations": 104213534
+          }
+        }
+      ],
+      "ranking": [
+        "lead[30 min]",
+        "lead[25 min]",
+        "robust",
+        "lead[20 min]",
+        "calibrated",
+        "lead[35 min]",
+        "lead[15 min]",
+        "lead[10 min]",
+        "lead[40 min]",
+        "lead[5 min]",
+        "lead[0 min]",
+        "lead[45 min]",
+        "lead[50 min]",
+        "lead[55 min]",
+        "lead[60 min]",
+        "lead[65 min]",
+        "lead[70 min]",
+        "lead[75 min]",
+        "lead[80 min]",
+        "lead[85 min]",
+        "lead[90 min]",
+        "lead[95 min]",
+        "lead[100 min]",
+        "lead[105 min]",
+        "lead[110 min]",
+        "lead[115 min]",
+        "lead[120 min]"
+      ],
+      "recommended": "lead[30 min]",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 492104395,
+        "estimated_transitions": 6300,
+        "operations": 253062308,
+        "max_forecast_worlds": 40
+      }
+    },
+    {
+      "study": "mild_and_empty",
+      "model": "overnight",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
+        "inputs_sha256": "292fe303c13bbef9052174d228dbbce747ec0cd29453d38cb1d42128a83a7e0c",
+        "seed": 42,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "cell_temp": {
+          "value": 5.0,
+          "unit": "°C"
+        },
+        "soc": {
+          "value": 1.0,
+          "unit": "%"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(cost)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "lead[0 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.051563941451,
+              "unit": "p",
+              "ci95": [
+                180.73396253653385,
+                181.36916534636816
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 184.61685181581856,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.93,
+              "ci95": [
+                0.8625048526092651,
+                0.9656807389327273
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 185.3739371403023,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.17105837690588085,
+            "ci95": [
+              0.07835870671665698,
+              0.26375804709510475
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9984667134105718,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3872049
+          }
+        },
+        {
+          "name": "lead[5 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 180.8805055645451,
+              "unit": "p",
+              "ci95": [
+                180.64518115276059,
+                181.11582997632965
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.36041234998575,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.8,
+              "ci95": [
+                0.7111708344068411,
+                0.8666330666689676
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.71027631685757,
+              "unit": "p"
+            }
+          ],
+          "of_oracle": 0.9994109616304532,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 3991008
+          }
+        },
+        {
+          "name": "lead[10 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": {
+            "value": 10.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 10.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.15651238602638,
+              "unit": "p",
+              "ci95": [
+                180.96803762615912,
+                181.3449871458936
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 182.8755531448325,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.04143966350784,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.2760068214812721,
+            "ci95": [
+              0.2057437890949214,
+              0.3462698538676228
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9978882769682239,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4108023
+          }
+        },
+        {
+          "name": "lead[15 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 15.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 182.04615208435112,
+              "unit": "p",
+              "ci95": [
+                181.8767153859079,
+                182.21558878279438
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.54672803406206,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.53,
+              "ci95": [
+                0.4328885697009936,
+                0.6248918204065872
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.6246544706128,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1656465198060304,
+            "ci95": [
+              1.0126306223485444,
+              1.3186624172635164
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9930117057497756,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4220560
+          }
+        },
+        {
+          "name": "lead[20 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "parameter": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 20.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 183.64756084599452,
+              "unit": "p",
+              "ci95": [
+                183.45482815883358,
+                183.84029353315546
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 185.29036922954177,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.42,
+              "ci95": [
+                0.3279838267435473,
+                0.5179351329695703
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 185.42579746047903,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.767055281449444,
+            "ci95": [
+              2.510703332353629,
+              3.0234072305452586
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9843526326933374,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4317945
+          }
+        },
+        {
+          "name": "lead[25 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 25.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 185.99300407891553,
+              "unit": "p",
+              "ci95": [
+                185.71452205541138,
+                186.27148610241966
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 188.29519292781188,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.29,
+              "ci95": [
+                0.2101483574912227,
+                0.3853889117557111
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 188.93987451881287,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 5.112498514370448,
+            "ci95": [
+              4.723625792447039,
+              5.501371236293856
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.971939567843979,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4401842
+          }
+        },
+        {
+          "name": "lead[30 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 30.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 30.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 189.06228707220237,
+              "unit": "p",
+              "ci95": [
+                188.6766972742416,
+                189.4478768701631
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 192.0830171239033,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.21,
+              "ci95": [
+                0.141656540619153,
+                0.29979968834089865
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 193.1676457419171,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 8.181781507657364,
+            "ci95": [
+              7.657385796802796,
+              8.706177218511932
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.956160865320684,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4468994
+          }
+        },
+        {
+          "name": "lead[35 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 35.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 35.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 192.5916088714967,
+              "unit": "p",
+              "ci95": [
+                192.11875980281718,
+                193.06445794017623
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 196.36838879068162,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.1,
+              "ci95": [
+                0.0552291370606751,
+                0.17436566150491345
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 197.64499333978438,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 11.71110330695155,
+            "ci95": [
+              11.078010178608666,
+              12.344196435294432
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9386388174735212,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4519755
+          }
+        },
+        {
+          "name": "lead[40 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 40.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 40.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 196.36077545344878,
+              "unit": "p",
+              "ci95": [
+                195.8167268783243,
+                196.90482402857327
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 200.7224818920193,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.04,
+              "ci95": [
+                0.01566330399154762,
+                0.0983707143588792
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 202.18258505476058,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 15.480269888903603,
+            "ci95": [
+              14.757746518525128,
+              16.20279325928208
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.920621542612112,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4557632
+          }
+        },
+        {
+          "name": "lead[45 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 45.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 45.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 200.24168572870175,
+              "unit": "p",
+              "ci95": [
+                199.628772760382,
+                200.85459869702152
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 205.18540502564807,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 206.76886805691032,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 19.3611801641566,
+            "ci95": [
+              18.555470533890965,
+              20.166889794422232
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9027788562037322,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4581848
+          }
+        },
+        {
+          "name": "lead[50 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "parameter": {
+            "value": 50.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 50.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 204.20166675011714,
+              "unit": "p",
+              "ci95": [
+                203.52109264255023,
+                204.88224085768408
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 209.6747450194028,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 211.36038944908088,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 23.32116118557218,
+            "ci95": [
+              22.437813591800666,
+              24.204508779343698
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8852717163551794,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4594499
+          }
+        },
+        {
+          "name": "lead[55 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "parameter": {
+            "value": 55.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 55.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 208.2101116100662,
+              "unit": "p",
+              "ci95": [
+                207.4639711249722,
+                208.9562520951602
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 214.18960843910796,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 215.97129300506222,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 27.329606045521093,
+            "ci95": [
+              26.374032508726746,
+              28.28517958231544
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8682285341886575,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4601693
+          }
+        },
+        {
+          "name": "lead[60 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 15,
+          "parameter": {
+            "value": 60.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 60.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 212.2530408323826,
+              "unit": "p",
+              "ci95": [
+                211.44455058441557,
+                213.06153108034962
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 218.67105110385333,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 220.5844708450046,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 31.372535267837602,
+            "ci95": [
+              30.350304268270627,
+              32.39476626740458
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.851690789905916,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4597713
+          }
+        },
+        {
+          "name": "lead[65 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 16,
+          "parameter": {
+            "value": 65.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 65.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 216.30174449756504,
+              "unit": "p",
+              "ci95": [
+                215.42880086273203,
+                217.17468813239805
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 223.17828039394348,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 225.19777200319422,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 35.421238933019964,
+            "ci95": [
+              34.33124525543124,
+              36.51123261060869
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8357489692298786,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4594268
+          }
+        },
+        {
+          "name": "lead[70 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 17,
+          "parameter": {
+            "value": 70.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 70.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 220.34921724242787,
+              "unit": "p",
+              "ci95": [
+                219.41016177583606,
+                221.28827270901965
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 227.74433911661282,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 229.81154048073137,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 39.46871167788275,
+            "ci95": [
+              38.31006398445244,
+              40.62735937131306
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8203975592415077,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4594553
+          }
+        },
+        {
+          "name": "lead[75 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 18,
+          "parameter": {
+            "value": 75.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 75.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 224.40000968747555,
+              "unit": "p",
+              "ci95": [
+                223.39266589837936,
+                225.40735347657176
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 232.40999736377316,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 234.44621724167996,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 43.51950412293042,
+            "ci95": [
+              42.29064542368442,
+              44.74836282217642
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.8055880222921137,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4592843
+          }
+        },
+        {
+          "name": "lead[80 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 19,
+          "parameter": {
+            "value": 80.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 80.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 228.44776613799257,
+              "unit": "p",
+              "ci95": [
+                227.37068904281767,
+                229.52484323316747
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 237.0497944687508,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 239.07889598239782,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 47.56726057344752,
+            "ci95": [
+              46.267225411616394,
+              48.867295735278645
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7913141943233933,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4589733
+          }
+        },
+        {
+          "name": "lead[85 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 20,
+          "parameter": {
+            "value": 85.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 85.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 232.49288546592743,
+              "unit": "p",
+              "ci95": [
+                231.34484816528385,
+                233.640922766571
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 241.70850594995085,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 243.70705414753115,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 51.6123799013823,
+            "ci95": [
+              50.240289938296144,
+              52.98446986446845
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7775462016576742,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4587760
+          }
+        },
+        {
+          "name": "lead[90 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 21,
+          "parameter": {
+            "value": 90.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 90.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 236.53839277145102,
+              "unit": "p",
+              "ci95": [
+                235.31835875832226,
+                237.75842678457977
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 246.34365154250204,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 248.32811366500445,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 55.65788720690586,
+            "ci95": [
+              54.212990872973656,
+              57.102783540838075
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7642478579835986,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4585646
+          }
+        },
+        {
+          "name": "lead[95 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 22,
+          "parameter": {
+            "value": 95.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 95.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 240.58287507165264,
+              "unit": "p",
+              "ci95": [
+                239.29000192474064,
+                241.87574821856464
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 250.9941357555959,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 252.957723822951,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 59.70236950710759,
+            "ci95": [
+              58.184031788373005,
+              61.220707225842176
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7513999487811623,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4583944
+          }
+        },
+        {
+          "name": "lead[100 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 23,
+          "parameter": {
+            "value": 100.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 100.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 244.62298717732534,
+              "unit": "p",
+              "ci95": [
+                243.25634066005767,
+                245.98963369459298
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 255.64502719858936,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 257.5803694448018,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 63.74248161278033,
+            "ci95": [
+              62.149928113321174,
+              65.3350351122395
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7389900764944175,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4582888
+          }
+        },
+        {
+          "name": "lead[105 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 24,
+          "parameter": {
+            "value": 105.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 105.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 248.66353567402965,
+              "unit": "p",
+              "ci95": [
+                247.2227415165223,
+                250.10432983153703
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 260.26766444866786,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 262.1980093846276,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 67.78303010948459,
+            "ci95": [
+              66.11602319397514,
+              69.45003702499403
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7269821830388481,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4578817
+          }
+        },
+        {
+          "name": "lead[110 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 25,
+          "parameter": {
+            "value": 110.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 110.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 252.70254049162148,
+              "unit": "p",
+              "ci95": [
+                251.18705575122195,
+                254.218025232021
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 264.9093564072738,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 266.81441295315983,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 71.82203492707632,
+            "ci95": [
+              70.08010831859775,
+              73.56396153555488
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.715362653872719,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4577337
+          }
+        },
+        {
+          "name": "lead[115 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 26,
+          "parameter": {
+            "value": 115.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 115.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 256.51518064838217,
+              "unit": "p",
+              "ci95": [
+                254.92752078826845,
+                258.1028405084959
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 269.2818329630612,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 271.21020439796763,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 75.63467508383701,
+            "ci95": [
+              73.82044312237295,
+              77.44890704530107
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.7047300652909905,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4579837
+          }
+        },
+        {
+          "name": "lead[120 min]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 27,
+          "parameter": {
+            "value": 120.0,
+            "unit": "min"
+          },
+          "action": {
+            "value": 120.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 260.31952084068297,
+              "unit": "p",
+              "ci95": [
+                258.6629701698715,
+                261.97607151149435
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 273.6543095188487,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 275.4676631017784,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 79.43901527613785,
+            "ci95": [
+              77.55571578351527,
+              81.32231476876042
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.6944310569667163,
+          "work": {
+            "estimated_operations": 7779901,
+            "operations": 4582337
+          }
+        },
+        {
+          "name": "calibrated",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": {
+            "value": 0.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 181.051563941451,
+              "unit": "p",
+              "ci95": [
+                180.73396253653385,
+                181.36916534636816
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 184.61685181581856,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.93,
+              "ci95": [
+                0.8625048526092651,
+                0.9656807389327273
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 185.3739371403023,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.17105837690588085,
+            "ci95": [
+              0.07835870671665698,
+              0.26375804709510475
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9984667134105718,
+          "work": {
+            "estimated_operations": 9724310,
+            "operations": 4970059
+          }
+        },
+        {
+          "name": "robust",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "action": {
+            "value": 5.0,
+            "unit": "min"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 180.8805055645451,
+              "unit": "p",
+              "ci95": [
+                180.64518115276059,
+                181.11582997632965
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 183.36041234998575,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.8,
+              "ci95": [
+                0.7111708344068411,
+                0.8666330666689676
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.71027631685757,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.9994109616304532,
+          "work": {
+            "estimated_operations": 85584160,
+            "operations": 48453743
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(cost)",
+              "value": 180.77396000646456,
+              "unit": "p",
+              "ci95": [
+                180.55183373923666,
+                180.99608627369247
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "p95(cost)",
+              "value": 182.8234594930152,
+              "unit": "p"
+            },
+            {
+              "metric": "probability(short > 0.1 kWh)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "cvar95(cost)",
+              "value": 183.02561581219317,
+              "unit": "p"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.10654555808064492,
+            "ci95": [
+              -0.1414387244317059,
+              -0.07165239172958393
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 202298400,
+            "operations": 115842414
+          }
+        }
+      ],
+      "ranking": [
+        "lead[5 min]",
+        "robust",
+        "lead[0 min]",
+        "calibrated",
+        "lead[10 min]",
+        "lead[15 min]",
+        "lead[20 min]",
+        "lead[25 min]",
+        "lead[30 min]",
+        "lead[35 min]",
+        "lead[40 min]",
+        "lead[45 min]",
+        "lead[50 min]",
+        "lead[55 min]",
+        "lead[60 min]",
+        "lead[65 min]",
+        "lead[70 min]",
+        "lead[75 min]",
+        "lead[80 min]",
+        "lead[85 min]",
+        "lead[90 min]",
+        "lead[95 min]",
+        "lead[100 min]",
+        "lead[105 min]",
+        "lead[110 min]",
+        "lead[115 min]",
+        "lead[120 min]"
+      ],
+      "recommended": "lead[5 min]",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 492104395,
+        "estimated_transitions": 6300,
+        "operations": 281129740,
+        "max_forecast_worlds": 40
+      }
+    }
+  ]
+}

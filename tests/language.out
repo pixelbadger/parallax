@@ -1,8 +1,694 @@
---- Executing tests/language.spl ---
-[SYS] Seed: 7
-14 5 1 1
-6
-Pair { left: 10, right: 32 } 42
-11
-10 5
-42
+{
+  "runtime": "parallax 0.1.0",
+  "model_sha256": "7de3a7d6820665b1e56c896f29bd45de888d8c1d31b9f35fef385cccfbaa77e7",
+  "studies": [
+    {
+      "study": "features",
+      "model": "deliver",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "7de3a7d6820665b1e56c896f29bd45de888d8c1d31b9f35fef385cccfbaa77e7",
+        "inputs_sha256": "3f113e31aa7f7875f010a75e8bf8ce8b75a838df17b525c3d437a39c4f3f7658",
+        "seed": 11,
+        "worlds": 200,
+        "world_ids": [
+          0,
+          199
+        ]
+      },
+      "inputs": {
+        "budget": {
+          "value": 120.0,
+          "unit": "£"
+        },
+        "crew": 3
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(time)"
+        }
+      ],
+      "constraints": [
+        "probability(late) <= 50%"
+      ],
+      "policies": [
+        {
+          "name": "careful",
+          "oracle": false,
+          "status": "infeasible",
+          "rank": null,
+          "action": "slow",
+          "worlds_completed": 200,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(time)",
+              "value": 2.709534949924667,
+              "unit": "h",
+              "ci95": [
+                2.665975430503939,
+                2.753094469345395
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(late) <= 50%",
+              "value": 1.0,
+              "bound": 0.5,
+              "satisfied": false
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "mean(cost)",
+              "value": 2.419547578349632,
+              "unit": "£",
+              "ci95": [
+                2.301163678045914,
+                2.53793147865335
+              ]
+            },
+            {
+              "metric": "p90(time)",
+              "value": 3.1290305171028794,
+              "unit": "h"
+            },
+            {
+              "metric": "probability(wet > 0.0)",
+              "value": 0.37,
+              "ci95": [
+                0.30612608409859116,
+                0.4387737007594981
+              ]
+            },
+            {
+              "metric": "stddev(time)",
+              "value": 0.31430405671308287,
+              "unit": "h"
+            },
+            {
+              "metric": "mean(time where wet > 0.0)",
+              "value": 2.6934245602611915,
+              "unit": "h"
+            },
+            {
+              "metric": "max(cost) in p",
+              "value": 440.4639738470017
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1699110474103995,
+            "ci95": [
+              1.1500100657959564,
+              1.1898120290248428
+            ],
+            "worlds": 200
+          },
+          "of_oracle": 0.5682244115570732,
+          "work": {
+            "estimated_operations": 24801,
+            "operations": 23401
+          }
+        },
+        {
+          "name": "hurried",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "fast",
+          "worlds_completed": 200,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(time)",
+              "value": 1.5396239025142677,
+              "unit": "h",
+              "ci95": [
+                1.5127919412085933,
+                1.5664558638199422
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(late) <= 50%",
+              "value": 0.02,
+              "bound": 0.5,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "mean(cost)",
+              "value": 1.209773789174816,
+              "unit": "£",
+              "ci95": [
+                1.150581839022957,
+                1.268965739326675
+              ]
+            },
+            {
+              "metric": "p90(time)",
+              "value": 1.8027882633764047,
+              "unit": "h"
+            },
+            {
+              "metric": "probability(wet > 0.0)",
+              "value": 0.37,
+              "ci95": [
+                0.30612608409859116,
+                0.4387737007594981
+              ]
+            },
+            {
+              "metric": "stddev(time)",
+              "value": 0.19360622890455614,
+              "unit": "h"
+            },
+            {
+              "metric": "mean(time where wet > 0.0)",
+              "value": 1.5335675127727066,
+              "unit": "h"
+            },
+            {
+              "metric": "max(cost) in p",
+              "value": 220.23198692350084
+            }
+          ],
+          "of_oracle": 1.0,
+          "work": {
+            "estimated_operations": 24801,
+            "operations": 23401
+          }
+        },
+        {
+          "name": "convoy[1]",
+          "oracle": false,
+          "status": "infeasible",
+          "rank": null,
+          "parameter": 1,
+          "action": {
+            "variant": "split",
+            "trucks": 1
+          },
+          "worlds_completed": 200,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(time)",
+              "value": 5.049357044745467,
+              "unit": "h",
+              "ci95": [
+                4.967940330756347,
+                5.1307737587345885
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(late) <= 50%",
+              "value": 1.0,
+              "bound": 0.5,
+              "satisfied": false
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "mean(cost)",
+              "value": 4.839095156699264,
+              "unit": "£",
+              "ci95": [
+                4.602327356091828,
+                5.0758629573067
+              ]
+            },
+            {
+              "metric": "p90(time)",
+              "value": 5.849838730817439,
+              "unit": "h"
+            },
+            {
+              "metric": "probability(wet > 0.0)",
+              "value": 0.37,
+              "ci95": [
+                0.30612608409859116,
+                0.4387737007594981
+              ]
+            },
+            {
+              "metric": "stddev(time)",
+              "value": 0.5874629433779435,
+              "unit": "h"
+            },
+            {
+              "metric": "mean(time where wet > 0.0)",
+              "value": 5.013138655238155,
+              "unit": "h"
+            },
+            {
+              "metric": "max(cost) in p",
+              "value": 880.9279476940034
+            }
+          ],
+          "vs_recommended": {
+            "difference": 3.5097331422312004,
+            "ci95": [
+              3.4500301973878704,
+              3.56943608707453
+            ],
+            "worlds": 200
+          },
+          "of_oracle": 0.30491484140866065,
+          "work": {
+            "estimated_operations": 24802,
+            "operations": 24802
+          }
+        },
+        {
+          "name": "convoy[2]",
+          "oracle": false,
+          "status": "infeasible",
+          "rank": null,
+          "parameter": 2,
+          "action": {
+            "variant": "split",
+            "trucks": 2
+          },
+          "worlds_completed": 200,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(time)",
+              "value": 2.709534949924667,
+              "unit": "h",
+              "ci95": [
+                2.665975430503939,
+                2.753094469345395
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(late) <= 50%",
+              "value": 1.0,
+              "bound": 0.5,
+              "satisfied": false
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "mean(cost)",
+              "value": 2.419547578349632,
+              "unit": "£",
+              "ci95": [
+                2.301163678045914,
+                2.53793147865335
+              ]
+            },
+            {
+              "metric": "p90(time)",
+              "value": 3.129030517102879,
+              "unit": "h"
+            },
+            {
+              "metric": "probability(wet > 0.0)",
+              "value": 0.37,
+              "ci95": [
+                0.30612608409859116,
+                0.4387737007594981
+              ]
+            },
+            {
+              "metric": "stddev(time)",
+              "value": 0.3143040567130828,
+              "unit": "h"
+            },
+            {
+              "metric": "mean(time where wet > 0.0)",
+              "value": 2.6934245602611906,
+              "unit": "h"
+            },
+            {
+              "metric": "max(cost) in p",
+              "value": 440.4639738470017
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1699110474103993,
+            "ci95": [
+              1.1500100657959562,
+              1.1898120290248426
+            ],
+            "worlds": 200
+          },
+          "of_oracle": 0.5682244115570732,
+          "work": {
+            "estimated_operations": 24802,
+            "operations": 24802
+          }
+        },
+        {
+          "name": "convoy[3]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 3,
+          "action": {
+            "variant": "split",
+            "trucks": 3
+          },
+          "worlds_completed": 200,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(time)",
+              "value": 1.9295942516510671,
+              "unit": "h",
+              "ci95": [
+                1.8975874434462965,
+                1.961601059855838
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(late) <= 50%",
+              "value": 0.335,
+              "bound": 0.5,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "mean(cost)",
+              "value": 1.6130317188997554,
+              "unit": "£",
+              "ci95": [
+                1.5341091186972766,
+                1.6919543191022341
+              ]
+            },
+            {
+              "metric": "p90(time)",
+              "value": 2.237832034463701,
+              "unit": "h"
+            },
+            {
+              "metric": "probability(wet > 0.0)",
+              "value": 0.37,
+              "ci95": [
+                0.30612608409859116,
+                0.4387737007594981
+              ]
+            },
+            {
+              "metric": "stddev(time)",
+              "value": 0.23094537761153455,
+              "unit": "h"
+            },
+            {
+              "metric": "mean(time where wet > 0.0)",
+              "value": 1.9201865286022017,
+              "unit": "h"
+            },
+            {
+              "metric": "max(cost) in p",
+              "value": 293.6426492313344
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.3899703491367998,
+            "ci95": [
+              0.38333668859865205,
+              0.3966040096749475
+            ],
+            "worlds": 200
+          },
+          "of_oracle": 0.7979003364033037,
+          "work": {
+            "estimated_operations": 24802,
+            "operations": 24802
+          }
+        },
+        {
+          "name": "psychic",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 200,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(time)",
+              "value": 1.5396239025142677,
+              "unit": "h",
+              "ci95": [
+                1.5127919412085933,
+                1.5664558638199422
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(late) <= 50%",
+              "value": 0.02,
+              "bound": 0.5,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "mean(cost)",
+              "value": 1.209773789174816,
+              "unit": "£",
+              "ci95": [
+                1.150581839022957,
+                1.268965739326675
+              ]
+            },
+            {
+              "metric": "p90(time)",
+              "value": 1.8027882633764047,
+              "unit": "h"
+            },
+            {
+              "metric": "probability(wet > 0.0)",
+              "value": 0.37,
+              "ci95": [
+                0.30612608409859116,
+                0.4387737007594981
+              ]
+            },
+            {
+              "metric": "stddev(time)",
+              "value": 0.19360622890455614,
+              "unit": "h"
+            },
+            {
+              "metric": "mean(time where wet > 0.0)",
+              "value": 1.5335675127727066,
+              "unit": "h"
+            },
+            {
+              "metric": "max(cost) in p",
+              "value": 220.23198692350084
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 200
+          },
+          "work": {
+            "estimated_operations": 79200,
+            "operations": 75000
+          }
+        }
+      ],
+      "ranking": [
+        "hurried",
+        "convoy[3]"
+      ],
+      "recommended": "hurried",
+      "best_oracle": "psychic",
+      "errors": [],
+      "work": {
+        "estimated_operations": 203208,
+        "estimated_transitions": 1600,
+        "operations": 196208,
+        "max_forecast_worlds": 0
+      }
+    },
+    {
+      "study": "arithmetic",
+      "model": "sums",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "7de3a7d6820665b1e56c896f29bd45de888d8c1d31b9f35fef385cccfbaa77e7",
+        "inputs_sha256": "3f113e31aa7f7875f010a75e8bf8ce8b75a838df17b525c3d437a39c4f3f7658",
+        "seed": 0,
+        "worlds": 1,
+        "world_ids": [
+          0,
+          0
+        ]
+      },
+      "inputs": {
+        "budget": {
+          "value": 120.0,
+          "unit": "£"
+        },
+        "crew": 3
+      },
+      "objectives": [],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "any_plan",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "probe",
+          "worlds_completed": 1,
+          "model_errors": 0,
+          "objectives": [],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "7 // 2",
+              "value": 3
+            },
+            {
+              "metric": "-7 // 2",
+              "value": -4
+            },
+            {
+              "metric": "mod(-7, 3)",
+              "value": 2
+            },
+            {
+              "metric": "7 / 2",
+              "value": 3.5
+            },
+            {
+              "metric": "2^10",
+              "value": 1024
+            },
+            {
+              "metric": "(3 m)^2 in cm^2",
+              "value": 90000.0
+            },
+            {
+              "metric": "sqrt(9 m^2)",
+              "value": 3.0,
+              "unit": "m"
+            },
+            {
+              "metric": "90 min + 1 h in min",
+              "value": 150.0
+            },
+            {
+              "metric": "clamp(15, 0, 10)",
+              "value": 10
+            },
+            {
+              "metric": "first_over([1, 5, 9, 12], 6)",
+              "value": 2
+            },
+            {
+              "metric": "per_head",
+              "value": 40.0,
+              "unit": "£"
+            },
+            {
+              "metric": "per_head in p",
+              "value": 4000.0
+            },
+            {
+              "metric": "1 truckload in pallet",
+              "value": 24.0
+            },
+            {
+              "metric": "[x * x for x in 0..10 if mod(x, 3) == 0]",
+              "value": [
+                0,
+                9,
+                36,
+                81
+              ]
+            },
+            {
+              "metric": "middle()",
+              "value": 2.0
+            },
+            {
+              "metric": "halfway()",
+              "value": 2.5
+            },
+            {
+              "metric": "trues()",
+              "value": 2
+            },
+            {
+              "metric": "any([false, true])",
+              "value": true
+            },
+            {
+              "metric": "round(2.5)",
+              "value": 3
+            },
+            {
+              "metric": "floor(-0.5)",
+              "value": -1
+            },
+            {
+              "metric": "ceil(0.1)",
+              "value": 1
+            },
+            {
+              "metric": "exp(0.0)",
+              "value": 1.0
+            },
+            {
+              "metric": "ln(1.0)",
+              "value": 0.0
+            },
+            {
+              "metric": "cos(0.0)",
+              "value": 1.0
+            },
+            {
+              "metric": "not (1 < 2) or 3 >= 3",
+              "value": true
+            },
+            {
+              "metric": "Region.north == north",
+              "value": true
+            }
+          ],
+          "work": {
+            "estimated_operations": 2,
+            "operations": 2
+          }
+        }
+      ],
+      "ranking": [
+        "any_plan"
+      ],
+      "recommended": "any_plan",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 2,
+        "estimated_transitions": 1,
+        "operations": 2,
+        "max_forecast_worlds": 0
+      }
+    }
+  ]
+}

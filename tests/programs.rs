@@ -1,147 +1,171 @@
-//! Runs the SPL programs in `tests/` and `simulations/` through the `spl`
-//! binary with a fixed seed and compares their output with the `.out` file
-//! next to each. Regenerate the expected output with:
+//! Golden programs: every `tests/*.px` and `simulations/*.px` must produce
+//! exactly its `.out` report. `UPDATE_EXPECT=1` rewrites the `.out` files.
 //!
-//!     UPDATE_EXPECT=1 cargo test --test programs
-//!
-//! Also checks that every example in examples.md runs, and that an unseeded
-//! run can be replayed exactly from the seed it reports.
+//! Every study's work must also stay within the bound `check` promised.
 
-use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Output};
 
-const SEED: &str = "0";
+use parallax::{Options, Report};
 
-fn root() -> &'static Path {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
+fn root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
-fn spl(args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_spl"))
-        .args(args)
-        .current_dir(root())
-        .output()
-        .expect("run spl")
-}
-
-fn text(bytes: &[u8]) -> String {
-    String::from_utf8_lossy(bytes).into_owned()
-}
-
-fn programs(dir: &str) -> Vec<PathBuf> {
-    let mut found: Vec<PathBuf> = fs::read_dir(root().join(dir))
-        .expect("read program dir")
-        .map(|e| e.expect("dir entry").path())
-        .filter(|p| p.extension().is_some_and(|e| e == "spl"))
-        .collect();
-    found.sort();
-    found
-}
-
-/// Runs each program and compares (or, with UPDATE_EXPECT, rewrites) its `.out`.
-fn check_dir(dir: &str) {
-    let update = std::env::var_os("UPDATE_EXPECT").is_some();
-    let mut failures = Vec::new();
-    let all = programs(dir);
-    assert!(!all.is_empty(), "no programs in {dir}");
-    for path in all {
-        let rel = path
-            .strip_prefix(root())
-            .expect("under root")
-            .to_string_lossy()
-            .into_owned();
-        let out = spl(&["--seed", SEED, &rel]);
-        let expected_path = path.with_extension("out");
-        if !out.status.success() {
-            failures.push(format!(
-                "{rel}: exited {}\n{}",
-                out.status,
-                text(&out.stderr)
-            ));
-        } else if update {
-            fs::write(&expected_path, &out.stdout).expect("write .out");
-        } else {
-            match fs::read_to_string(&expected_path) {
-                Err(_) => failures.push(format!("{rel}: missing .out (run with UPDATE_EXPECT=1)")),
-                Ok(expected) if expected != text(&out.stdout) => failures.push(format!(
-                    "{rel}: output differs\n--- expected ---\n{expected}--- got ---\n{}",
-                    text(&out.stdout)
-                )),
-                Ok(_) => {}
-            }
+fn check_work(path: &Path, report: &Report) {
+    for s in &report.studies {
+        let ops = s.work.operations.expect("a run reports its operations");
+        assert!(
+            ops <= s.work.estimated_operations,
+            "{}: study `{}` did {ops} operations, over its bound of {}",
+            path.display(),
+            s.study,
+            s.work.estimated_operations
+        );
+        for p in &s.policies {
+            assert!(
+                p.work.operations <= p.work.estimated_operations,
+                "{}: policy `{}` did {} operations, over its bound of {}",
+                path.display(),
+                p.name,
+                p.work.operations,
+                p.work.estimated_operations
+            );
         }
     }
-    assert!(failures.is_empty(), "\n{}", failures.join("\n"));
 }
 
-#[test]
-fn test_programs() {
-    check_dir("tests");
-}
-
-#[test]
-fn simulations() {
-    check_dir("simulations");
-}
-
-#[test]
-fn examples_run() {
-    let doc = fs::read_to_string(root().join("examples.md")).expect("read examples.md");
-    let blocks: Vec<&str> = doc.split("```").skip(1).step_by(2).collect();
-    assert!(!blocks.is_empty(), "no examples found");
-    let dir = Path::new(env!("CARGO_TARGET_TMPDIR"));
-    for (n, block) in blocks.iter().enumerate() {
-        let code = block.split_once('\n').map_or("", |(_info, code)| code);
-        let path = dir.join(format!("example{}.spl", n + 1));
-        fs::write(&path, code).expect("write example");
-        let out = spl(&["--seed", SEED, path.to_str().expect("utf-8 path")]);
-        assert!(
-            out.status.success(),
-            "examples.md example {}: {}",
-            n + 1,
-            text(&out.stderr)
+fn golden(rel: &str) {
+    let path = root().join(rel);
+    let src = std::fs::read_to_string(&path).unwrap();
+    let report = parallax::run(&src, &Options::default())
+        .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    check_work(&path, &report);
+    let got = serde_json::to_string_pretty(&report).unwrap() + "\n";
+    let out = path.with_extension("out");
+    if std::env::var_os("UPDATE_EXPECT").is_some() {
+        std::fs::write(&out, &got).unwrap();
+        return;
+    }
+    let want = std::fs::read_to_string(&out)
+        .unwrap_or_else(|_| panic!("{} is missing: run with UPDATE_EXPECT=1", out.display()));
+    if got != want {
+        let line = got
+            .lines()
+            .zip(want.lines())
+            .position(|(a, b)| a != b)
+            .unwrap_or(0);
+        panic!(
+            "{} differs from {} at line {}:\n  got:  {}\n  want: {}",
+            path.display(),
+            out.display(),
+            line + 1,
+            got.lines().nth(line).unwrap_or(""),
+            want.lines().nth(line).unwrap_or("")
         );
     }
 }
 
 #[test]
-fn unseeded_run_replays_from_reported_seed() {
-    let path = Path::new(env!("CARGO_TARGET_TMPDIR")).join("replay.spl");
-    fs::write(
-        &path,
-        "fn main() = { let a = open; let b = fork { open }; print(a, b); }",
-    )
-    .expect("write");
-    let path = path.to_str().expect("utf-8 path");
-
-    let first = text(&spl(&[path]).stdout);
-    let seed = first
-        .split("--seed ")
-        .nth(1)
-        .and_then(|rest| rest.split(')').next())
-        .unwrap_or_else(|| panic!("no seed reported in:\n{first}"));
-    let replay = text(&spl(&["--seed", seed, path]).stdout);
-
-    // The first run has one extra line, reporting the seed
-    let first: Vec<&str> = first.lines().collect();
-    let replay: Vec<&str> = replay.lines().collect();
-    assert_eq!(first[0], replay[0]);
-    assert_eq!(first[2..], replay[1..], "replay with --seed {seed} differs");
+fn language() {
+    golden("tests/language.px");
 }
 
 #[test]
-fn errors_exit_nonzero() {
-    let path = Path::new(env!("CARGO_TARGET_TMPDIR")).join("error.spl");
-    fs::write(&path, "print(1);\nprint(1 / 0);").expect("write");
-    let out = spl(&["--seed", SEED, path.to_str().expect("utf-8 path")]);
-    assert_eq!(out.status.code(), Some(1));
-    assert!(
-        text(&out.stdout).ends_with("1\n"),
-        "output before the error is kept"
-    );
-    assert_eq!(text(&out.stderr), "Error: Division by zero\n");
+fn worlds() {
+    golden("tests/worlds.px");
+}
 
-    let out = spl(&["no/such/file.spl"]);
-    assert_eq!(out.status.code(), Some(1));
+#[test]
+fn prewarm() {
+    golden("simulations/prewarm.px");
+}
+
+#[test]
+fn reactor() {
+    golden("simulations/reactor.px");
+}
+
+#[test]
+fn circumbinary() {
+    golden("simulations/circumbinary.px");
+}
+
+#[test]
+fn island() {
+    golden("simulations/island.px");
+}
+
+/// Every golden program above is listed: a new `.px` needs a test.
+#[test]
+fn every_program_is_tested() {
+    let listed = [
+        "language",
+        "worlds",
+        "prewarm",
+        "reactor",
+        "circumbinary",
+        "island",
+    ];
+    for dir in ["tests", "simulations"] {
+        for entry in std::fs::read_dir(root().join(dir)).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().is_some_and(|e| e == "px") {
+                let stem = path.file_stem().unwrap().to_str().unwrap().to_string();
+                assert!(
+                    listed.contains(&stem.as_str()),
+                    "{} has no test",
+                    path.display()
+                );
+            }
+        }
+    }
+}
+
+/// Every example in examples.md runs, or fails exactly as it says.
+#[test]
+fn examples() {
+    let text = std::fs::read_to_string(root().join("examples.md")).unwrap();
+    let mut blocks = 0;
+    let mut rest = text.as_str();
+    while let Some(start) = rest.find("```parallax") {
+        let body = &rest[start + "```parallax".len()..];
+        let end = body.find("```").expect("unterminated example");
+        let code = &body[..end];
+        rest = &body[end + 3..];
+        blocks += 1;
+        // An example that should be rejected says so on its first line:
+        // `# error: <part of the message>`.
+        let expect_err = code
+            .lines()
+            .find(|l| !l.trim().is_empty())
+            .and_then(|l| l.trim().strip_prefix("# error:"))
+            .map(|s| s.trim().to_string());
+        let r = parallax::run(code, &Options::default());
+        match (r, expect_err) {
+            (Ok(report), None) => check_work(Path::new("examples.md"), &report),
+            (Err(e), Some(want)) => assert!(
+                e.message.contains(&want),
+                "example {blocks} failed with `{e}`, expected `{want}`:\n{code}"
+            ),
+            (Ok(_), Some(want)) => panic!("example {blocks} should fail with `{want}`:\n{code}"),
+            (Err(e), None) => panic!("example {blocks} failed: {e}\n{code}"),
+        }
+    }
+    assert!(blocks > 5, "examples.md has only {blocks} examples");
+}
+
+/// `check` describes every simulation and bounds its work without running.
+#[test]
+fn check_describes_programs() {
+    for f in ["prewarm", "reactor", "circumbinary", "island"] {
+        let src = std::fs::read_to_string(root().join(format!("simulations/{f}.px"))).unwrap();
+        let c = parallax::check(&src, &Options::default()).unwrap();
+        assert!(!c.studies.is_empty());
+        for s in &c.studies {
+            assert!(s.error.is_none(), "{f}: {:?}", s.error);
+            let w = s.work.as_ref().unwrap();
+            assert!(w.estimated_operations > 0 && w.estimated_transitions > 0);
+            assert!(w.operations.is_none());
+        }
+    }
 }
