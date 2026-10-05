@@ -11,7 +11,7 @@ To *write* parallax programs, use the skill in `.claude/skills/parallax/`.
 ## Commands
 
 ```sh
-cargo test                                   # unit + semantics + golden programs + examples (~10s)
+cargo test                                   # unit + semantics + golden programs + examples (~20s)
 UPDATE_EXPECT=1 cargo test --test programs   # regenerate tests/*.out and simulations/*.out
 cargo fmt --check && cargo clippy --all-targets -- -D warnings   # CI runs both
 cargo run --release -- run simulations/reactor.px
@@ -144,7 +144,7 @@ findings carried over (e.g. pre-warm: calibrated plan 15 min, best 20 min).
 
 - About 80M operations a second. Pre-warm ~10s, tooluse ~12s (100 worlds; its
   forecasts are the heavy part), island and circumbinary
-  ~5s, reactor 0.5s (release and opt-level 1 are similar).
+  ~5s, tictactoe ~16s (its search policies forecast every move), reactor 0.5s (release and opt-level 1 are similar).
 - Measure with callgrind instruction counts (`circumbinary.px` with
   `worlds 4` is a good probe); wall time is too noisy.
 - Measured wins: in-place reads of `v.f`, `v[i]`, `v.f[i]` (-15%),
