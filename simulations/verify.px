@@ -1,0 +1,215 @@
+# ============================================================
+# Verify: answer a yes/no question now, or check it first?
+#
+# The served half of tooluse.px. tooluse compares strategies for checking
+# over many steps; measured in one session (tooluse_log.jsonl) it found
+# that thinking again never changes a draft, and that reading the source,
+# then running code, settles almost everything. So an agent has three
+# plans:
+#   answer        commit to the draft
+#   verify        read the source; if it agrees with the draft, done. If
+#                 it disagrees, or can't say, run code to settle it
+#   verify_twice  read the source and run code, and go with the majority
+#                 of the draft and both checks
+#
+# Each question supplies the situation as inputs: the agent's own rating
+# of how hard it is, what a wrong answer costs, and what waiting costs.
+# The rates are telemetry, measured on 100 claims about parallax
+# (scripts/calibrate_tooluse.py --verify turns a log into them):
+#   drafts       right on all 53 claims rated under 0.45, 37 of 47 above;
+#                a line through them: 99% right at difficulty 0, 58.7% at 1
+#   source       couldn't settle 0 of 200 calls, wrong 1 of 200
+#   code         couldn't settle 9 of 200, wrong 1 of 191
+#   cost, time   marginal tokens at 4 $/Mtok, and seconds, per claim in
+#                batches of 20; one real call takes longer, so set
+#                source_time and code_time from your own logs
+# Errors are taken as independent: no source was wrong twice on a claim.
+#
+#   offline  `parallax run verify.px` compares the plans in each situation
+#   online   `parallax decide verify.px --policy best --input difficulty=0.6
+#             --input stakes="50 $"` answers one question, with its reasons
+#
+# `best` computes each plan's expected loss exactly from the inputs; the
+# studies check it against simulated worlds, where it should match the
+# best fixed plan in every situation. (Forecasting would work too, but
+# with drafts this good a few dozen imagined worlds often hold no wrong
+# draft at all, and answering looks free.)
+# ============================================================
+
+input difficulty: Float between 0.0 and 1.0 = 0.4   # the agent's own rating
+input stakes: $ between 0 $ and 10000 $ = 20 $      # what a wrong answer costs
+input time_value: $/min between 0 $/min and 100 $/min = 1 $/min
+
+# Telemetry, measured in this session (counts with half a pseudo-observation)
+input draft_easy: % between 0% and 100% = 99%       # drafts right at difficulty 0
+input draft_hard: % between 0% and 100% = 58.7%       # ... and at 1
+input source_unable: % between 0% and 100% = 0.25%
+input source_right: % between 0% and 100% = 99.25%
+input code_unable: % between 0% and 100% = 4.73%
+input code_right: % between 0% and 100% = 99.22%
+input source_cost: $ between 0 $ and 10 $ = 0.0049 $
+input code_cost: $ between 0 $ and 10 $ = 0.0018 $
+input source_time: s between 0 s and 600 s = 2.57 s
+input code_time: s between 0 s and 600 s = 2.9 s
+
+type Answer = { wrong: Bool, loss: $, spent: $, waited: s, checks: Int }
+
+action Plan = answer | verify | verify_twice
+
+fn draft_right() -> Float = draft_easy + (draft_hard - draft_easy) * difficulty
+
+world Question {
+    uncertain draft_ok ~ bernoulli(draft_right())
+    uncertain source_says ~ bernoulli(1.0 - source_unable)
+    uncertain source_ok ~ bernoulli(source_right)
+    uncertain code_says ~ bernoulli(1.0 - code_unable)
+    uncertain code_ok ~ bernoulli(code_right)
+}
+
+fn result(right: Bool, spent: $, waited: s, checks: Int) -> Answer = Answer {
+    wrong: not right,
+    loss: (if right { 0 $ } else { stakes }) + spent + waited * time_value,
+    spent, waited, checks,
+}
+
+# Answers are binary, so two opinions agree exactly when both are right or
+# both are wrong, and a majority is right when most of its members are.
+model ask(plan: Plan) -> Answer = {
+    let d = Question.draft_ok
+    let both = source_cost + code_cost
+    let wait2 = source_time + code_time
+    match plan {
+        answer => result(d, 0 $, 0 s, 0),
+        verify =>
+            if not Question.source_says {
+                # the source can't say: code decides, if it can
+                result(if Question.code_says { Question.code_ok } else { d }, both, wait2, 2)
+            } else if Question.source_ok == d {
+                result(d, source_cost, source_time, 1)
+            } else {
+                # draft and source disagree: code breaks the tie, or the source wins
+                result(if Question.code_says { Question.code_ok } else { Question.source_ok }, both, wait2, 2)
+            },
+        verify_twice => {
+            let s = Question.source_says
+            let c = Question.code_says
+            let right = if s and c {
+                (if d { 1 } else { 0 }) + (if Question.source_ok { 1 } else { 0 })
+                    + (if Question.code_ok { 1 } else { 0 }) >= 2
+            } else if s { Question.source_ok } else if c { Question.code_ok } else { d }
+            result(right, both, wait2, 2)
+        },
+    }
+}
+
+# The same model in closed form: each plan's chance of a wrong answer, and
+# what it spends and waits on average
+fn p_wrong(plan: Plan) -> Float = {
+    let p = draft_right()
+    let su = source_unable
+    let cu = code_unable
+    let qs = 1.0 - source_right
+    let qc = 1.0 - code_right
+    let qd = 1.0 - p
+    match plan {
+        answer => qd,
+        verify => {
+            let disagree = p * qs + qd * (1.0 - qs)
+            su * (cu * qd + (1.0 - cu) * qc)
+                + (1.0 - su) * (qd * qs + cu * p * qs + (1.0 - cu) * disagree * qc)
+        },
+        verify_twice => {
+            let majority = qd * qs + qd * qc + qs * qc - 2.0 * qd * qs * qc
+            (1.0 - su) * (1.0 - cu) * majority + (1.0 - su) * cu * qs
+                + su * (1.0 - cu) * qc + su * cu * qd
+        },
+    }
+}
+
+# Chance the plan runs code
+fn p_code(plan: Plan) -> Float = {
+    let p = draft_right()
+    let qs = 1.0 - source_right
+    match plan {
+        answer => 0.0,
+        verify => source_unable + (1.0 - source_unable) * (p * qs + (1.0 - p) * (1.0 - qs)),
+        verify_twice => 1.0,
+    }
+}
+
+fn expected_loss(plan: Plan) -> $ = {
+    let checks = if plan == answer { 0.0 } else { 1.0 }
+    let overhead = checks * (source_cost + source_time * time_value)
+        + p_code(plan) * (code_cost + code_time * time_value)
+    p_wrong(plan) * stakes + overhead
+}
+
+const PLANS = [answer, verify, verify_twice]
+
+policy always_answer = answer
+policy always_verify = verify
+policy always_verify_twice = verify_twice
+
+# A rule an agent might write by hand
+policy verify_if_hard[x in [0.3, 0.5]] = if difficulty >= x { verify } else { answer }
+
+# The plan with the least expected loss, with its reasons
+policy best = {
+    let losses = [expected_loss(p) for p in PLANS]
+    let i = argmin(losses)
+    note draft_right = draft_right() * 100%
+    note wrong_if_answered = p_wrong(answer) * 100%
+    note wrong_if_verified = p_wrong(verify) * 100%
+    note loss_answer = losses[0]
+    note loss_verify = losses[1]
+    note loss_verify_twice = losses[2]
+    # verifying pays when stakes exceed its overhead over the errors it removes
+    note verify_pays_above = (expected_loss(verify) - p_wrong(verify) * stakes)
+        / (p_wrong(answer) - p_wrong(verify))
+    PLANS[i]
+}
+
+# The situation the session measured: a typical question, 20 $ at stake
+study typical {
+    worlds 20_000
+    seed 1
+    minimize mean(loss)
+    report probability(wrong), mean(spent), mean(waited), mean(checks)
+}
+
+# An easy question that doesn't matter much
+study easy_cheap {
+    worlds 20_000
+    seed 1
+    with difficulty = 0.1, stakes = 0.2 $
+    minimize mean(loss)
+    report probability(wrong), mean(waited)
+}
+
+# A hard question that matters a lot
+study hard_costly {
+    worlds 20_000
+    seed 1
+    with difficulty = 0.8, stakes = 500 $
+    minimize mean(loss)
+    report probability(wrong), mean(waited)
+}
+
+# Checks are slow (a real tool call, not one claim of a batch) and the
+# user's time is dear
+study slow_checks {
+    worlds 20_000
+    seed 1
+    with difficulty = 0.2, stakes = 5 $, source_time = 30 s, code_time = 60 s, time_value = 5 $/min
+    minimize mean(loss)
+    report probability(wrong), mean(waited)
+}
+
+# An easy question that matters a lot: difficulty alone is the wrong signal
+study easy_costly {
+    worlds 20_000
+    seed 1
+    with difficulty = 0.1, stakes = 200 $
+    minimize mean(loss)
+    report probability(wrong), mean(waited)
+}

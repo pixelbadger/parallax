@@ -2,6 +2,7 @@
 """Estimate tooluse.px's `calibrated` inputs from a log of agent tasks.
 
     scripts/calibrate_tooluse.py simulations/tooluse_log.jsonl > simulations/tooluse_calibration.json
+    scripts/calibrate_tooluse.py --verify simulations/tooluse_log.jsonl > verify_inputs.json
 
 Each log line is one task (a yes/no claim whose truth is known):
 
@@ -109,6 +110,22 @@ def mean_of(tasks, field, src):
     return sum(xs) / len(xs) if xs else None
 
 
+def verify_inputs(tasks):
+    """verify.px's telemetry: per-call rates for reading the source
+    (github) and running code, and the draft's line over difficulty."""
+    out = {}
+    p, _ = prior(tasks)
+    out["draft_easy"], out["draft_hard"] = round(p["easy"] * 100, 2), round(p["hard"] * 100, 2)
+    for src, name in [("github", "source"), ("code", "code")]:
+        calls = [(a, t["truth"]) for t in tasks for a in t["calls"].get(src, [])]
+        said = [(a, truth) for a, truth in calls if a is not None]
+        out[f"{name}_unable"] = round(100 * (len(calls) - len(said) + 0.5) / (len(calls) + 1), 2)
+        out[f"{name}_right"] = round(100 * (sum(a == truth for a, truth in said) + 0.5) / (len(said) + 1), 2)
+        out[f"{name}_cost"] = round(mean_of(tasks, "cost", src), 4)
+        out[f"{name}_time"] = round(mean_of(tasks, "latency", src), 2)
+    return out
+
+
 def main(path):
     tasks = [json.loads(line) for line in open(path) if line.strip()]
     measured = {s for t in tasks for s in t["calls"]}
@@ -131,4 +148,8 @@ def main(path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if sys.argv[1] == "--verify":
+        rows = [json.loads(line) for line in open(sys.argv[2]) if line.strip()]
+        print(json.dumps(verify_inputs(rows), indent=2))
+    else:
+        main(sys.argv[1])

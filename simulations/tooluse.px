@@ -56,7 +56,8 @@
 # source code first. Caveats: costs and latencies are per claim in a
 # batch of 20, so they understate one call's overhead; the claims were
 # chosen by hand; and the world's difficulty stays uniform, while these
-# claims were rated easier (mean 0.38).
+# claims were rated easier (mean 0.38). verify.px serves what this found:
+# answer, or check the source then code, decided per question.
 #
 # The studies run 100 worlds so the golden test stays quick; for an answer,
 # run with `--worlds 5000` (about 12 minutes). At 5000 worlds, seed 11:
