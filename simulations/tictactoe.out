@@ -1,0 +1,650 @@
+{
+  "runtime": "parallax 0.2.0",
+  "model_sha256": "e1e019de30bda0c2164125cc0b05dfc1ebbdb14247902612d16c3b222f6ad6c7",
+  "studies": [
+    {
+      "study": "as_x",
+      "model": "game",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "e1e019de30bda0c2164125cc0b05dfc1ebbdb14247902612d16c3b222f6ad6c7",
+        "inputs_sha256": "761b4c16578a22420b8b463ebb654ef67eefd6fe8faf0b07e95adcb77170ec29",
+        "seed": 1,
+        "worlds": 40,
+        "world_ids": [
+          0,
+          39
+        ]
+      },
+      "inputs": {
+        "me": 1
+      },
+      "objectives": [
+        {
+          "sense": "maximize",
+          "metric": "mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "random_play",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })",
+              "value": 0.0,
+              "ci95": [
+                -0.21053390428660887,
+                0.21053390428660887
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.225,
+              "ci95": [
+                0.12316091323540743,
+                0.37503096742310027
+              ]
+            },
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.225,
+              "ci95": [
+                0.12316091323540743,
+                0.37503096742310027
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.55,
+              "ci95": [
+                0.39829091798932054,
+                0.6929469218909508
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.9,
+            "ci95": [
+              -1.1306283369948187,
+              -0.6693716630051815
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 1692960,
+            "operations": 622263
+          }
+        },
+        {
+          "name": "first_free",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })",
+              "value": -0.875,
+              "ci95": [
+                -0.978794614567253,
+                -0.771205385432747
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            },
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.875,
+              "ci95": [
+                0.738878801611489,
+                0.945404997490546
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.125,
+              "ci95": [
+                0.05459500250945401,
+                0.261121198388511
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.775,
+            "ci95": [
+              -1.9060562985170424,
+              -1.6439437014829574
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 1718520,
+            "operations": 564845
+          }
+        },
+        {
+          "name": "rules",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })",
+              "value": 0.475,
+              "ci95": [
+                0.3182735689488996,
+                0.6317264310511004
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.475,
+              "ci95": [
+                0.329354701126789,
+                0.6250263789330753
+              ]
+            },
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.525,
+              "ci95": [
+                0.3749736210669248,
+                0.670645298873211
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.425,
+            "ci95": [
+              -0.5952810226520606,
+              -0.25471897734793936
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 3212520,
+            "operations": 1105306
+          }
+        },
+        {
+          "name": "search[20]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": 20,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })",
+              "value": 0.9,
+              "ci95": [
+                0.8058463756893417,
+                0.9941536243106583
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.9,
+              "ci95": [
+                0.7694822477247771,
+                0.9604204713173936
+              ]
+            },
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.1,
+              "ci95": [
+                0.03957952868260638,
+                0.23051775227522298
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 2745073680,
+            "operations": 174065202
+          }
+        },
+        {
+          "name": "search[100]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 100,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })",
+              "value": 0.875,
+              "ci95": [
+                0.771205385432747,
+                0.978794614567253
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.875,
+              "ci95": [
+                0.738878801611489,
+                0.945404997490546
+              ]
+            },
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.125,
+              "ci95": [
+                0.05459500250945401,
+                0.261121198388511
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.025,
+            "ci95": [
+              -0.13568335997325912,
+              0.08568335997325913
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 13712344080,
+            "operations": 876360283
+          }
+        }
+      ],
+      "ranking": [
+        "search[20]",
+        "search[100]",
+        "rules",
+        "random_play",
+        "first_free"
+      ],
+      "recommended": "search[20]",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 16464041760,
+        "estimated_transitions": 3501000,
+        "operations": 1052717899,
+        "max_forecast_worlds": 100
+      }
+    },
+    {
+      "study": "as_o",
+      "model": "game",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "e1e019de30bda0c2164125cc0b05dfc1ebbdb14247902612d16c3b222f6ad6c7",
+        "inputs_sha256": "965df6ceec5000b6f2915f1b4b2c0929cabe671e64a41a70b7b0be3a44c40476",
+        "seed": 1,
+        "worlds": 40,
+        "world_ids": [
+          0,
+          39
+        ]
+      },
+      "inputs": {
+        "me": 2
+      },
+      "objectives": [
+        {
+          "sense": "maximize",
+          "metric": "mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "random_play",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })",
+              "value": 0.0,
+              "ci95": [
+                -0.21053390428660887,
+                0.21053390428660887
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.225,
+              "ci95": [
+                0.12316091323540743,
+                0.37503096742310027
+              ]
+            },
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.225,
+              "ci95": [
+                0.12316091323540743,
+                0.37503096742310027
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.55,
+              "ci95": [
+                0.39829091798932054,
+                0.6929469218909508
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.35,
+            "ci95": [
+              -0.5296062476625426,
+              -0.17039375233745732
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 1692960,
+            "operations": 622201
+          }
+        },
+        {
+          "name": "first_free",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })",
+              "value": -1.0,
+              "ci95": [
+                -1.0,
+                -1.0
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            },
+            {
+              "metric": "probability(winner == 1)",
+              "value": 1.0,
+              "ci95": [
+                0.9123783988027135,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.35,
+            "ci95": [
+              -1.499694721975701,
+              -1.200305278024299
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 1718520,
+            "operations": 523360
+          }
+        },
+        {
+          "name": "rules",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })",
+              "value": -0.075,
+              "ci95": [
+                -0.23789000298490565,
+                0.08789000298490567
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.1,
+              "ci95": [
+                0.03957952868260638,
+                0.23051775227522298
+              ]
+            },
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.175,
+              "ci95": [
+                0.0874541374603592,
+                0.31949990331787714
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.725,
+              "ci95": [
+                0.5716504419378943,
+                0.8389198375233267
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.425,
+            "ci95": [
+              -0.5952810226520606,
+              -0.25471897734793936
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 3212520,
+            "operations": 1133204
+          }
+        },
+        {
+          "name": "search[20]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 20,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })",
+              "value": 0.225,
+              "ci95": [
+                0.046252706316871756,
+                0.4037472936831282
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.3,
+              "ci95": [
+                0.18074845229746528,
+                0.45430018818144935
+              ]
+            },
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.075,
+              "ci95": [
+                0.025836025774588198,
+                0.19864233524310543
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.625,
+              "ci95": [
+                0.47032439137301096,
+                0.7577702083276673
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.125,
+            "ci95": [
+              -0.2686078564187936,
+              0.01860785641879356
+            ],
+            "worlds": 40
+          },
+          "work": {
+            "estimated_operations": 2745073680,
+            "operations": 102622876
+          }
+        },
+        {
+          "name": "search[100]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": 100,
+          "worlds_completed": 40,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })",
+              "value": 0.35,
+              "ci95": [
+                0.2003052780242991,
+                0.49969472197570086
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(winner == 2)",
+              "value": 0.35,
+              "ci95": [
+                0.2213452887317629,
+                0.5049411916274231
+              ]
+            },
+            {
+              "metric": "probability(winner == 1)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.08762160119728664
+              ]
+            },
+            {
+              "metric": "probability(winner == 3)",
+              "value": 0.65,
+              "ci95": [
+                0.49505880837257693,
+                0.7786547112682372
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 13712344080,
+            "operations": 527796377
+          }
+        }
+      ],
+      "ranking": [
+        "search[100]",
+        "search[20]",
+        "random_play",
+        "rules",
+        "first_free"
+      ],
+      "recommended": "search[100]",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 16464041760,
+        "estimated_transitions": 3501000,
+        "operations": 632698018,
+        "max_forecast_worlds": 100
+      }
+    }
+  ]
+}

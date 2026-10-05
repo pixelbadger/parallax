@@ -110,6 +110,11 @@ fn verify() {
     golden("simulations/verify.px");
 }
 
+#[test]
+fn tictactoe() {
+    golden("simulations/tictactoe.px");
+}
+
 /// Every golden program above is listed: a new `.px` needs a test.
 #[test]
 fn every_program_is_tested() {
@@ -123,6 +128,7 @@ fn every_program_is_tested() {
         "tool_choice",
         "tooluse",
         "verify",
+        "tictactoe",
     ];
     for dir in ["tests", "simulations"] {
         for entry in std::fs::read_dir(root().join(dir)).unwrap() {

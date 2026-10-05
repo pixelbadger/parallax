@@ -1,0 +1,128 @@
+# ============================================================
+# Tic-tac-toe: a sequential model whose policy plays whoever is to move.
+#
+# Cells are 0..8, row by row; 0 empty, 1 X, 2 O. X moves first.
+#   offline  `parallax run tictactoe.px` pits each policy, as X and as O,
+#            against `instinct` (win, else block, else a random cell)
+#   online   `parallax decide tictactoe.px --policy 'search[100]' --step t
+#            --observation '{"board": [...], "turn": 1, "winner": 0}'`
+#            plays one move for whichever side `turn` names
+# ============================================================
+
+input me: Int between 0 and 2 = 0   # side the policy plays; 0: both (serving)
+
+type Board = { board: [Int; 9], turn: Int, winner: Int }   # winner 3: draw
+
+action Move = place(cell: Int) | instinct
+
+const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+const PREFERENCE = [4, 0, 2, 6, 8, 1, 3, 5, 7]   # centre, corners, edges
+
+world Play {
+    # A tie-break for an instinctive move; 2520 is divisible by 1..9.
+    uncertain pick(t: Int) ~ uniform(0, 2519)
+}
+
+fn won(b: [Int], side: Int) -> Bool =
+    any([b[l[0]] == side and b[l[1]] == side and b[l[2]] == side for l in LINES])
+
+# A cell completing a line of `side`'s, or -1.
+fn completes(b: [Int], side: Int) -> Int = {
+    var cell = -1
+    for i in 0..9 while cell < 0 {
+        if b[i] == 0 {
+            var c = b
+            c[i] = side
+            if won(c, side) { cell = i }
+        }
+    }
+    cell
+}
+
+fn empties(b: [Int]) -> [Int] = [i for i in 0..9 if b[i] == 0]
+
+# Win, else block, else the `r`-th free cell.
+fn instinctive(b: [Int], side: Int, r: Int) -> Int = {
+    let w = completes(b, side)
+    let blk = completes(b, 3 - side)
+    let free = empties(b)
+    if w >= 0 { w } else if blk >= 0 { blk } else { free[mod(r, len(free))] }
+}
+
+model game {
+    horizon 9
+    init = Board { board: fill(9, 0), turn: 1, winner: 0 }
+    step(s: Board, a: Move, t: Int) -> Board = {
+        let inst = instinctive(s.board, s.turn, Play.pick(t))
+        let cell = if me != 0 and s.turn != me { inst } else {
+            match a { place(c) => c, instinct => inst }
+        }
+        assert s.board[cell] == 0, "occupied cell"
+        var b = s.board
+        b[cell] = s.turn
+        let w = if won(b, s.turn) { s.turn } else if len(empties(b)) == 0 { 3 } else { 0 }
+        Board { board: b, turn: 3 - s.turn, winner: w }
+    }
+    stop(s: Board) -> Bool = s.winner != 0
+    observe(s: Board, t: Int) -> Board = s
+    invariant(s: Board) -> Bool = {
+        let lead = count_of(s.board, 1) - count_of(s.board, 2)
+        lead == 0 or lead == 1
+    }
+}
+
+# Value of a finished game to `side`.
+fn value(o: Board, side: Int) -> Float =
+    if o.winner == side { 1.0 } else if o.winner == 3 - side { -1.0 } else { 0.0 }
+
+fn count_of(b: [Int], side: Int) -> Int = len([i for i in 0..9 if b[i] == side])
+
+policy random_play(o: Board, t: Int) -> Move = instinct
+
+policy first_free(o: Board, t: Int) -> Move = place(empties(o.board)[0])
+
+# The textbook rule: win, block, centre, corner, edge.
+policy rules(o: Board, t: Int) -> Move = {
+    let w = completes(o.board, o.turn)
+    let blk = completes(o.board, 3 - o.turn)
+    let pref = [c for c in PREFERENCE if o.board[c] == 0]
+    if w >= 0 { place(w) } else if blk >= 0 { place(blk) } else { place(pref[0]) }
+}
+
+# Monte Carlo: imagine `k` games after each legal move, both sides then
+# playing instinctively, and take the move with the best average.
+policy search[k in [20, 100]](o: Board, t: Int) -> Move = {
+    let w = completes(o.board, o.turn)
+    let blk = completes(o.board, 3 - o.turn)
+    if me != 0 and o.turn != me {
+        instinct
+    } else if w >= 0 {
+        note why = "wins now"
+        place(w)
+    } else if blk >= 0 {
+        note why = "blocks"
+        place(blk)
+    } else {
+        let free = empties(o.board)
+        let scores = [mean([value(r, o.turn) for r in forecast(place(c), horizon: 9 - t, worlds: k, then: instinct)]) for c in free]
+        note cells = free
+        note scores = scores
+        place(free[argmax(scores)])
+    }
+}
+
+study as_x {
+    worlds 40
+    seed 1
+    with me = 1
+    maximize mean(if winner == 1 { 1.0 } else if winner == 2 { -1.0 } else { 0.0 })
+    report probability(winner == 1), probability(winner == 2), probability(winner == 3)
+}
+
+study as_o {
+    worlds 40
+    seed 1
+    with me = 2
+    maximize mean(if winner == 2 { 1.0 } else if winner == 1 { -1.0 } else { 0.0 })
+    report probability(winner == 2), probability(winner == 1), probability(winner == 3)
+}
