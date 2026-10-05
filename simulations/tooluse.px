@@ -1,0 +1,455 @@
+# ============================================================
+# Tool use: when should an LLM agent answer, and when should it check?
+#
+# An agent has a draft answer to a yes/no claim ("this API exists", "this
+# syntax parses", "the release went out on Tuesday"). Before committing it
+# may consult sources, one a step, for up to 6 steps:
+#   context  re-read the context and think again (cheap, but its errors
+#            are the draft's own errors)
+#   web      search the web
+#   github   inspect the repository
+#   code     execute something (a test, a checker)
+#   doc      fetch the authoritative document
+#   ask      ask the user (reliable, but the user pays in attention)
+#
+# Each task has a hidden difficulty. It makes the draft more likely wrong,
+# each source noisier, and each source more likely to be *misled*: a
+# misled source contradicts the truth on every call, so asking it again
+# confirms its mistake rather than correcting it. Thinking again is misled
+# differently: it echoes the draft, right or wrong. A source may also be
+# unable to answer at all (no result, not applicable), and then it stays
+# unable for that task. Every call costs money and latency.
+#
+# The agent sees the stakes, an apparent difficulty (its own sense of how
+# hard the task is, which is noisy) and what every call returned. It
+# answers with the side its evidence favours. The loss of a task is
+#   stakes if wrong + money spent + latency * value of the user's time
+#
+# The domain decides how good each source is (the tables below):
+#   general    well-known facts
+#   codebase   questions about a private repository
+#   current    events after the model's training cutoff
+#   novel      a language the model has never seen (parallax itself)
+#
+# The studies run 100 worlds so the golden test stays quick; for an answer,
+# run with `--worlds 5000` (about 10 minutes). At 5000 worlds, seed 11:
+#   - Answering from context, or thinking again first, is the worst policy
+#     everywhere: reflection echoes the draft's own errors.
+#   - Verifying once, gated by stakes or not, recovers about half of that
+#     loss. The two-source rule is right more often on high-stakes tasks, but
+#     spends heavily (it asks the user) and loses on average.
+#   - Checking until confident wins. Where one tool is far more reliable than
+#     the rest (executing code for a new language), calling it again beats
+#     spreading checks across worse sources.
+#   - One-step value of information (forecast_voi) under-checks: one check
+#     rarely flips the answer, so it looks worth little. A two-step look
+#     (lookahead2) is first or tied for first in three domains.
+# ============================================================
+
+const STEPS = 6
+const N = 6                          # sources
+const NAMES = ["context", "web", "github", "code", "doc", "ask"]
+const CONTEXT = 0
+const ASK = 5
+
+enum Domain = general | codebase | current | novel
+
+input domain: Domain = novel
+input stakes_median: $ between 0 $ and 1000 $ = 5 $
+input time_value: $/min between 0 $/min and 100 $/min = 0.5 $/min
+
+# One source in one domain:
+#   acc     a call is right this often, when the source isn't misled
+#   misled  base chance the source is misled on this task
+#   fail    chance it can't answer this task at all
+type Source = { acc: Float, misled: Float, fail: Float, cost: $, latency: s }
+
+type Task = {
+    right: Bool,                 # the draft answer is correct (hidden)
+    known: Bool,                 # false in a forecast until the imagined truth is drawn
+    belief: Float,               # ... from this chance the draft is right
+    difficulty: Float,           # true difficulty (hidden)
+    apparent: Float,
+    stakes: $,
+    agree: [Int],                # per source: calls that supported the draft
+    disagree: [Int],             # ... that contradicted it
+    failed: [Bool],              # ... that couldn't answer
+    calls: Int,
+    cost: $,
+    latency: s,
+    done: Bool,
+}
+
+type Seen = {
+    apparent: Float,
+    stakes: $,
+    agree: [Int],
+    disagree: [Int],
+    failed: [Bool],
+    calls: Int,
+}
+
+type Result = {
+    correct: Bool,
+    loss: $,
+    cost: $,
+    latency: s,
+    calls: Int,
+    stakes: $,
+    draft_right: Bool,
+    asked: Bool,
+}
+
+action Act = answer | use(src: Int)
+
+world Agent {
+    latent difficulty ~ uniform(0.0, 1.0)
+    uncertain sense ~ normal(0.0, 0.15)          # error of the agent's sense of difficulty
+    uncertain draft ~ uniform(0.0, 1.0)
+    uncertain stakes ~ lognormal(stakes_median, 1.2)
+    uncertain misled(src: Int) ~ uniform(0.0, 1.0)
+    uncertain fails(src: Int) ~ uniform(0.0, 1.0)
+    uncertain call(src: Int, t: Int) ~ uniform(0.0, 1.0)
+    # where a forecast's imagined truth comes from
+    uncertain imagined ~ uniform(0.0, 1.0)
+}
+
+fn s(acc: Float, misled: Float, fail: Float, cost: $, latency: s) -> Source =
+    Source { acc, misled, fail, cost, latency }
+
+fn source(d: Domain, i: Int) -> Source = match d {
+    general => [
+        s(0.80, 0.15, 0.00, 0.002 $, 5 s),
+        s(0.90, 0.10, 0.10, 0.01 $, 15 s),
+        s(0.85, 0.10, 0.90, 0.01 $, 20 s),
+        s(0.99, 0.02, 0.80, 0.02 $, 30 s),
+        s(0.92, 0.08, 0.30, 0.01 $, 20 s),
+        s(0.98, 0.02, 0.10, 2 $, 300 s),
+    ][i],
+    codebase => [
+        s(0.70, 0.20, 0.00, 0.002 $, 5 s),
+        s(0.70, 0.30, 0.70, 0.01 $, 15 s),
+        s(0.92, 0.05, 0.10, 0.01 $, 15 s),
+        s(0.98, 0.03, 0.20, 0.03 $, 40 s),
+        s(0.90, 0.10, 0.10, 0.01 $, 15 s),
+        s(0.98, 0.02, 0.10, 2 $, 300 s),
+    ][i],
+    current => [
+        s(0.60, 0.40, 0.00, 0.002 $, 5 s),
+        s(0.88, 0.12, 0.10, 0.01 $, 15 s),
+        s(0.85, 0.10, 0.80, 0.01 $, 20 s),
+        s(0.99, 0.02, 0.95, 0.02 $, 30 s),
+        s(0.90, 0.10, 0.40, 0.01 $, 20 s),
+        s(0.98, 0.02, 0.10, 2 $, 300 s),
+    ][i],
+    novel => [
+        s(0.60, 0.35, 0.00, 0.002 $, 5 s),
+        s(0.70, 0.30, 0.95, 0.01 $, 15 s),
+        s(0.85, 0.10, 0.20, 0.01 $, 20 s),
+        s(0.99, 0.02, 0.05, 0.01 $, 10 s),
+        s(0.93, 0.07, 0.05, 0.01 $, 10 s),
+        s(0.98, 0.02, 0.10, 2 $, 300 s),
+    ][i],
+}
+
+# How often the draft is right, by domain and difficulty
+fn prior(d: Domain, x: Float) -> Float = match d {
+    general => 0.92 - 0.5 * x,
+    codebase => 0.80 - 0.5 * x,
+    current => 0.70 - 0.5 * x,
+    novel => 0.60 - 0.4 * x,
+}
+
+# Difficulty makes calls noisier and sources more often misled
+fn acc_at(src: Source, x: Float) -> Float = 0.5 + (src.acc - 0.5) * (1.0 - 0.5 * x)
+fn misled_at(src: Source, x: Float) -> Float = min(0.9, src.misled * (0.5 + x))
+
+# Chance a single call supports the truth, as the agent reckons it
+# (reflection that echoes a right draft happens to be right)
+fn q(src: Source, x: Float, echo: Bool) -> Float = {
+    let m = misled_at(src, x)
+    (1.0 - m) * acc_at(src, x) + if echo { m * 0.5 } else { 0.0 }
+}
+
+# Likelihood of one source's record of calls, given the draft is right
+# (truthful calls say "agree") or wrong (truthful calls say "disagree").
+# A misled source contradicts the truth on every call; misled reflection
+# agrees with the draft on every call.
+fn likelihood(src: Source, x: Float, echo: Bool, truthful: Int, false_: Int, disagree: Int) -> Float = {
+    let m = misled_at(src, x)
+    let a = acc_at(src, x)
+    let honest = (1.0 - m) * pow(a, float(truthful)) * pow(1.0 - a, float(false_))
+    let misled = if echo { disagree == 0 } else { truthful == 0 }
+    if misled { honest + m } else { honest }
+}
+
+# The agent's posterior that the draft is right, knowing calls to one
+# source are correlated (through being misled)
+fn posterior(o: Seen) -> Float = {
+    let p0 = prior(domain, o.apparent)
+    var right = p0
+    var wrong = 1.0 - p0
+    for i in 0..N {
+        let src = source(domain, i)
+        let echo = i == CONTEXT
+        right = right * likelihood(src, o.apparent, echo, o.agree[i], o.disagree[i], o.disagree[i])
+        wrong = wrong * likelihood(src, o.apparent, echo, o.disagree[i], o.agree[i], o.disagree[i])
+    }
+    right / (right + wrong)
+}
+
+# The same, treating every call as independent evidence
+fn naive(o: Seen) -> Float = {
+    let p0 = prior(domain, o.apparent)
+    var lo = ln(p0 / (1.0 - p0))
+    for i in 0..N {
+        let qi = q(source(domain, i), o.apparent, i == CONTEXT)
+        lo = lo + float(o.agree[i] - o.disagree[i]) * ln(qi / (1.0 - qi))
+    }
+    1.0 / (1.0 + exp(-lo))
+}
+
+fn sure(p: Float) -> Float = max(p, 1.0 - p)
+
+fn effective(src: Source) -> $ = src.cost + src.latency * time_value
+
+# The most reliable source that can still answer, less its cost as a
+# share of the stakes (so the user is asked only when it matters). With `fresh`, a source
+# already called counts for less (its errors repeat), so checks spread
+# across sources; without it, the favourite is called again and again.
+fn pick(o: Seen, allow_ask: Bool, fresh: Bool) -> Int = {
+    let scores = [
+        if o.failed[i] or (i == ASK and not allow_ask) { -1.0 } else {
+            let qi = q(source(domain, i), o.apparent, i == CONTEXT)
+            let n = o.agree[i] + o.disagree[i]
+            let worth = ln(qi / (1.0 - qi)) - effective(source(domain, i)) / o.stakes
+            if fresh { worth / float(1 + n) } else { worth }
+        }
+        for i in 0..N
+    ]
+    if max(scores) <= 0.0 { -1 } else { argmax(scores) }
+}
+
+fn distinct_support(o: Seen, side: Bool) -> Int =
+    sum([if (side and o.agree[i] > 0) or (not side and o.disagree[i] > 0) { 1 } else { 0 } for i in 0..N])
+
+model task {
+    horizon STEPS
+    init = {
+        let x = Agent.difficulty
+        Task {
+            right: Agent.draft < prior(domain, x),
+            known: true, belief: 0.0,
+            difficulty: x,
+            apparent: clamp(x + Agent.sense, 0.0, 1.0),
+            stakes: Agent.stakes,
+            agree: fill(N, 0), disagree: fill(N, 0), failed: fill(N, false),
+            calls: 0, cost: 0 $, latency: 0 s, done: false,
+        }
+    }
+    step(t0: Task, a: Act, t: Int) -> Task = {
+        var k = t0
+        if not k.known {
+            k.right = Agent.imagined < k.belief
+            k.known = true
+        }
+        match a {
+            answer => { k.done = true },
+            use(i) => {
+                let src = source(domain, i)
+                k.calls = k.calls + 1
+                k.cost = k.cost + src.cost
+                k.latency = k.latency + src.latency
+                if Agent.fails(i) < src.fail {
+                    k.failed[i] = true
+                } else if i == CONTEXT and Agent.misled(i) < misled_at(src, k.difficulty) {
+                    k.agree[i] = k.agree[i] + 1
+                } else {
+                    let truthful = Agent.misled(i) >= misled_at(src, k.difficulty)
+                        and Agent.call(i, t) < acc_at(src, k.difficulty)
+                    # a truthful call agrees with a right draft; an untruthful one with a wrong draft
+                    if truthful == k.right { k.agree[i] = k.agree[i] + 1 } else { k.disagree[i] = k.disagree[i] + 1 }
+                }
+            },
+        }
+        k
+    }
+    stop(k: Task) -> Bool = k.done
+    observe(k: Task, t: Int) -> Seen = Seen {
+        apparent: k.apparent, stakes: k.stakes, agree: k.agree,
+        disagree: k.disagree, failed: k.failed, calls: k.calls,
+    }
+    # A forecast imagines a truth consistent with what the agent believes
+    # (drawn by the first imagined step: belief itself can't read the world)
+    belief(o: Seen, t: Int) -> Task = Task {
+        right: false, known: false, belief: posterior(o),
+        difficulty: o.apparent,
+        apparent: o.apparent,
+        stakes: o.stakes,
+        agree: o.agree, disagree: o.disagree, failed: o.failed,
+        calls: o.calls, cost: 0 $, latency: 0 s, done: false,
+    }
+    # The agent answers with the side its (correlation-aware) evidence favours
+    outcome(k: Task) -> Result = {
+        let o = Seen {
+            apparent: k.apparent, stakes: k.stakes, agree: k.agree,
+            disagree: k.disagree, failed: k.failed, calls: k.calls,
+        }
+        let keep = posterior(o) >= 0.5
+        let correct = keep == k.right
+        Result {
+            correct,
+            loss: (if correct { 0 $ } else { k.stakes }) + k.cost + k.latency * time_value,
+            cost: k.cost,
+            latency: k.latency,
+            calls: k.calls,
+            stakes: k.stakes,
+            draft_right: k.right,
+            asked: k.agree[ASK] + k.disagree[ASK] > 0 or k.failed[ASK],
+        }
+    }
+}
+
+# Answer from context, straight away
+policy answer_now(o: Seen, t: Int) -> Act = answer
+
+# Think again once, then answer
+policy reflect(o: Seen, t: Int) -> Act = if o.calls == 0 { use(0) } else { answer }
+
+# Always verify once with the best tool for the job, never asking the user
+policy verify_once(o: Seen, t: Int) -> Act = {
+    let i = pick(o, false, true)
+    if o.calls == 0 and i >= 0 { use(i) } else { answer }
+}
+
+# Verify once only when the stakes are above a threshold
+policy risk_gate[x in [1 $, 5 $, 20 $]](o: Seen, t: Int) -> Act = {
+    let i = pick(o, false, true)
+    if o.calls == 0 and o.stakes > x and i >= 0 { use(i) } else { answer }
+}
+
+# Keep checking with tools (never the user) until the correlation-aware
+# posterior is confident enough
+policy until_sure[c in [0.9, 0.97, 0.99]](o: Seen, t: Int) -> Act = {
+    let i = pick(o, false, true)
+    if sure(posterior(o)) >= c or i < 0 { answer } else { use(i) }
+}
+
+# The same, but believing repeated calls are independent: it keeps
+# re-querying its favourite source and trusts the echo
+policy until_sure_naive(o: Seen, t: Int) -> Act = {
+    let i = pick(o, false, false)
+    if sure(naive(o)) >= 0.97 or i < 0 { answer } else { use(i) }
+}
+
+# Above a stakes threshold, answer only once two distinct sources support
+# the favoured side; below it, answer at once
+policy two_sources[x in [5 $, 20 $]](o: Seen, t: Int) -> Act = {
+    if o.stakes <= x { answer } else {
+        let side = posterior(o) >= 0.5
+        if distinct_support(o, side) >= 2 { answer } else {
+            # the best source not yet heard from
+            let scores = [
+                if o.failed[i] or o.agree[i] + o.disagree[i] > 0 { -1.0 } else {
+                    let qi = q(source(domain, i), o.apparent, i == CONTEXT)
+                    ln(qi / (1.0 - qi)) - effective(source(domain, i)) / o.stakes
+                }
+                for i in 0..N
+            ]
+            if max(scores) <= 0.0 { answer } else { use(argmax(scores)) }
+        }
+    }
+}
+
+# Expected value of information, by forecast: imagine answering now, and
+# consulting each source and then answering, and do whichever loses least
+policy forecast_voi(o: Seen, t: Int) -> Act = {
+    let now = mean([r.loss in $ for r in forecast(answer, horizon: 1, worlds: 20)])
+    let looks = [
+        if o.failed[i] { 1.0e9 } else {
+            mean([r.loss in $ for r in forecast(use(i), horizon: 2, worlds: 20, then: answer)])
+        }
+        for i in 0..N
+    ]
+    if min(looks) < now { use(argmin(looks)) } else { answer }
+}
+
+# The same with a two-step look: also imagine checking with a source
+# twice. One check often can't move the posterior across the line that
+# changes the answer, so one-step value of information undervalues
+# checking; two steps see what a run of checks can do.
+policy lookahead2(o: Seen, t: Int) -> Act = {
+    let now = mean([r.loss in $ for r in forecast(answer, horizon: 1, worlds: 20)])
+    let once = [
+        if o.failed[i] { 1.0e9 } else {
+            mean([r.loss in $ for r in forecast(use(i), horizon: 2, worlds: 20, then: answer)])
+        }
+        for i in 0..N
+    ]
+    let twice = [
+        if o.failed[i] { 1.0e9 } else {
+            mean([r.loss in $ for r in forecast(use(i), horizon: 2, worlds: 20, then: use(i))])
+        }
+        for i in 0..N
+    ]
+    if min(min(once), min(twice)) >= now { answer }
+    else if min(once) <= min(twice) { use(argmin(once)) }
+    else { use(argmin(twice)) }
+}
+
+# Knows whether the draft is right and lives each real call: a bound on
+# what a perfect sense of when to check would buy
+oracle policy hindsight(k: Task, t: Int) -> Act = {
+    let now = rollout(answer, horizon: 1).loss in $
+    let looks = [rollout(use(i), horizon: 2, then: answer).loss in $ for i in 0..N]
+    if min(looks) < now { use(argmin(looks)) } else { answer }
+}
+
+# This session: writing a program in parallax, a language the model has
+# never seen, for a user who is waiting and will run what they're given.
+# A wrong answer costs more here (a broken program wastes a test), and
+# the user's time is worth more than the default.
+study this_session {
+    worlds 100
+    seed 11
+    with domain = novel, stakes_median = 20 $, time_value = 1 $/min
+    minimize mean(loss)
+    report probability(correct), mean(cost), mean(latency), mean(calls),
+           probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
+}
+
+study novel_language {
+    worlds 100
+    seed 11
+    with domain = novel
+    minimize mean(loss)
+    report probability(correct), mean(cost), mean(latency), mean(calls),
+           probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
+}
+
+study codebase_question {
+    worlds 100
+    seed 11
+    with domain = codebase
+    minimize mean(loss)
+    report probability(correct), mean(cost), mean(latency), mean(calls),
+           probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
+}
+
+study current_events {
+    worlds 100
+    seed 11
+    with domain = current
+    minimize mean(loss)
+    report probability(correct), mean(cost), mean(latency), mean(calls),
+           probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
+}
+
+study general_knowledge {
+    worlds 100
+    seed 11
+    with domain = general
+    minimize mean(loss)
+    report probability(correct), mean(cost), mean(latency), mean(calls),
+           probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
+}
