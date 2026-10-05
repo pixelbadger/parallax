@@ -1,0 +1,119 @@
+# Language features, in one small decision study. Each report line is a
+# value whose expected result is in the comment.
+
+input budget: £ between 0 £ and 1000 £ = 120 £
+input crew: Int between 1 and 10 = 3
+
+unit pallet                      # a base unit of the program's own
+unit truckload = 24 pallet
+
+const SPEEDS = [40 km/h, 60 km/h, 80 km/h]
+const RATE = 29 p/kWh
+derived per_head = budget / crew                    # 40 £
+
+type Leg = { distance: km, speed: km/h }
+enum Weather = clear | rain(intensity: Float) | storm
+enum Region = north | south
+
+action Plan = slow | fast | split(trucks: Int)
+
+world Road {
+    latent quality ~ normal(1.0, 0.1)
+    uncertain traffic ~ triangular(0.0, 0.2, 1.0)
+    uncertain weather ~ categorical([clear, rain(0.5), storm], [0.7, 0.2, 0.1])
+    uncertain delay(region: Region, day: Int) ~ lognormal(10 min, 0.5)
+    uncertain load ~ empirical([10 pallet, 20 pallet, 1 truckload])
+    derived grip = quality * (1.0 - traffic / 2.0)
+}
+
+fn hours(l: Leg) -> h = l.distance / l.speed
+
+# A bounded loop with an early stop and local accumulators
+fn first_over(xs: [Int], limit: Int) -> Int = {
+    var found = -1
+    for i in 0..len(xs) while found < 0 {
+        if xs[i] > limit { found = i }
+    }
+    found
+}
+
+# Statistics in code summarise an array; in a study they summarise worlds.
+fn middle() -> Float = median([3, 1, 2])
+fn halfway() -> Float = quantile([1.0, 2.0, 3.0, 4.0], 0.5)
+fn trues() -> Int = count([true, false, true])
+
+fn describe(w: Weather) -> Float = match w {
+    clear => 0.0,
+    rain(x) => x,
+    storm => 1.0,
+}
+
+type Outcome = { time: h, cost: £, late: Bool, wet: Float }
+
+model deliver(plan: Plan) -> Outcome = {
+    let speed = match plan {
+        slow => SPEEDS[0],
+        fast => SPEEDS[2],
+        split(n) => SPEEDS[1] * float(min(n, 3)) / 3.0,
+    }
+    var legs = [Leg { distance: 30 km, speed }, Leg { distance: 50 km, speed }]
+    legs[1].speed = legs[1].speed * Road.grip
+    let driving = sum([hours(l) for l in legs])
+    let waiting = Road.delay(north, 1) + Road.delay(south, 1)
+    let energy = 2 kWh * (driving in h) * (Road.load in pallet) / 10.0
+    Outcome {
+        time: driving + waiting,
+        cost: energy * RATE,
+        late: driving + waiting > 2 h,
+        wet: describe(Road.weather),
+    }
+}
+
+policy careful = slow
+policy hurried = fast
+policy convoy[n in 1..=3] = split(n)
+oracle policy psychic = {
+    let options = [slow, fast]
+    options[argmin([rollout(p).time in h for p in options])]
+}
+
+study features {
+    model deliver
+    worlds 200
+    seed 11
+    require probability(late) <= 50%
+    minimize mean(time)
+    report mean(cost), p90(time), probability(wet > 0.0), stddev(time),
+           mean(time where wet > 0.0), max(cost) in p
+}
+
+# Plain expressions, checked as a study's report: every world agrees.
+action Probe = probe
+model sums(x: Probe) -> Int = 0
+policy any_plan = probe
+study arithmetic {
+    model sums
+    worlds 1
+    report 7 // 2,                          # 3
+           -7 // 2,                         # -4
+           mod(-7, 3),                      # 2
+           7 / 2,                           # 3.5
+           2^10,                            # 1024
+           (3 m)^2 in cm^2,                 # 90000
+           sqrt(9 m^2),                     # 3 m
+           90 min + 1 h in min,             # 150
+           clamp(15, 0, 10),                # 10
+           first_over([1, 5, 9, 12], 6),    # 2
+           per_head,                        # 40 £
+           per_head in p,                   # 4000
+           1 truckload in pallet,           # 24
+           [x * x for x in 0..10 if mod(x, 3) == 0],
+           middle(),                        # 2
+           halfway(),                       # 2.5
+           trues(),                         # 2
+           any([false, true]),              # true
+           round(2.5), floor(-0.5), ceil(0.1),    # 3, -1, 1
+           exp(0.0), ln(1.0), cos(0.0),     # 1, 0, 1
+           not (1 < 2) or 3 >= 3,           # true
+           Region.north == north            # true
+}

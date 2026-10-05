@@ -1,0 +1,92 @@
+# ============================================================
+# Reactor shift: which operating policy should the night crew use?
+#
+# A reactor runs for a 24-hour shift. Each hour the crew picks:
+#   full power   +10 MWh, heat += 8 + surge - cooling
+#   throttled    +4 MWh,  heat += 2 + surge / 2 - cooling
+# Surges are 0-12, plus a 30-heat spike 8% of the time. The coolant
+# pump removes 12 heat an hour; each hour it may fail (2.1%, so about 40%
+# of shifts lose it), leaving only 3 cooling for the rest of the shift.
+# At 100 heat the core melts down: the shift ends and its output is
+# forfeit, so every policy trades output against risk.
+#
+# Every policy runs the same 400 shifts: hour 5's surge in shift 17 is the
+# same surge whatever the crew did before it. The crew sees the heat
+# gauge, the output so far and the pump alarm, never the coming surges:
+# forecasts imagine their own.
+# ============================================================
+
+const HOURS = 24
+const MELTDOWN = 100
+const LIMITS = [40, 50, 60]
+
+type Plant = { heat: Int, output: MWh, melted: Bool, pump_ok: Bool }
+type Shift = { melted: Bool, output: MWh, heat: Int, pump_failed: Bool }
+
+action Mode = full | throttled
+
+world Core {
+    uncertain surge(hour: Int) ~ uniform(0, 12)
+    uncertain spike(hour: Int) ~ bernoulli(0.08)
+    uncertain pump_fails(hour: Int) ~ bernoulli(0.021)
+}
+
+model shift {
+    horizon HOURS
+    init = Plant { heat: 30, output: 0 MWh, melted: false, pump_ok: true }
+    step(s: Plant, a: Mode, t: Int) -> Plant = {
+        let pump_ok = s.pump_ok and not Core.pump_fails(t)
+        let cooling = if pump_ok { 12 } else { 3 }
+        let surge = Core.surge(t) + if Core.spike(t) { 30 } else { 0 }
+        let heat = match a {
+            full => max(0, s.heat + 8 + surge - cooling),
+            throttled => max(0, s.heat + 2 + surge // 2 - cooling),
+        }
+        let made = match a {
+            full => 10 MWh,
+            throttled => 4 MWh,
+        }
+        Plant { heat, output: s.output + made, melted: heat >= MELTDOWN, pump_ok }
+    }
+    stop(s: Plant) -> Bool = s.melted
+    # The control room sees the whole plant: gauge, output and pump alarm.
+    observe(s: Plant, t: Int) -> Plant = s
+    outcome(s: Plant) -> Shift = Shift {
+        melted: s.melted,
+        output: if s.melted { 0 MWh } else { s.output },
+        heat: s.heat,
+        pump_failed: not s.pump_ok,
+    }
+    invariant(s: Plant) -> Bool = s.heat >= 0
+}
+
+policy always_full(o: Plant, t: Int) -> Mode = full
+
+# Throttle when the heat gauge reads above a limit
+policy gauge[limit in LIMITS](o: Plant, t: Int) -> Mode =
+    if o.heat > limit { throttled } else { full }
+
+# Imagine one full-power hour; throttle if it came out hot
+policy glance(o: Plant, t: Int) -> Mode =
+    if forecast(full, horizon: 1, worlds: 1)[0].heat > 70 { throttled } else { full }
+
+# Imagine the next full-power hour 20 times; throttle if any reaches 70
+policy cautious(o: Plant, t: Int) -> Mode = {
+    let next = forecast(full, horizon: 1, worlds: 20)
+    if any([s.heat > 69 for s in next]) { throttled } else { full }
+}
+
+# Lives the real rest of the shift, full power for an hour and throttled
+# after it, and runs at full power if that never melts down: knowing every
+# coming surge and pump failure, which no crew can.
+oracle policy clairvoyant(s: Plant, t: Int) -> Mode =
+    if rollout(full, horizon: HOURS, then: throttled).melted { throttled } else { full }
+
+study night_shift {
+    worlds 400
+    seed 7
+    require probability(melted) <= 20%
+    maximize mean(output)
+    report probability(melted), median(output), probability(pump_failed),
+           probability(melted where pump_failed), mean(output where pump_failed)
+}

@@ -1,0 +1,79 @@
+# Keyed worlds, forecasts and oracles, small enough to follow by hand.
+#
+# A stall holds one crate to sell within 5 days. Each day has a price,
+# which drifts with a market trend nobody sees. The trader sees today's
+# price (observing it reveals it) but not tomorrow's, and holding costs a
+# little each day.
+
+const DAYS = 5
+const STORAGE = 0.2
+
+type Stall = { held: Bool, proceeds: Float, day_sold: Int }
+type Seen = { price: Float, held: Bool }
+
+action Choice = sell | hold
+
+world Market {
+    latent trend ~ uniform(-0.5, 1.0)
+    uncertain noise(day: Int) ~ normal(0.0, 1.0)
+    derived price(day: Int) = 10.0 + trend * float(day) + noise(day)
+}
+
+model market {
+    horizon DAYS
+    init = Stall { held: true, proceeds: 0.0, day_sold: -1 }
+    step(s: Stall, a: Choice, t: Int) -> Stall =
+        if s.held and (a == sell or t == DAYS - 1) {
+            Stall { held: false, proceeds: s.proceeds + Market.price(t), day_sold: t }
+        } else if s.held {
+            Stall { held: true, proceeds: s.proceeds - STORAGE, day_sold: -1 }
+        } else {
+            s
+        }
+    stop(s: Stall) -> Bool = not s.held
+    observe(s: Stall, t: Int) -> Seen = Seen { price: Market.price(t), held: s.held }
+    # A forecast counts proceeds from now on.
+    belief(o: Seen, t: Int) -> Stall = Stall { held: o.held, proceeds: 0.0, day_sold: -1 }
+    invariant(s: Stall) -> Bool = s.held or s.day_sold >= 0
+}
+
+policy sell_now(o: Seen, t: Int) -> Choice = sell
+policy last_day(o: Seen, t: Int) -> Choice = hold
+policy threshold[x in [10.5, 11.5]](o: Seen, t: Int) -> Choice =
+    if o.price >= x { sell } else { hold }
+
+# Work before deciding draws nothing: it sees the same worlds as sell_now,
+# so its results are identical.
+policy busy(o: Seen, t: Int) -> Choice = {
+    let work = sum([i * i for i in 0..100])
+    if work >= 0 { sell } else { hold }
+}
+
+# Sells if today's price beats what waiting a day is expected to fetch. Its
+# imagined tomorrows keep today's price but draw their own trend and noise.
+policy forecaster(o: Seen, t: Int) -> Choice = {
+    let wait = mean([r.proceeds for r in forecast(hold, horizon: 2, worlds: 50, then: sell)])
+    if o.price >= wait { sell } else { hold }
+}
+
+# Knows tomorrow's real price.
+oracle policy prophet(s: Stall, t: Int) -> Choice = {
+    let now = rollout(sell, horizon: 1).proceeds
+    let later = rollout(hold, horizon: 2, then: sell).proceeds
+    if now >= later { sell } else { hold }
+}
+
+study market_week {
+    worlds 500
+    seed 5
+    maximize mean(proceeds)
+    report mean(day_sold), p10(proceeds)
+}
+
+# The same seed and the same keys: the same markets, in another study.
+study same_markets {
+    worlds 500
+    seed 5
+    compare sell_now, busy
+    maximize mean(proceeds)
+}

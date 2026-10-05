@@ -1,13 +1,545 @@
---- Executing simulations/reactor.spl ---
-== Every shift ==
-always full   | meltdowns 362 of 400 | mean output 23 | median 0
-heat gauge    | meltdowns 74 of 400 | mean output 148 | median 174
-forecast      | meltdowns 126 of 400 | mean output 133 | median 180
-risk (20 fwd) | meltdowns 43 of 400 | mean output 153 | median 168
-timeline edit | meltdowns 73 of 400 | mean output 184 | median 228
-== Given the coolant pump failed ==
-always full   | meltdowns 165 of 167 | mean output 3 | median 0
-heat gauge    | meltdowns 74 of 167 | mean output 92 | median 132
-forecast      | meltdowns 100 of 167 | mean output 72 | median 0
-risk (20 fwd) | meltdowns 43 of 167 | mean output 111 | median 138
-timeline edit | meltdowns 73 of 167 | mean output 117 | median 168
+{
+  "runtime": "parallax 0.1.0",
+  "model_sha256": "befa20e4d84c894e0a4d4c294aecd1acbb17e2e222c099342c1f9ad6e60d0d9c",
+  "studies": [
+    {
+      "study": "night_shift",
+      "model": "shift",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "befa20e4d84c894e0a4d4c294aecd1acbb17e2e222c099342c1f9ad6e60d0d9c",
+        "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "seed": 7,
+        "worlds": 400,
+        "world_ids": [
+          0,
+          399
+        ]
+      },
+      "inputs": {},
+      "objectives": [
+        {
+          "sense": "maximize",
+          "metric": "mean(output)"
+        }
+      ],
+      "constraints": [
+        "probability(melted) <= 20%"
+      ],
+      "policies": [
+        {
+          "name": "always_full",
+          "oracle": false,
+          "status": "infeasible",
+          "rank": null,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 24.6,
+              "unit": "MWh",
+              "ci95": [
+                17.457470443548782,
+                31.74252955645122
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.8975,
+              "bound": 0.2,
+              "satisfied": false
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.8975,
+              "ci95": [
+                0.8638965789864277,
+                0.9235411470178065
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 0.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.325,
+              "ci95": [
+                0.28095326743154514,
+                0.3723760355854586
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.9769230769230769
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 5.538461538461539,
+              "unit": "MWh"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -127.035,
+            "ci95": [
+              -134.8961451868394,
+              -119.1738548131606
+            ],
+            "worlds": 400
+          },
+          "of_oracle": 0.13025176713525535,
+          "work": {
+            "estimated_operations": 631200,
+            "operations": 371001
+          }
+        },
+        {
+          "name": "gauge[40]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": 40,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 151.635,
+              "unit": "MWh",
+              "ci95": [
+                145.3360974680434,
+                157.93390253195662
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.13,
+              "bound": 0.2,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.13,
+              "ci95": [
+                0.10053125228664084,
+                0.1665078455207386
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 174.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.435,
+              "ci95": [
+                0.3872626744968637,
+                0.48397392376659487
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.2988505747126437
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 106.72413793103448,
+              "unit": "MWh"
+            }
+          ],
+          "of_oracle": 0.802875069494083,
+          "work": {
+            "estimated_operations": 679200,
+            "operations": 641903
+          }
+        },
+        {
+          "name": "gauge[50]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 50,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 150.0,
+              "unit": "MWh",
+              "ci95": [
+                142.7252480248044,
+                157.27475197519558
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.18,
+              "bound": 0.2,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.18,
+              "ci95": [
+                0.14545031532583302,
+                0.22063755304811672
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 180.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.435,
+              "ci95": [
+                0.3872626744968637,
+                0.48397392376659487
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.40804597701149425
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 95.96551724137932,
+              "unit": "MWh"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.635,
+            "ci95": [
+              -4.577346689328121,
+              1.3073466893281216
+            ],
+            "worlds": 400
+          },
+          "of_oracle": 0.7942180922881423,
+          "work": {
+            "estimated_operations": 679200,
+            "operations": 633045
+          }
+        },
+        {
+          "name": "gauge[60]",
+          "oracle": false,
+          "status": "infeasible",
+          "rank": null,
+          "parameter": 60,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 143.25,
+              "unit": "MWh",
+              "ci95": [
+                134.79057751772856,
+                151.70942248227144
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.255,
+              "bound": 0.2,
+              "satisfied": false
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.255,
+              "ci95": [
+                0.21475670087938903,
+                0.2999043233444163
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 186.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.435,
+              "ci95": [
+                0.3872626744968637,
+                0.48397392376659487
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.5574712643678161
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 77.51724137931033,
+              "unit": "MWh"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -8.385,
+            "ci95": [
+              -13.14620288171061,
+              -3.623797118289391
+            ],
+            "worlds": 400
+          },
+          "of_oracle": 0.7584782781351759,
+          "work": {
+            "estimated_operations": 679200,
+            "operations": 615172
+          }
+        },
+        {
+          "name": "glance",
+          "oracle": false,
+          "status": "infeasible",
+          "rank": null,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 133.56,
+              "unit": "MWh",
+              "ci95": [
+                124.42493304114522,
+                142.69506695885477
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.3175,
+              "bound": 0.2,
+              "satisfied": false
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.3175,
+              "ci95": [
+                0.27380177308238884,
+                0.36467021434962943
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 186.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.4175,
+              "ci95": [
+                0.37018126768159904,
+                0.46638826088355984
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.5568862275449101
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 78.46706586826346,
+              "unit": "MWh"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -18.075,
+            "ci95": [
+              -24.291906925120667,
+              -11.858093074879333
+            ],
+            "worlds": 400
+          },
+          "of_oracle": 0.7071717893733619,
+          "work": {
+            "estimated_operations": 1466400,
+            "operations": 1271635
+          }
+        },
+        {
+          "name": "cautious",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 148.575,
+              "unit": "MWh",
+              "ci95": [
+                142.12835847891043,
+                155.02164152108955
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.145,
+              "bound": 0.2,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.145,
+              "ci95": [
+                0.11387048965924287,
+                0.18288323931810765
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 174.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.435,
+              "ci95": [
+                0.3872626744968637,
+                0.48397392376659487
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.3333333333333333
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 102.58620689655172,
+              "unit": "MWh"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -3.06,
+            "ci95": [
+              -5.227509714183332,
+              -0.8924902858166671
+            ],
+            "worlds": 400
+          },
+          "of_oracle": 0.786673020411405,
+          "work": {
+            "estimated_operations": 16663200,
+            "operations": 15569881
+          }
+        },
+        {
+          "name": "clairvoyant",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 400,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(output)",
+              "value": 188.865,
+              "unit": "MWh",
+              "ci95": [
+                183.44938097872148,
+                194.2806190212785
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "constraint": "probability(melted) <= 20%",
+              "value": 0.035,
+              "bound": 0.2,
+              "satisfied": true
+            }
+          ],
+          "metrics": [
+            {
+              "metric": "probability(melted)",
+              "value": 0.035,
+              "ci95": [
+                0.02096129419797776,
+                0.057885139532918004
+              ]
+            },
+            {
+              "metric": "median(output)",
+              "value": 210.0,
+              "unit": "MWh"
+            },
+            {
+              "metric": "probability(pump_failed)",
+              "value": 0.435,
+              "ci95": [
+                0.3872626744968637,
+                0.48397392376659487
+              ]
+            },
+            {
+              "metric": "probability(melted where pump_failed)",
+              "value": 0.08045977011494253
+            },
+            {
+              "metric": "mean(output where pump_failed)",
+              "value": 144.89655172413794,
+              "unit": "MWh"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 37.23,
+            "ci95": [
+              34.30302281063246,
+              40.15697718936754
+            ],
+            "worlds": 400
+          },
+          "work": {
+            "estimated_operations": 15319200,
+            "operations": 7469478
+          }
+        }
+      ],
+      "ranking": [
+        "gauge[40]",
+        "gauge[50]",
+        "cautious"
+      ],
+      "recommended": "gauge[40]",
+      "best_oracle": "clairvoyant",
+      "errors": [],
+      "work": {
+        "estimated_operations": 36117600,
+        "estimated_transitions": 499200,
+        "operations": 26572115,
+        "max_forecast_worlds": 20
+      }
+    }
+  ]
+}

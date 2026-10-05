@@ -1,0 +1,233 @@
+# ============================================================
+# Island: rabbits, foxes and a ranger.
+#
+# An island of 5 x 5 patches. Each month, on every patch:
+#   grass grows with the season, times the patch's fertility
+#   rabbits eat a unit of grass each; half the unfed starve; from April
+#     to September the fed ones breed fast
+#   foxes hunt the patch's rabbits; a fox needs one a month, and some of
+#     the hungry starve; in spring the fed ones breed
+#   crowded rabbits and hungry foxes wander to a neighbouring patch
+# Some years bring drought (a third of the growth), and a crowded island
+# risks myxomatosis in July, which kills most rabbits everywhere.
+# Populations are counts; every rate is applied with random rounding, and
+# every one of those random draws is a keyed fact of the world.
+#
+# The ranger wants both species to survive the 8 years. Each January, knowing
+# whether this year brings drought, they can cull: halve the foxes on every
+# patch with 2 or more.
+#   never      never cull
+#   always     cull every year
+#   foresight  imagine the year twice, culled and not, and cull if that
+#              looks better (the imagined years have their own weather)
+#   hindsight  an oracle: live both real years and keep the better
+#
+# The island was surveyed once: its fertility is an input, so every world
+# and every seed runs on the same island.
+# ============================================================
+
+const W = 5
+const H = 5
+const YEARS = 8
+const GROWTH = [6, 8, 16, 26, 36, 36, 30, 24, 16, 10, 6, 6]   # grass per month, January first
+const DX = [1, 0, -1, 0]
+const DY = [0, 1, 0, -1]
+const OUTBREAK = 400         # rabbits on the island before disease can strike
+
+# Fertility of each patch, 5-15 (10 is average)
+input fertility: [[Int; 5]; 5] = [
+    [8, 9, 8, 5, 10],
+    [5, 14, 14, 8, 5],
+    [8, 5, 6, 6, 5],
+    [9, 11, 6, 8, 9],
+    [8, 6, 5, 8, 9],
+]
+
+type Island = { grass: [[Int]], rabbits: [[Int]], foxes: [[Int]] }
+type State = { isle: Island, yearly: [Int], early_drought: Bool }
+type Census = { isle: Island, drought: Bool }
+type Result = {
+    both: Bool,
+    rabbits_left: Bool,
+    foxes_left: Bool,
+    rabbits: Int,
+    foxes: Int,
+    early_drought: Bool,
+    yearly: [Int],
+    spread: [[Int]],
+}
+
+action Ranger = leave | cull
+
+world Nature {
+    uncertain drought(year: Int) ~ bernoulli(0.2)
+    uncertain disease(year: Int) ~ bernoulli(0.39)
+    uncertain rabbits(y: Int, x: Int) ~ uniform(0, 10)
+    uncertain foxes(y: Int, x: Int) ~ uniform(0, 1)
+    # dice for random rounding, and which way a crowd wanders
+    uncertain roll(year: Int, month: Int, y: Int, x: Int, k: Int) ~ uniform(0, 99)
+    uncertain wander(year: Int, month: Int, y: Int, x: Int) ~ uniform(0, 3)
+}
+
+# n * pct%, randomly rounded so that it is right on average
+fn chance(n: Int, pct: Int, roll: Int) -> Int = (n * pct + roll) // 100
+
+fn grid(v: Int) -> [[Int]] = fill(H, fill(W, v))
+
+fn total(g: [[Int]]) -> Int = sum([sum(row) for row in g])
+
+fn month(start: Island, m: Int, drought: Bool, rolls: [[[Int]]], dirs: [[Int]]) -> Island = {
+    var isle = start
+    let growth = if drought { GROWTH[m] // 3 } else { GROWTH[m] }
+    var rabbits_in = grid(0)   # arrivals, settled after every patch has moved
+    var foxes_in = grid(0)
+    for y in 0..H {
+        for x in 0..W {
+            let roll = rolls[y][x]
+            var grass = min(100, isle.grass[y][x] + growth * fertility[y][x] // 10)
+            var r = isle.rabbits[y][x]
+            var f = isle.foxes[y][x]
+
+            # Rabbits graze; half of the unfed starve
+            let fed = min(grass, r)
+            grass = grass - fed
+            r = max(0, r - chance(r - fed, 50, roll[0]) - chance(r, 3, roll[1]))
+            if m > 2 and m < 9 { r = r + chance(fed, 25, roll[2]) }
+
+            # Foxes hunt; the hungry starve
+            let prey = chance(min(r, f * 4), 30, roll[3])
+            r = r - prey
+            let fed_foxes = min(f, prey)
+            f = max(0, f - chance(f - fed_foxes, 12, roll[4]) - chance(f, 2, roll[5]))
+            if m > 2 and m < 6 { f = f + chance(fed_foxes, 70, roll[6]) }
+
+            # Crowded rabbits and hungry foxes wander to a neighbouring patch
+            let ny = y + DY[dirs[y][x]]
+            let nx = x + DX[dirs[y][x]]
+            let inland = ny >= 0 and ny < H and nx >= 0 and nx < W
+            if inland and r > 4 and r > grass // 2 {
+                let n = r // 4
+                r = r - n
+                rabbits_in[ny][nx] = rabbits_in[ny][nx] + n
+            }
+            if inland and f > 0 and prey < f {
+                let n = (f + 1) // 2
+                f = f - n
+                foxes_in[ny][nx] = foxes_in[ny][nx] + n
+            }
+
+            isle.grass[y][x] = grass
+            isle.rabbits[y][x] = r
+            isle.foxes[y][x] = f
+        }
+    }
+    for y in 0..H {
+        for x in 0..W {
+            isle.rabbits[y][x] = isle.rabbits[y][x] + rabbits_in[y][x]
+            isle.foxes[y][x] = isle.foxes[y][x] + foxes_in[y][x]
+        }
+    }
+    isle
+}
+
+# Myxomatosis kills most rabbits everywhere
+fn outbreak(start: Island, rolls: [[Int]]) -> Island = {
+    var isle = start
+    for y in 0..H {
+        for x in 0..W {
+            isle.rabbits[y][x] = isle.rabbits[y][x] - chance(isle.rabbits[y][x], 70, rolls[y][x])
+        }
+    }
+    isle
+}
+
+fn halve_foxes(start: Island) -> Island = {
+    var isle = start
+    for y in 0..H {
+        for x in 0..W {
+            let f = isle.foxes[y][x]
+            if f > 1 { isle.foxes[y][x] = f - f // 2 }
+        }
+    }
+    isle
+}
+
+# How well both species are doing: 0 if either has died out
+fn outlook(r: Result) -> Int = if r.both { min(r.rabbits, r.foxes * 20) } else { 0 }
+
+model years {
+    horizon YEARS
+    init = State {
+        isle: Island {
+            grass: grid(50),
+            rabbits: [[Nature.rabbits(y, x) for x in 0..W] for y in 0..H],
+            foxes: [[Nature.foxes(y, x) for x in 0..W] for y in 0..H],
+        },
+        yearly: fill(YEARS, 0),
+        early_drought: false,
+    }
+    step(s: State, a: Ranger, t: Int) -> State = {
+        var isle = if a == cull { halve_foxes(s.isle) } else { s.isle }
+        let drought = Nature.drought(t)
+        for m in 0..12 {
+            let rolls = [[[Nature.roll(t, m, y, x, k) for k in 0..7] for x in 0..W] for y in 0..H]
+            let dirs = [[Nature.wander(t, m, y, x) for x in 0..W] for y in 0..H]
+            isle = month(isle, m, drought, rolls, dirs)
+            if m == 6 and total(isle.rabbits) > OUTBREAK and Nature.disease(t) {
+                isle = outbreak(isle, [[Nature.roll(t, m, y, x, 7) for x in 0..W] for y in 0..H])
+            }
+        }
+        var yearly = s.yearly
+        yearly[t] = total(isle.rabbits)
+        State { isle, yearly, early_drought: s.early_drought or (drought and t < 2) }
+    }
+    # The ranger counts every patch, and knows in January if it's a dry year.
+    observe(s: State, t: Int) -> Census = Census { isle: s.isle, drought: Nature.drought(t) }
+    # A forecast starts from the census; the years behind don't matter to it.
+    belief(c: Census, t: Int) -> State = State { isle: c.isle, yearly: fill(YEARS, 0), early_drought: false }
+    outcome(s: State) -> Result = {
+        let r = total(s.isle.rabbits)
+        let f = total(s.isle.foxes)
+        Result {
+            both: r > 0 and f > 0,
+            rabbits_left: r > 0,
+            foxes_left: f > 0,
+            rabbits: r,
+            foxes: f,
+            early_drought: s.early_drought,
+            yearly: s.yearly,
+            spread: s.isle.rabbits,
+        }
+    }
+}
+
+policy never(c: Census, t: Int) -> Ranger = leave
+
+policy always(c: Census, t: Int) -> Ranger = cull
+
+policy foresight(c: Census, t: Int) -> Ranger = {
+    let culled = mean([outlook(r) for r in forecast(cull, horizon: 1, worlds: 2)])
+    let left = mean([outlook(r) for r in forecast(leave, horizon: 1, worlds: 2)])
+    if culled > left { cull } else { leave }
+}
+
+oracle policy hindsight(s: State, t: Int) -> Ranger =
+    if outlook(rollout(cull, horizon: 1)) > outlook(rollout(leave, horizon: 1)) { cull } else { leave }
+
+study ranger {
+    worlds 32
+    seed 3
+    maximize probability(both)
+    report probability(rabbits_left), probability(foxes_left), median(rabbits), median(foxes),
+           median(yearly), median(spread),
+           probability(early_drought), probability(both where early_drought)
+}
+
+# Another seed: other weather and animals, the same surveyed island.
+study ranger_reseeded {
+    worlds 32
+    seed 99
+    compare never, always
+    maximize probability(both)
+    report median(rabbits), median(foxes)
+}

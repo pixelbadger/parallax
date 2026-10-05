@@ -1,62 +1,134 @@
-# SPL interpreter: notes for agents
+# parallax: notes for agents
 
-SPL (Superposition Language) is a probabilistic language. The language itself is documented in README.md (concepts, built-ins, EBNF). This file covers the implementation and the decisions behind it.
+parallax is a small decision language: it compares policies across the same
+uncertain worlds. The language is documented in README.md (concepts, units,
+grammar) and examples.md (tested examples). This file covers the
+implementation and the decisions behind it.
+
+To *write* parallax programs, use the skill in `.claude/skills/parallax/`.
 
 ## Commands
 
 ```sh
-cargo test                                   # unit + tests/semantics.rs + golden programs (~15s)
+cargo test                                   # unit + semantics + golden programs + examples (~10s)
 UPDATE_EXPECT=1 cargo test --test programs   # regenerate tests/*.out and simulations/*.out
 cargo fmt --check && cargo clippy --all-targets -- -D warnings   # CI runs both
-cargo run --release -- --seed 0 simulations/reactor.spl
+cargo run --release -- run simulations/reactor.px
+cargo run --release -- check simulations/reactor.px
 ```
 
-`[profile.dev] opt-level = 1` is deliberate: the golden tests run whole simulations.
+`[profile.dev] opt-level = 1` is deliberate: the golden tests run whole
+studies. Each golden program is its own test, so they run in parallel.
 
 ## Layout
 
-- `src/lexer.rs`, `src/parser.rs`, `src/ast.rs`: hand-written lexer and recursive-descent parser. Names are interned to `Sym`. `ast::well_known` pre-interns the names the runtime needs, and its order is load-bearing.
-- `src/resolve.rs`: after parsing, gives every scope a fixed slot layout and resolves each use of a name to the slots it can be in (`ast::Ref`).
-- `src/compile.rs`: compiles the resolved tree to closures (`Code`), deciding what's static (operator, variable location, whether a block needs a scope) once.
-- `src/value.rs`: `Value`, the lazy cells (`Lazy`: Open, Future or Done, collapsing in place), `Scope` (slots) and `Copier` (the timeline copy for fork and multiverse).
-- `src/interp.rs`: the runtime the compiled code calls into (`Machine`: RNG, pins, types, output, and every operation with real semantics), behind the public `Interpreter`. `src/stats.rs`: ensemble aggregation. `src/rng.rs`: the seeded RNG.
-- `tests/programs.rs`: golden files, an `examples.md` check and a seed-replay check. `tests/semantics.rs`: behaviour that holds for any seed.
+The pipeline is parse → check → (per study) set up, bound, run.
+
+- `src/lexer.rs`: tokens, with Go-style newline terminators: a newline is a
+  `;` when the line can end there and the next line can't continue it, and
+  it is ignored inside `(` and `[`.
+- `src/parser.rs`, `src/ast.rs`: recursive descent. Numbers followed by a
+  unit name become quantities, so the parser pre-scans `unit` declarations.
+  Many words (`step`, `horizon`, `worlds`, `report`...) are contextual,
+  not keywords.
+- `src/check.rs`: names, types, units and information boundaries, producing
+  `src/ir.rs`. Functions, facts and globals are checked lazily on first use;
+  a function still being checked when called again is recursion, which is
+  how recursion is rejected. `Ctx` records what the code being checked may
+  do (read facts, forecast, roll out). Globals get a dependency order
+  (`global_order`).
+- `src/units.rs`: dimensions as exponent vectors over 16 base units (8
+  built in, 8 for `unit name`). A type `Ty::Num(Dim, Hint)` carries a
+  display hint (the unit written), which equality ignores.
+- `src/world.rs`: keyed draws (SplitMix64 hashing, `Stream`).
+- `src/eval.rs`: `Machine`, the evaluator, and the runners for decision and
+  sequential models, forecasts and rollouts.
+- `src/cost.rs`: the static work bound, an abstract interpreter.
+- `src/stats.rs`: statistics shared by code (over arrays) and studies (over
+  worlds).
+- `src/study.rs`: inputs, settings, policy instances, budgets, running, and
+  the typed result structs (`Report`, `CheckReport`), serialised to JSON.
+- `tests/programs.rs`: golden files, plus the check that actual operations
+  never exceed the bound, and the examples.md runner. `tests/semantics.rs`:
+  properties that hold for every seed, and the rejections.
 
 ## Semantics that are easy to break
 
-- **Forks** run in a `Copier::timeline` copy of the whole scope chain. Uncollapsed values are copied with aliasing preserved, and collapsed ones are shared. `commit` merges only the variables the fork *wrote*, level by level along the chain (`Var::written`), by slot: a copy has its original's layout.
-- **Scopes are slots, resolved statically, bound dynamically.** The runtime scope chain always mirrors the source's block nesting, so `resolve` gives each scope a layout and each use a list of candidate `(up, slot)`s, innermost first. A slot is allocated when its scope is created but bound only when its `let` runs, so a read falls back to the next candidate while it's unbound (a use before the `let`, or a function called before a name it uses is bound). That reproduces the old by-name search exactly.
-- **Fork and multiverse blocks don't own a scope**: they run in a copy of the enclosing one, so their `let`s are slots of the enclosing scope, which `commit` fills. Globals are the exception to static layouts: a later program run by the same `Interpreter` can add some (`Globals`, `Ref::depth`).
-- **Functions**: a function stored in its own scope is `Slot::Fn` rather than a closure value. This avoids `Rc` cycles and makes a copied scope's functions follow the copy. A function committed out of a fork keeps closing over the fork's scope (see `merge_chain`).
-- **Branch origins are `Weak`**, to avoid cycles. A dead origin level is unobservable, so `commit` skips it.
-- **Recursion safety**: collapse, timeline copy and `Lazy` drop are all iterative, so long future chains can't overflow the stack. Recursion depth is limited by *measured* stack use (`STACK_SIZE`, `with_stack`), not a call count.
-- **RNG**: xoshiro256++ with our own Lemire range sampling. Fork seeds are derived from the RNG state without advancing it, and universe seeds come from `(seed, i)`. Changing any of this changes every `.out` file.
-- **Arrays have value semantics, copy-on-write** (`Rc::make_mut`). `AssignPath` *takes* the variable out of its slot so a unique array is written in place, then puts it back. Indexing observes the index.
-- **Blocks** that bind nothing run in their parent's scope (`Block::binds`). This is *nearly* unobservable: a `let` in a fork inside such a block, once committed, lands in the parent (see `a_let_in_a_fork_binds_in_the_forking_scope`). Keep it as it is.
-- **Loop bodies reuse their scope** between iterations when nothing kept hold of it (`Body::run_again`: no other strong or weak reference). A closure or an escaped fork's origin keeps it, and the next iteration gets a fresh one.
-- **Reading `a.b[i]` in place** (`compile::access`) borrows the variable's slot while the indices are evaluated. That is only done when the indices can't write a variable (`no_writes`: no calls, no blocks), which also keeps "base before index" order observable-equivalent.
-- **Integers** are i64 with checked arithmetic, and overflow is an error. `/` floors.
-- **Floats** are f64, always finite: overflow and division by zero are errors, like integer overflow. Only correctly rounded operations are offered (`+ - * /`, `sqrt`, comparisons), so a seed replays identically on every platform; transcendentals would break that unless implemented in Rust (e.g. the `libm` crate). A collapsed lazy cell holds a `Num`. Int×int still takes the fast path (`apply_int`), and integer `open` bounds draw exactly as before, so no integer program's output changed.
+- **Keys are the foundation.** A fact's value is
+  `Stream::new(seed, world_id, key)`, with key =
+  hash(world name, fact name, arguments). Variants hash by *name* (via
+  `variant_keys`), so reordering declarations changes nothing, but renaming
+  a world, fact or variant changes the draws. Changing `mix`, `combine`,
+  `fnv`, `Stream` or any sampler changes every `.out` file.
+- **Facts are recomputed, not memoised.** Being pure functions of their key,
+  they need no cache, and there's nothing to invalidate between policies.
+- **Forecast worlds.** `forecast_world(Some(eval), t, j)` for sequential
+  models, so every action and policy at the same (world, step) imagines the
+  same `k` worlds. A decision model's non-oracle policy uses
+  `forecast_world(None, 0, j)`: it decides once for all worlds
+  (`decide_once`), from inputs only.
+- **Revealed facts.** While `observe` runs, `observing` records each fact
+  key read into `revealed` (cleared per world). In a forecast, a revealed key
+  is computed wholly in the evaluation world. The checker allows a fact read
+  in `observe` only as a record field's whole value (`direct`), never a
+  latent one, so revealing never leaks a fact a policy only partly saw.
+- **Information boundary.** `Ctx::Policy` can't read facts or call models;
+  `fn`s are pure (`Ctx::Fn` can't read facts). Only oracles may `rollout`,
+  and they may not `forecast`.
+- **Policies infer their model** from their parameter shape, then their
+  return type, then by trying their body against each candidate.
+- **Work accounting must mirror evaluation.** `eval.rs` adds 1 to `ops` per
+  node, statement, loop iteration, model step and forecast sample, plus
+  array work in builtins and statistics (`stats::cost`). `cost.rs` charges
+  exactly the same, with branches taking the max and loops multiplied by
+  their bound. If you add a node or change what evaluation counts, change
+  both: the golden tests assert actual ≤ estimated for every policy. The
+  fast paths in `eval` (`v.f`, `v[i]`, `v.f[i]` read in place) add the
+  `ops` the nodes they skip would have.
+- **Abstract domain.** Integers are intervals (`i64::MIN`/`MAX` for
+  unbounded), arrays are length ranges with a joined element, records are
+  field-wise, and everything else is `Top`. Loop-carried variables reach a
+  fixpoint by joining, then widening after 3 rounds. A sequential model's
+  state is a fixpoint of `step` under any action (`Analyzer::state`). Integer
+  facts from `uniform(lo, hi)` carry their range, so they can bound loops.
+- **Missing metric values.** A statistic over no worlds (`where` filtered
+  everything) is `Value::Unit`, which propagates through arithmetic and
+  builtins and serialises as `null`.
+- **`/` always gives a float**, `//` floors integers, and `%` is the unit
+  0.01, not modulo (`mod(a, b)`).
+- **Determinism across platforms.** Only correctly rounded float operations
+  and `libm` (pure Rust) are used, and `powi` is our own repeated squaring.
+  Don't use `f64::powi`, `exp` or `sin` from std.
+- **`Value` is 16 bytes** (a `const` assert): strings are `Rc<String>`,
+  enums with fields are `Data(Rc<(tag, fields)>)`.
 
 ## Provenance
 
-This is a port of a Python interpreter, now removed. The port was verified byte-for-byte against the Python version patched to use this RNG, across every test, example and simulation plus ~30 edge-case programs. The only deliberate difference is that Python ints were bigints. When deviating from Python behaviour, the comments in `value.rs` say why.
+This replaces SPL (Superposition Language), whose interpreter lives in git
+history before the parallax rewrite. Open/Resolved/Collapsed values,
+sequential RNG, `fork`/`commit`, `pin`, `given`, `multiverse`, `while`,
+recursion and `print` are gone by design (see README.md). The four
+simulations were ported, so their numbers differ from SPL's, but the
+findings carried over (e.g. pre-warm: calibrated plan 15 min, best 20 min).
 
-## Performance: what's been learned
+## Performance
 
-- Reactor sim: ~34s in Python, ~0.8s now. Circumbinary ~2.2s, island ~1.5s (release).
-- Measure with callgrind instruction counts. Wall time on these machines is too noisy for ±10% changes. Also diff the old binary against the new on edge-case programs (stdout, errors, several seeds): the golden files don't cover scoping corners.
-- Slot resolution plus closure compilation, in instructions: circumbinary 28.6G → 14.1G, island 21.3G → 11.1G, reactor 7.5G → 6.0G. What each part was worth (island): slots -8%, a 16-byte `R<Value>` (boxed errors, `Rc<String>` strings) -4%, closures -36%, inline operands for constants and variables -8%.
-- Slots alone gained little: lookup was smaller than thought, and giving *every* referenced name a global slot bloated the global scope that every fork copies (reactor +4%). Only names actually bound globally get one.
-- Keep `R<Value>` at 16 bytes (there's a `const` assert): it's returned in registers from every closure.
-- Profile shape now: circumbinary and island spend ~15% reading variables (`Scope::read`, RefCell borrow, clone) and the rest spread thin. Reactor is bound by timeline copies and allocation (malloc/free ~25%, `Copier` ~12%): every fork and universe copies the scope chain, two allocations per scope.
-- Kept from before: the Int×Int fast path for binary operators and `Block::binds` elision.
-- Tried and **reverted**: splitting scope names into their own array (reactor got 6% slower from the extra allocation). Measure every change.
-- Adding floats cost +3.9% instructions on reactor, +2.2% island, +0.6% circumbinary, all integer-only: one more `Value` variant to match in the copier, drop and collapse, and shifted inlining. Kept `apply_int` `#[inline(always)]` and `num_of`'s inline fast path (each measured). Splitting `LazyState::Done` into int and float variants was measured and was worse.
-- Value semantics cost: `s = f(s)` copies `s`'s arrays, because the caller still holds `s`. Hot loops in the sims update a local in place instead (see the `fly` comment in `simulations/circumbinary.spl`).
+- About 80M operations a second. Pre-warm ~10s, island and circumbinary
+  ~5s, reactor 0.5s (release and opt-level 1 are similar).
+- Measure with callgrind instruction counts (`circumbinary.px` with
+  `worlds 4` is a good probe); wall time is too noisy.
+- Measured wins: in-place reads of `v.f`, `v[i]`, `v.f[i]` (-15%),
+  no allocation in element assignment (-8%), arguments pushed straight into
+  the callee's frame, Int/Float fast paths. A general path walker was
+  *slower* than cloning; outlining rare `eval` arms gained ~1%.
+- The next big step would be compiling the IR to closures, as SPL did
+  (-36% there). Studies are also embarrassingly parallel by world, but
+  `Value` uses `Rc`, so threads would each need their own machine.
 
 ## Open work
 
-1. Raise `UNIVERSES` in the circumbinary/island sims (16-24 now, so their percentages are coarse) and regenerate the `.out` files. The interpreter is now ~2x faster on both.
-2. Reactor-style programs (many forks and universes) are bound by timeline copies. Ideas, unmeasured: one allocation per scope (slots inline), or copy-on-write scopes so a fork shares levels it never writes.
-3. Not built, but discussed: lazy selection for an Open index (`a[open]` returning a future). The user chose "index observes" for now.
+1. Closure compilation, and parallel worlds.
+2. Weighted evidence (importance sampling) if conditioning is ever needed;
+   `given` was removed deliberately.
+3. Paired differences are only for a plain `mean`/`probability` primary
+   objective; other objectives get none.

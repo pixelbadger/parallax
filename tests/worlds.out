@@ -1,0 +1,457 @@
+{
+  "runtime": "parallax 0.1.0",
+  "model_sha256": "889c2d77a7e7d196a8f54fe9ed3629d4052e0944151ae5a41b126f6518fac600",
+  "studies": [
+    {
+      "study": "market_week",
+      "model": "market",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "889c2d77a7e7d196a8f54fe9ed3629d4052e0944151ae5a41b126f6518fac600",
+        "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "seed": 5,
+        "worlds": 500,
+        "world_ids": [
+          0,
+          499
+        ]
+      },
+      "inputs": {},
+      "objectives": [
+        {
+          "sense": "maximize",
+          "metric": "mean(proceeds)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "sell_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 9.974500574129728,
+              "ci95": [
+                9.885180522195553,
+                10.063820626063903
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 8.653076345128374
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.7089174956529191,
+            "ci95": [
+              -0.8326467664928858,
+              -0.5851882248129523
+            ],
+            "worlds": 500
+          },
+          "of_oracle": 0.9098676630153316,
+          "work": {
+            "estimated_operations": 177500,
+            "operations": 37000
+          }
+        },
+        {
+          "name": "last_day",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 10.250740266689137,
+              "ci95": [
+                10.06982475521632,
+                10.431655778161954
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 4.0,
+              "ci95": [
+                4.0,
+                4.0
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 7.56021066726926
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.4326778030935222,
+            "ci95": [
+              -0.5918208297964085,
+              -0.27353477639063595
+            ],
+            "worlds": 500
+          },
+          "of_oracle": 0.9350660738663964,
+          "work": {
+            "estimated_operations": 177500,
+            "operations": 143500
+          }
+        },
+        {
+          "name": "threshold[10.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "parameter": 10.5,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 10.683418069782656,
+              "ci95": [
+                10.56814559658753,
+                10.79869054297778
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 1.46,
+              "ci95": [
+                1.3390459738637386,
+                1.5809540261362613
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 8.484451740256295
+            }
+          ],
+          "of_oracle": 0.9745346706761827,
+          "work": {
+            "estimated_operations": 190000,
+            "operations": 81861
+          }
+        },
+        {
+          "name": "threshold[11.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": 11.5,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 10.49066379197891,
+              "ci95": [
+                10.325770444969281,
+                10.65555713898854
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 2.808,
+              "ci95": [
+                2.690837116312278,
+                2.9251628836877215
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 7.58156595064958
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.1927542778037526,
+            "ci95": [
+              -0.31363462074552634,
+              -0.07187393486197884
+            ],
+            "worlds": 500
+          },
+          "of_oracle": 0.9569517468016404,
+          "work": {
+            "estimated_operations": 190000,
+            "operations": 121015
+          }
+        },
+        {
+          "name": "busy",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 9.974500574129728,
+              "ci95": [
+                9.885180522195553,
+                10.063820626063903
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 8.653076345128374
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.7089174956529191,
+            "ci95": [
+              -0.8326467664928858,
+              -0.5851882248129523
+            ],
+            "worlds": 500
+          },
+          "of_oracle": 0.9098676630153316,
+          "work": {
+            "estimated_operations": 1452500,
+            "operations": 292000
+          }
+        },
+        {
+          "name": "forecaster",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 10.608939739533424,
+              "ci95": [
+                10.50668864840006,
+                10.711190830666789
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 1.052,
+              "ci95": [
+                0.9360869416241274,
+                1.1679130583758726
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 9.740740683346202
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.07447833024923131,
+            "ci95": [
+              -0.13974362325861212,
+              -0.009213037239850508
+            ],
+            "worlds": 500
+          },
+          "of_oracle": 0.9677408042780082,
+          "work": {
+            "estimated_operations": 12852500,
+            "operations": 4065214
+          }
+        },
+        {
+          "name": "prophet",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 10.962583878488331,
+              "ci95": [
+                10.869100567173724,
+                11.056067189802938
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "mean(day_sold)",
+              "value": 0.846,
+              "ci95": [
+                0.7564241673746892,
+                0.9355758326253107
+              ]
+            },
+            {
+              "metric": "p10(proceeds)",
+              "value": 9.694438863889681
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.27916580870566665,
+            "ci95": [
+              0.17726433250791854,
+              0.3810672849034148
+            ],
+            "worlds": 500
+          },
+          "work": {
+            "estimated_operations": 525000,
+            "operations": 162315
+          }
+        }
+      ],
+      "ranking": [
+        "threshold[10.5]",
+        "forecaster",
+        "threshold[11.5]",
+        "last_day",
+        "sell_now",
+        "busy"
+      ],
+      "recommended": "threshold[10.5]",
+      "best_oracle": "prophet",
+      "errors": [],
+      "work": {
+        "estimated_operations": 15565000,
+        "estimated_transitions": 275000,
+        "operations": 4902905,
+        "max_forecast_worlds": 50
+      }
+    },
+    {
+      "study": "same_markets",
+      "model": "market",
+      "provenance": {
+        "runtime": "parallax 0.1.0",
+        "model_sha256": "889c2d77a7e7d196a8f54fe9ed3629d4052e0944151ae5a41b126f6518fac600",
+        "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "seed": 5,
+        "worlds": 500,
+        "world_ids": [
+          0,
+          499
+        ]
+      },
+      "inputs": {},
+      "objectives": [
+        {
+          "sense": "maximize",
+          "metric": "mean(proceeds)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "sell_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 9.974500574129728,
+              "ci95": [
+                9.885180522195553,
+                10.063820626063903
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [],
+          "work": {
+            "estimated_operations": 177500,
+            "operations": 37000
+          }
+        },
+        {
+          "name": "busy",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 500,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(proceeds)",
+              "value": 9.974500574129728,
+              "ci95": [
+                9.885180522195553,
+                10.063820626063903
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 500
+          },
+          "work": {
+            "estimated_operations": 1452500,
+            "operations": 292000
+          }
+        }
+      ],
+      "ranking": [
+        "sell_now",
+        "busy"
+      ],
+      "recommended": "sell_now",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 1630000,
+        "estimated_transitions": 5000,
+        "operations": 329000,
+        "max_forecast_worlds": 0
+      }
+    }
+  ]
+}

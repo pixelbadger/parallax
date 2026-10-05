@@ -1,44 +1,64 @@
-//! Interpreter for the Superposition Language (SPL).
+//! parallax: a small language for comparing interventions across the same
+//! uncertain worlds.
+//!
+//! A program declares what is known (inputs), what isn't (worlds of keyed
+//! uncertain facts), what the world does (models), what we might do
+//! (policies) and how to choose (studies). The host gets back a typed
+//! result tree; nothing in a program can reach outside it.
 //!
 //! ```
-//! let out = spl::run_source("print(2 + 3 * 4);", 0).unwrap();
-//! assert_eq!(out, "14\n");
+//! let src = r#"
+//! action Bet = small | big
+//! world Coin { uncertain heads ~ bernoulli(0.5) }
+//! model play(bet: Bet) -> Int = {
+//!     let stake = match bet { small => 1, big => 3 }
+//!     if Coin.heads { stake } else { -stake }
+//! }
+//! policy cautious = small
+//! policy bold = big
+//! study which {
+//!     worlds 1000
+//!     maximize mean(outcome)
+//!     report probability(outcome > 0)
+//! }
+//! "#;
+//! let report = parallax::run(src, &parallax::Options::default()).unwrap();
+//! let study = &report.studies[0];
+//! // Both policies saw the same 1000 coins.
+//! assert_eq!(study.policies[0].metrics[0].value, study.policies[1].metrics[0].value);
 //! ```
 
 pub mod ast;
-pub mod compile;
+pub mod check;
+pub mod cost;
 pub mod error;
-pub mod interp;
+pub mod eval;
+pub mod ir;
 pub mod lexer;
 pub mod parser;
-pub mod resolve;
-pub mod rng;
 pub mod stats;
+pub mod study;
+pub mod units;
 pub mod value;
+pub mod world;
 
-pub use error::Error;
-pub use interp::Interpreter;
+pub use error::{Error, ErrorKind};
+pub use study::{CheckReport, Limits, Options, Report};
 
-/// Runs `src` with the given seed and returns everything it printed.
-///
-/// The program runs on its own thread with [`interp::STACK_SIZE`] of stack.
-pub fn run_source(src: &str, seed: u64) -> Result<String, Error> {
-    with_stack(|| {
-        let mut interp = Interpreter::new(seed, Vec::new());
-        let program = interp.parse(src)?;
-        interp.run(&program)?;
-        Ok(String::from_utf8(interp.into_output()).expect("SPL output is UTF-8"))
-    })
+/// Parse and check a program.
+pub fn compile(src: &str) -> Result<ir::Program, Error> {
+    let ast = parser::parse(src)?;
+    check::check(src, &ast)
 }
 
-/// Runs `f` on a thread with enough stack for deep SPL recursion.
-pub fn with_stack<T: Send>(f: impl FnOnce() -> T + Send) -> T {
-    std::thread::scope(|scope| {
-        std::thread::Builder::new()
-            .stack_size(interp::STACK_SIZE)
-            .spawn_scoped(scope, f)
-            .expect("spawn interpreter thread")
-            .join()
-            .unwrap_or_else(|panic| std::panic::resume_unwind(panic))
-    })
+/// Check a program and estimate each study's work, without running it.
+pub fn check(src: &str, opts: &Options) -> Result<CheckReport, Error> {
+    let p = compile(src)?;
+    study::check(src, &p, opts)
+}
+
+/// Run every study (or `opts.study`).
+pub fn run(src: &str, opts: &Options) -> Result<Report, Error> {
+    let p = compile(src)?;
+    study::run(src, &p, opts)
 }

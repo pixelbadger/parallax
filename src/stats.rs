@@ -1,231 +1,184 @@
-//! Aggregating multiverse results into ensembles.
+//! Statistics over samples: the same code summarises a forecast's array of
+//! outcomes inside a policy and the worlds' outcomes in a study.
 
-use std::rc::Rc;
+use crate::ir::StatKind;
+use crate::value::Value;
 
-use crate::ast::{Sym, well_known as wk};
-use crate::value::{Struct, Value};
-
-/// One universe's fully observed result.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Sample {
-    Int(i64),
-    Float(f64),
-    Struct(Sym, Box<[(Sym, Sample)]>),
-    Array(Box<[Sample]>),
-}
-
-/// Numbers aggregate to an `Ensemble`; structs to a struct of the same type
-/// whose every field is aggregated; arrays element by element.
-pub fn aggregate(samples: Vec<Sample>, rejected: i64) -> Result<Value, String> {
-    if let Some(Sample::Array(first)) = samples.first() {
-        let len = first.len();
-        let mut columns: Vec<Vec<Sample>> = (0..len)
-            .map(|_| Vec::with_capacity(samples.len()))
-            .collect();
-        for s in samples {
-            match s {
-                Sample::Array(items) if items.len() == len => {
-                    for (column, item) in columns.iter_mut().zip(items.into_vec()) {
-                        column.push(item);
-                    }
-                }
-                _ => return Err(MIXED.into()),
-            }
-        }
-        let items = columns
-            .into_iter()
-            .map(|column| aggregate(column, rejected))
-            .collect::<Result<Vec<_>, String>>()?;
-        return Ok(Value::Array(Rc::new(items)));
-    }
-    let Some(Sample::Struct(ty, shape)) = samples.first() else {
-        if samples.iter().any(|s| matches!(s, Sample::Float(_))) {
-            let floats: Option<Vec<f64>> = samples
-                .into_iter()
-                .map(|s| match s {
-                    Sample::Int(n) => Some(n as f64),
-                    Sample::Float(x) => Some(x),
-                    Sample::Struct(..) | Sample::Array(_) => None,
-                })
-                .collect();
-            return match floats {
-                Some(floats) => summarise_floats(floats, rejected),
-                None => Err(MIXED.into()),
-            };
-        }
-        let ints: Option<Vec<i64>> = samples
-            .into_iter()
-            .map(|s| match s {
-                Sample::Int(n) => Some(n),
-                Sample::Float(_) | Sample::Struct(..) | Sample::Array(_) => None,
-            })
-            .collect();
-        return match ints {
-            Some(ints) => summarise(ints, rejected),
-            None => Err(MIXED.into()),
-        };
+/// Work charged for one statistic over `n` scalar values.
+pub fn cost(kind: StatKind, n: u64) -> u64 {
+    let log = if kind.sorts() {
+        64 - n.max(1).leading_zeros() as u64
+    } else {
+        0
     };
-    let (ty, names): (Sym, Vec<Sym>) = (*ty, shape.iter().map(|(k, _)| *k).collect());
-    let mut columns: Vec<Vec<Sample>> = names
-        .iter()
-        .map(|_| Vec::with_capacity(samples.len()))
-        .collect();
-    for s in samples {
-        let Sample::Struct(t, fields) = s else {
-            return Err(MIXED.into());
-        };
-        if t != ty {
-            return Err(MIXED.into());
-        }
-        let mut fields = fields.into_vec();
-        for (name, column) in names.iter().zip(&mut columns) {
-            let i = fields.iter().position(|(k, _)| k == name).ok_or(MIXED)?;
-            column.push(fields.swap_remove(i).1);
-        }
-    }
-    let fields = names
-        .into_iter()
-        .zip(columns)
-        .map(|(name, column)| Ok((name, aggregate(column, rejected)?)))
-        .collect::<Result<_, String>>()?;
-    Ok(Value::Struct(Rc::new(Struct { ty, fields })))
+    n * (1 + log)
 }
 
-const MIXED: &str = "Every universe must produce the same kind of result";
+/// A statistic over rows of the same shape: numbers, conditions, or arrays
+/// of them (summarised element by element).
+pub fn stat(kind: StatKind, rows: &[&Value], q: f64, ops: &mut u64) -> Result<Value, String> {
+    let Some(first) = rows.first() else {
+        return Err("no values to summarise".into());
+    };
+    if let Value::Arr(a) = first {
+        let len = a.len();
+        let mut out = Vec::with_capacity(len);
+        for i in 0..len {
+            let mut col = Vec::with_capacity(rows.len());
+            for r in rows {
+                let items = r.items();
+                if items.len() != len {
+                    return Err(format!(
+                        "can't summarise arrays of different lengths ({len} and {})",
+                        items.len()
+                    ));
+                }
+                col.push(&items[i]);
+            }
+            out.push(stat(kind, &col, q, ops)?);
+        }
+        return Ok(Value::arr(out));
+    }
+    *ops += cost(kind, rows.len() as u64);
+    let n = rows.len() as f64;
+    match first {
+        Value::Bool(_) => {
+            let hits = rows.iter().filter(|v| v.as_bool()).count();
+            Ok(match kind {
+                StatKind::Count => Value::Int(hits as i64),
+                _ => Value::Num(hits as f64 / n),
+            })
+        }
+        Value::Int(_) if matches!(kind, StatKind::Min | StatKind::Max) => {
+            let it = rows.iter().map(|v| v.as_int());
+            Ok(Value::Int(if kind == StatKind::Min {
+                it.min().unwrap()
+            } else {
+                it.max().unwrap()
+            }))
+        }
+        _ => {
+            let xs: Vec<f64> = rows.iter().map(|v| v.as_num()).collect();
+            let x = numbers(kind, xs, q)?;
+            if !x.is_finite() {
+                return Err("a statistic overflowed".into());
+            }
+            Ok(Value::Num(x))
+        }
+    }
+}
 
-/// Statistics for one stream of integer universe results.
-fn summarise(mut samples: Vec<i64>, rejected: i64) -> Result<Value, String> {
-    let n = samples.len() as i64;
-    let mut stats = vec![Value::Int(n), Value::Int(rejected)];
-    if samples.is_empty() {
-        stats.resize(wk::ENSEMBLE_FIELDS.len(), Value::None);
+fn check_level(q: f64, cvar: bool) -> Result<(), String> {
+    let ok = if cvar {
+        (0.0..1.0).contains(&q)
     } else {
-        let total: i128 = samples.iter().map(|&s| i128::from(s)).sum();
-        let hits = samples.iter().filter(|&&s| s != 0).count() as i64;
-        let (min, max) = (samples.iter().copied().min(), samples.iter().copied().max());
-        let mid = (samples.len() - 1) / 2;
-        let median = *samples.select_nth_unstable(mid).1;
-        let overflow = || "Integer overflow in multiverse total".to_string();
-        stats.extend(
-            [
-                i64::try_from(total).map_err(|_| overflow())?,
-                i64::try_from(round_half_even(total, i128::from(n))).map_err(|_| overflow())?,
-                min.unwrap_or_default(),
-                max.unwrap_or_default(),
-                median,
-                hits,
-                round_half_even(100 * i128::from(hits), i128::from(n)) as i64,
-            ]
-            .map(Value::Int),
-        );
-    }
-    let fields = wk::ENSEMBLE_FIELDS.into_iter().zip(stats).collect();
-    Ok(Value::Struct(Rc::new(Struct {
-        ty: wk::ENSEMBLE,
-        fields,
-    })))
-}
-
-/// Statistics for a stream of numbers where some universe produced a float:
-/// as for integers, but `total`, `mean`, `min`, `max` and `median` are
-/// floats and `mean` is not rounded. Summed in universe order, so the
-/// result doesn't depend on anything but the seed.
-fn summarise_floats(mut samples: Vec<f64>, rejected: i64) -> Result<Value, String> {
-    let n = samples.len() as i64;
-    let mut stats = vec![Value::Int(n), Value::Int(rejected)];
-    if samples.is_empty() {
-        stats.resize(wk::ENSEMBLE_FIELDS.len(), Value::None);
+        (0.0..=1.0).contains(&q)
+    };
+    if ok {
+        Ok(())
     } else {
-        let total: f64 = samples.iter().sum();
-        if !total.is_finite() {
-            return Err("Float overflow in multiverse total".into());
-        }
-        let hits = samples.iter().filter(|&&s| s != 0.0).count() as i64;
-        let min = samples.iter().copied().fold(f64::INFINITY, f64::min);
-        let max = samples.iter().copied().fold(f64::NEG_INFINITY, f64::max);
-        let mid = (samples.len() - 1) / 2;
-        let median = *samples.select_nth_unstable_by(mid, f64::total_cmp).1;
-        stats.extend([total, total / n as f64, min, max, median].map(Value::Float));
-        stats.push(Value::Int(hits));
-        stats.push(Value::Int(
-            round_half_even(100 * i128::from(hits), i128::from(n)) as i64,
-        ));
+        Err(format!("level {q} is outside 0..1"))
     }
-    let fields = wk::ENSEMBLE_FIELDS.into_iter().zip(stats).collect();
-    Ok(Value::Struct(Rc::new(Struct {
-        ty: wk::ENSEMBLE,
-        fields,
-    })))
 }
 
-/// `num / den` rounded to the nearest integer, ties to even; `den > 0`.
-fn round_half_even(num: i128, den: i128) -> i128 {
-    let (q, r) = (num.div_euclid(den), num.rem_euclid(den));
-    match (2 * r).cmp(&den) {
-        std::cmp::Ordering::Less => q,
-        std::cmp::Ordering::Greater => q + 1,
-        std::cmp::Ordering::Equal => q + (q & 1),
+pub fn mean(xs: &[f64]) -> f64 {
+    xs.iter().sum::<f64>() / xs.len() as f64
+}
+
+pub fn variance(xs: &[f64]) -> f64 {
+    if xs.len() < 2 {
+        return 0.0;
     }
+    let m = mean(xs);
+    xs.iter().map(|x| (x - m) * (x - m)).sum::<f64>() / (xs.len() - 1) as f64
+}
+
+/// Linear interpolation between order statistics (R's type 7).
+pub fn quantile_sorted(xs: &[f64], q: f64) -> f64 {
+    let h = (xs.len() - 1) as f64 * q;
+    let lo = h.floor() as usize;
+    let hi = (lo + 1).min(xs.len() - 1);
+    xs[lo] + (h - lo as f64) * (xs[hi] - xs[lo])
+}
+
+fn numbers(kind: StatKind, mut xs: Vec<f64>, q: f64) -> Result<f64, String> {
+    Ok(match kind {
+        StatKind::Mean | StatKind::Probability => mean(&xs),
+        StatKind::Variance => variance(&xs),
+        StatKind::StdDev => variance(&xs).sqrt(),
+        StatKind::Min => xs.iter().copied().fold(f64::INFINITY, f64::min),
+        StatKind::Max => xs.iter().copied().fold(f64::NEG_INFINITY, f64::max),
+        StatKind::Count => xs.len() as f64,
+        StatKind::Median | StatKind::Quantile => {
+            let q = if kind == StatKind::Median { 0.5 } else { q };
+            check_level(q, false)?;
+            xs.sort_by(f64::total_cmp);
+            quantile_sorted(&xs, q)
+        }
+        StatKind::Cvar => {
+            check_level(q, true)?;
+            xs.sort_by(f64::total_cmp);
+            let k = (((1.0 - q) * xs.len() as f64).ceil() as usize).clamp(1, xs.len());
+            mean(&xs[xs.len() - k..])
+        }
+    })
+}
+
+/// 95% interval for a mean (normal approximation).
+pub fn mean_ci(xs: &[f64]) -> Option<[f64; 2]> {
+    if xs.len() < 2 {
+        return None;
+    }
+    let m = mean(xs);
+    let h = 1.959_963_984_540_054 * (variance(xs) / xs.len() as f64).sqrt();
+    Some([m - h, m + h])
+}
+
+/// 95% Wilson interval for a proportion.
+pub fn wilson(hits: f64, n: f64) -> Option<[f64; 2]> {
+    if n < 1.0 {
+        return None;
+    }
+    let z = 1.959_963_984_540_054_f64;
+    let p = hits / n;
+    let denom = 1.0 + z * z / n;
+    let centre = (p + z * z / (2.0 * n)) / denom;
+    let h = z * (p * (1.0 - p) / n + z * z / (4.0 * n * n)).sqrt() / denom;
+    Some([(centre - h).max(0.0), (centre + h).min(1.0)])
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn field(v: &Value, name: Sym) -> Value {
-        let Value::Struct(s) = v else {
-            panic!("not a struct")
-        };
-        s.get(name).cloned().unwrap()
+    fn nums(xs: &[f64]) -> Vec<Value> {
+        xs.iter().map(|x| Value::Num(*x)).collect()
     }
 
-    fn int(v: Value) -> i64 {
-        let Value::Int(n) = v else {
-            panic!("not an int: {v:?}")
-        };
-        n
+    fn run(kind: StatKind, xs: &[f64], q: f64) -> f64 {
+        let vals = nums(xs);
+        let refs: Vec<&Value> = vals.iter().collect();
+        stat(kind, &refs, q, &mut 0).unwrap().as_num()
     }
 
     #[test]
-    fn rounding_ties_to_even() {
-        assert_eq!(round_half_even(5, 2), 2);
-        assert_eq!(round_half_even(7, 2), 4);
-        assert_eq!(round_half_even(-5, 2), -2);
-        assert_eq!(round_half_even(-7, 2), -4);
-        assert_eq!(round_half_even(2, 3), 1);
+    fn quantiles_and_tails() {
+        let xs = [1.0, 2.0, 3.0, 4.0, 100.0];
+        assert_eq!(run(StatKind::Median, &xs, 0.0), 3.0);
+        assert_eq!(run(StatKind::Quantile, &xs, 0.25), 2.0);
+        assert_eq!(run(StatKind::Cvar, &xs, 0.8), 100.0);
+        assert_eq!(run(StatKind::Cvar, &xs, 0.6), 52.0);
+        assert_eq!(run(StatKind::Mean, &xs, 0.0), 22.0);
     }
 
     #[test]
-    fn summary_statistics() {
-        let samples = [3, 0, 7, 1].map(Sample::Int).to_vec();
-        let e = aggregate(samples, 2).unwrap();
-        let expect = [
-            (wk::N, 4),
-            (wk::REJECTED, 2),
-            (wk::TOTAL, 11),
-            (wk::MEAN, 3),
-            (wk::MIN, 0),
-            (wk::MAX, 7),
+    fn arrays_are_summarised_elementwise() {
+        let rows = [
+            Value::arr(vec![Value::Int(1), Value::Int(10)]),
+            Value::arr(vec![Value::Int(3), Value::Int(30)]),
         ];
-        for (k, v) in expect {
-            assert_eq!(int(field(&e, k)), v);
-        }
-        assert_eq!(int(field(&e, wk::MEDIAN)), 1); // lower median
-        assert_eq!(int(field(&e, wk::HITS)), 3);
-        assert_eq!(int(field(&e, wk::RATE)), 75);
-    }
-
-    #[test]
-    fn empty_ensemble_has_no_statistics() {
-        let e = aggregate(vec![], 5).unwrap();
-        assert_eq!(int(field(&e, wk::REJECTED)), 5);
-        assert!(matches!(field(&e, wk::MEAN), Value::None));
-    }
-
-    #[test]
-    fn mixed_results_are_rejected() {
-        let s = Sample::Struct(wk::ENSEMBLE, Box::new([]));
-        assert!(aggregate(vec![Sample::Int(1), s.clone()], 0).is_err());
-        assert!(aggregate(vec![s, Sample::Int(1)], 0).is_err());
+        let refs: Vec<&Value> = rows.iter().collect();
+        let m = stat(StatKind::Mean, &refs, 0.0, &mut 0).unwrap();
+        assert_eq!(m, Value::arr(vec![Value::Num(2.0), Value::Num(20.0)]));
     }
 }

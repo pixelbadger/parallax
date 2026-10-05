@@ -1,0 +1,156 @@
+# ============================================================
+# Pre-warm: when should a cold home battery start charging?
+#
+# A 10 kWh battery charges overnight in a 3-hour off-peak window (18 p/kWh;
+# the standard rate is 29 p/kWh). Its BMS caps charge power by cell
+# temperature: ~120 W near freezing, rising to 4.3 kW by 15 °C. Charging
+# warms the pack (its heater adds ~0.24 °C a minute below 14 °C), so
+# starting a little before the window costs a few standard-rate minutes but
+# buys a warm pack and a fuller battery. What isn't charged by the end of
+# the window is bought at the standard rate the next day.
+#
+# The planner was calibrated on 8 winter nights. Each world here is a
+# plausible battery instead: its power curve 80-115% of the calibration,
+# its heater 0.18-0.30 °C a minute, a ±1 °C cell sensor error and a ±2 °C
+# ambient forecast error. Every lead is scored on the same batteries.
+#
+# Is the calibrated plan still the best one? Does planning for the battery
+# we might have (a forecast over imagined batteries) do better, and how
+# close does either get to knowing tonight's battery (an oracle)?
+# ============================================================
+
+input cell_temp: °C between -30 °C and 40 °C = 1 °C
+input soc: % between 0% and 100% = 1%
+
+const CAPACITY = 10 kWh
+const OFFPEAK = 180 min
+const STANDARD_RATE = 29 p/kWh
+const OFFPEAK_RATE = 18 p/kWh
+const HEATER_CUTOFF = 14 °C
+const TO_WINDOW = 110 min      # planning runs at 00:10; the window opens at 02:00
+const AMBIENT = -2 °C          # the forecast low
+const COOLING = 1 °C/h         # an idle pack cools toward the ambient temperature
+const LONGEST = 300            # minutes: a 120-minute lead and the window
+
+type Point = { temp: °C, power: W }
+
+# Charge power cap against cell temperature, interpolated
+const CURVE = [
+    Point { temp: 0 °C, power: 120 W }, Point { temp: 2 °C, power: 130 W },
+    Point { temp: 3 °C, power: 336 W }, Point { temp: 4 °C, power: 547 W },
+    Point { temp: 5 °C, power: 752 W }, Point { temp: 6 °C, power: 1281 W },
+    Point { temp: 7 °C, power: 1816 W }, Point { temp: 8 °C, power: 2354 W },
+    Point { temp: 9 °C, power: 2897 W }, Point { temp: 10 °C, power: 3713 W },
+    Point { temp: 11 °C, power: 4090 W }, Point { temp: 15 °C, power: 4300 W },
+]
+
+type Battery = { scale: Float, warm: °C/min }
+type Night = { pre: kWh, window: kWh, short: kWh }
+type Outcome = { cost: p, short: kWh }
+
+const CALIBRATED = Battery { scale: 1.0, warm: 0.24 °C/min }
+
+# How long before the window opens to start charging
+action Lead = min
+
+world Pack {
+    uncertain power_scale ~ uniform(0.80, 1.15)
+    uncertain heater ~ uniform(0.18 °C/min, 0.30 °C/min)
+    uncertain sensor_error ~ uniform(-1 °C, 1 °C)
+    uncertain forecast_error ~ uniform(-2 °C, 2 °C)
+}
+
+fn power_cap(t: °C) -> W = {
+    var i = 0
+    for k in 0..len(CURVE) while t > CURVE[k].temp { i = k + 1 }
+    if i == 0 {
+        CURVE[0].power
+    } else if i == len(CURVE) {
+        CURVE[i - 1].power
+    } else {
+        let a = CURVE[i - 1]
+        let b = CURVE[i]
+        a.power + (b.power - a.power) * (t - a.temp) / (b.temp - a.temp)
+    }
+}
+
+# Charge minute by minute from `lead` before the window to its end.
+fn charge(bat: Battery, temp: °C, soc: %, lead: min) -> Night = {
+    let need = CAPACITY * (1 - soc)
+    var t = temp
+    var level = soc
+    var total = 0 kWh
+    var pre = 0 kWh
+    for minute in 0..LONGEST while minute * 1 min < lead + OFFPEAK and total < need {
+        var power = power_cap(t) * bat.scale
+        if level > 90% { power = min(power, 4300 W * max(0.1, (98% - level) / 8%)) }   # taper near full
+        let kwh = min(power * 1 min, need - total)
+        total = total + kwh
+        level = level + kwh / CAPACITY
+        if minute * 1 min < lead { pre = pre + kwh }
+        t = if t < HEATER_CUTOFF { t + bat.warm * 1 min } else { t + 0.06 °C }
+    }
+    Night { pre: pre, window: total - pre, short: need - total }
+}
+
+# The pack cools toward the ambient temperature until charging starts.
+fn start_temp(temp: °C, ambient: °C, lead: min) -> °C =
+    if temp > ambient { max(ambient, temp - COOLING * max(0 min, TO_WINDOW - lead)) } else { temp }
+
+fn cost(n: Night) -> p = n.pre * STANDARD_RATE + n.window * OFFPEAK_RATE + n.short * STANDARD_RATE
+
+fn night(bat: Battery, temp: °C, soc: %, ambient: °C, lead: min) -> Night =
+    charge(bat, start_temp(temp, ambient, lead), soc, lead)
+
+model overnight(lead: Lead) -> Outcome = {
+    let bat = Battery { scale: Pack.power_scale, warm: Pack.heater }
+    let n = night(bat, cell_temp + Pack.sensor_error, soc, AMBIENT + Pack.forecast_error, lead)
+    Outcome { cost: cost(n), short: n.short }
+}
+
+# Every lead from 0 to 2 hours, in 5-minute steps
+policy lead[m in 0 min ..= 120 min step 5 min] = m
+
+# The calibrated planner: the cheapest lead for the calibrated battery,
+# trusting the sensor and the forecast.
+policy calibrated = {
+    let costs = [cost(night(CALIBRATED, cell_temp, soc, AMBIENT, k * 5 min)) for k in 0..25]
+    argmin(costs) * 5 min
+}
+
+# Plans for the battery it might have: the lowest mean cost over 40
+# imagined batteries.
+policy robust = {
+    let costs = [mean([o.cost for o in forecast(k * 5 min, worlds: 40)]) for k in 0..25]
+    argmin(costs) * 5 min
+}
+
+# Knows tonight's battery: the most better information could buy.
+oracle policy hindsight = {
+    let costs = [rollout(k * 5 min).cost for k in 0..25]
+    argmin(costs) * 5 min
+}
+
+study cold_and_empty {
+    worlds 100
+    seed 42
+    with cell_temp = 1 °C, soc = 1%
+    minimize mean(cost)
+    report p95(cost), probability(short > 0.1 kWh), cvar95(cost)
+}
+
+study frozen_and_part_charged {
+    worlds 100
+    seed 42
+    with cell_temp = -5 °C, soc = 30%
+    minimize mean(cost)
+    report p95(cost), probability(short > 0.1 kWh), cvar95(cost)
+}
+
+study mild_and_empty {
+    worlds 100
+    seed 42
+    with cell_temp = 5 °C, soc = 1%
+    minimize mean(cost)
+    report p95(cost), probability(short > 0.1 kWh), cvar95(cost)
+}

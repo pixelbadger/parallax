@@ -1,0 +1,182 @@
+# ============================================================
+# Circumbinary: can a habitat hold an orbit around two suns?
+#
+# A three-body problem. Two stars (masses 65 and 34) orbit each other
+# 1 AU apart, and a habitat orbits the pair further out. Every step sums
+# the gravity of every pair of bodies.
+#
+# Close to a binary, orbits are chaotic: a habitat that starts too close
+# is flung out of the system or falls into a star, and tiny differences in
+# where it starts decide which. Its launch was imprecise:
+#   orbit radius   1.4 - 3.0 AU around the pair
+#   orbital phase  anywhere on the circle
+#   the stars move at 85 - 100% of circular speed (an unknown eccentricity)
+# and every window a random knock (debris, outgassing) nudges it.
+#
+# Mission control decides once a window (150 steps) and has fuel for 8
+# thruster burns. Its policies:
+#   drift      never burn
+#   foresee    forecast coasting, a prograde and a retrograde burn over the
+#              next window in 4 imagined futures each (with their own
+#              knocks), and make the burn that looks best
+#   edit       an oracle: live all three options in the real future and keep
+#              the best. It can't be wrong, so it bounds what foresight buys.
+#
+# Units: distances in AU, time in steps (1/160 of the binary's period),
+# semi-implicit Euler with softened gravity.
+# ============================================================
+
+const WINDOWS = 5
+const WINDOW = 150           # steps per decision
+const MT = 99.0
+const GM_TOTAL = (2.0 * pi / 160.0)^2
+const GM = [GM_TOTAL * 65.0 / MT, GM_TOTAL * 34.0 / MT, 0.0]
+const EPS2 = 0.03^2          # softening, so close passes stay finite
+const KNOCK = 0.0004         # random nudge per window (~1.5% of orbital speed)
+const BURN = 0.002           # one thruster burn (~7% of orbital speed)
+const FUEL = 8
+const HZ_IN = 1.8            # habitable between 1.8 and 2.8 AU
+const HZ_OUT = 2.8
+const CRASH = 0.15           # closer than this to a star: lost
+const ESCAPE = 10.0          # further than this from the pair: lost
+
+# Bodies 0 and 1 are the stars, 2 is the habitat.
+type Sky = { x: [Float], y: [Float], vx: [Float], vy: [Float] }
+enum Fate = flying | ejected | crashed
+type Leg = { sky: Sky, fate: Fate, habitable: Int }
+type Voyage = { sky: Sky, fate: Fate, habitable: Int, burns: Int, track: [Float], inner: Bool }
+type Result = { kept: Bool, ejected: Bool, crashed: Bool, habitable: %, burns: Int, track: [Float], inner: Bool }
+
+action Burn = coast | prograde | retrograde
+
+world Launch {
+    uncertain radius ~ uniform(1.4, 3.0)
+    uncertain phase ~ uniform(0.0, 2.0 * pi)
+    uncertain speed ~ uniform(0.85, 1.0)
+    uncertain knock_x(window: Int) ~ uniform(-KNOCK, KNOCK)
+    uncertain knock_y(window: Int) ~ uniform(-KNOCK, KNOCK)
+}
+
+fn dist(s: Sky, i: Int, j: Int) -> Float = sqrt((s.x[j] - s.x[i])^2 + (s.y[j] - s.y[i])^2)
+
+# The habitat's distance from the pair: the mean of its distances to each star.
+fn reach(s: Sky) -> Float = (dist(s, 0, 2) + dist(s, 1, 2)) / 2
+
+# Up to n steps; stops early if the habitat is lost.
+fn fly(start: Sky, n: Int) -> Leg = {
+    var s = start
+    var fate = flying
+    var habitable = 0
+    for k in 0..n while fate == flying {
+        # Every pair pulls on each other...
+        var ax = [0.0, 0.0, 0.0]
+        var ay = [0.0, 0.0, 0.0]
+        for i in 0..3 {
+            for j in 0..3 {
+                if i != j and GM[j] > 0.0 {
+                    let dx = s.x[j] - s.x[i]
+                    let dy = s.y[j] - s.y[i]
+                    let d2 = dx * dx + dy * dy + EPS2
+                    let f = GM[j] / (d2 * sqrt(d2))
+                    ax[i] = ax[i] + f * dx
+                    ay[i] = ay[i] + f * dy
+                }
+            }
+        }
+        # ...then every body moves
+        for b in 0..3 {
+            s.vx[b] = s.vx[b] + ax[b]
+            s.vy[b] = s.vy[b] + ay[b]
+            s.x[b] = s.x[b] + s.vx[b]
+            s.y[b] = s.y[b] + s.vy[b]
+        }
+        let r = reach(s)
+        if r > HZ_IN and r < HZ_OUT { habitable = habitable + 1 }
+        if r > ESCAPE { fate = ejected }
+        if dist(s, 0, 2) < CRASH or dist(s, 1, 2) < CRASH { fate = crashed }
+    }
+    Leg { sky: s, fate, habitable }
+}
+
+# Fire the habitat's thruster along its direction of travel.
+fn burn(start: Sky, dv: Float) -> Sky = {
+    var s = start
+    let speed = sqrt(s.vx[2]^2 + s.vy[2]^2)
+    s.vx[2] = s.vx[2] + s.vx[2] * dv / speed
+    s.vy[2] = s.vy[2] + s.vy[2] * dv / speed
+    s
+}
+
+fn score(r: Result) -> Float = if r.kept { r.habitable in % } else { -1000.0 }
+
+model voyage {
+    horizon WINDOWS
+    # The stars on a (possibly eccentric) orbit about their centre of mass,
+    # the habitat on a circular orbit of the drawn radius and phase.
+    init = {
+        let vb = sqrt(GM_TOTAL) * Launch.speed
+        let r0 = Launch.radius
+        let c = cos(Launch.phase)
+        let sn = sin(Launch.phase)
+        let vh = sqrt(GM_TOTAL / r0)
+        let sky = Sky {
+            x: [-34.0 / MT, 65.0 / MT, r0 * c],
+            y: [0.0, 0.0, r0 * sn],
+            vx: [0.0, 0.0, -vh * sn],
+            vy: [-vb * 34.0 / MT, vb * 65.0 / MT, vh * c],
+        }
+        Voyage { sky, fate: flying, habitable: 0, burns: 0, track: fill(WINDOWS, r0), inner: r0 < 2.0 }
+    }
+    step(v: Voyage, a: Burn, w: Int) -> Voyage = {
+        let fire = a != coast and v.burns < FUEL
+        var s = if fire { burn(v.sky, if a == prograde { BURN } else { -BURN }) } else { v.sky }
+        s.vx[2] = s.vx[2] + Launch.knock_x(w)
+        s.vy[2] = s.vy[2] + Launch.knock_y(w)
+        let leg = fly(s, WINDOW)
+        # distance from the pair after each window; a lost habitat stays
+        # where it was last seen
+        var track = v.track
+        for i in w..WINDOWS { track[i] = reach(leg.sky) }
+        Voyage {
+            sky: leg.sky,
+            fate: leg.fate,
+            habitable: v.habitable + leg.habitable,
+            burns: v.burns + if fire { 1 } else { 0 },
+            track,
+            inner: v.inner,
+        }
+    }
+    stop(v: Voyage) -> Bool = v.fate != flying
+    # Telemetry: mission control sees where everything is, not what's coming.
+    observe(v: Voyage, w: Int) -> Voyage = v
+    outcome(v: Voyage) -> Result = Result {
+        kept: v.fate == flying,
+        ejected: v.fate == ejected,
+        crashed: v.fate == crashed,
+        habitable: float(v.habitable) / float(WINDOWS * WINDOW),
+        burns: v.burns,
+        track: v.track,
+        inner: v.inner,
+    }
+}
+
+const OPTIONS = [coast, prograde, retrograde]
+
+policy drift(v: Voyage, w: Int) -> Burn = coast
+
+policy foresee(v: Voyage, w: Int) -> Burn = {
+    let looks = [mean([score(r) for r in forecast(a, horizon: 1, worlds: 4)]) for a in OPTIONS]
+    OPTIONS[argmax(looks)]
+}
+
+oracle policy edit(v: Voyage, w: Int) -> Burn =
+    OPTIONS[argmax([score(rollout(a, horizon: 1)) for a in OPTIONS])]
+
+study launch {
+    worlds 48
+    seed 1
+    maximize probability(kept)
+    maximize mean(habitable)
+    report probability(ejected), probability(crashed), mean(burns), median(track),
+           probability(inner), probability(kept where inner), mean(habitable where inner)
+}
