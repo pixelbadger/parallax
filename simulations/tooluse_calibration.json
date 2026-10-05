@@ -1,0 +1,14 @@
+{
+  "domain": "calibrated",
+  "stakes_median": "20 $",
+  "time_value": "1 $/min",
+  "prior_right": {"easy": 0.75, "hard": 0.35},
+  "sources": [
+    {"acc": 0.65, "misled": 0.30, "fail": 0.00, "cost": 0.002, "latency": 5},
+    {"acc": 0.75, "misled": 0.25, "fail": 0.60, "cost": 0.01, "latency": 15},
+    {"acc": 0.90, "misled": 0.08, "fail": 0.15, "cost": 0.01, "latency": 20},
+    {"acc": 0.97, "misled": 0.04, "fail": 0.30, "cost": 0.02, "latency": 30},
+    {"acc": 0.92, "misled": 0.08, "fail": 0.10, "cost": 0.01, "latency": 15},
+    {"acc": 0.98, "misled": 0.02, "fail": 0.10, "cost": 2, "latency": 300}
+  ]
+}

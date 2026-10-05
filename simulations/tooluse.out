@@ -1,14 +1,14 @@
 {
   "runtime": "parallax 0.2.0",
-  "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+  "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
   "studies": [
     {
       "study": "this_session",
       "model": "task",
       "provenance": {
         "runtime": "parallax 0.2.0",
-        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
-        "inputs_sha256": "a607dbd01e4c4e806d31b3871bee95d01d8e8d42594a3b54433906d95e4c31b9",
+        "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
+        "inputs_sha256": "b7f273c062d78b2b81c3f3e812ee47abeadc63f987f2b9917d615530e08f3e87",
         "seed": 11,
         "worlds": 100,
         "world_ids": [
@@ -25,6 +25,54 @@
         "time_value": {
           "value": 1.0,
           "unit": "$/min"
+        },
+        "sources": [
+          {
+            "acc": 0.6,
+            "misled": 0.35,
+            "fail": 0.0,
+            "cost": 0.002,
+            "latency": 5.0
+          },
+          {
+            "acc": 0.7,
+            "misled": 0.3,
+            "fail": 0.95,
+            "cost": 0.01,
+            "latency": 15.0
+          },
+          {
+            "acc": 0.85,
+            "misled": 0.1,
+            "fail": 0.2,
+            "cost": 0.01,
+            "latency": 20.0
+          },
+          {
+            "acc": 0.99,
+            "misled": 0.02,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.93,
+            "misled": 0.07,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.98,
+            "misled": 0.02,
+            "fail": 0.1,
+            "cost": 2.0,
+            "latency": 300.0
+          }
+        ],
+        "prior_right": {
+          "easy": 0.6,
+          "hard": 0.2
         }
       },
       "objectives": [
@@ -117,8 +165,8 @@
           },
           "of_oracle": 0.05556549756207971,
           "work": {
-            "estimated_operations": 297500,
-            "operations": 162542
+            "estimated_operations": 212100,
+            "operations": 119342
           }
         },
         {
@@ -203,8 +251,8 @@
           },
           "of_oracle": 0.06598338895651722,
           "work": {
-            "estimated_operations": 301100,
-            "operations": 183960
+            "estimated_operations": 215700,
+            "operations": 133560
           }
         },
         {
@@ -289,8 +337,8 @@
           },
           "of_oracle": 0.1351336453470943,
           "work": {
-            "estimated_operations": 1243100,
-            "operations": 444224
+            "estimated_operations": 639300,
+            "operations": 250400
           }
         },
         {
@@ -379,8 +427,8 @@
           },
           "of_oracle": 0.1351336453470943,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 444824
+            "estimated_operations": 642300,
+            "operations": 251000
           }
         },
         {
@@ -469,8 +517,8 @@
           },
           "of_oracle": 0.13157298786121843,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 426614
+            "estimated_operations": 642300,
+            "operations": 242294
           }
         },
         {
@@ -559,8 +607,8 @@
           },
           "of_oracle": 0.11874787121214837,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 366570
+            "estimated_operations": 642300,
+            "operations": 213642
           }
         },
         {
@@ -646,8 +694,8 @@
           },
           "of_oracle": 0.2910219625277181,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1099402
+            "estimated_operations": 1259700,
+            "operations": 670570
           }
         },
         {
@@ -733,8 +781,8 @@
           },
           "of_oracle": 0.1943538442158706,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1451411
+            "estimated_operations": 1259700,
+            "operations": 878075
           }
         },
         {
@@ -820,8 +868,8 @@
           },
           "of_oracle": 0.17437218179592842,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1652292
+            "estimated_operations": 1259700,
+            "operations": 996732
           }
         },
         {
@@ -898,8 +946,8 @@
           ],
           "of_oracle": 0.38342665519313274,
           "work": {
-            "estimated_operations": 1790300,
-            "operations": 1083452
+            "estimated_operations": 930300,
+            "operations": 566636
           }
         },
         {
@@ -988,8 +1036,8 @@
           },
           "of_oracle": 0.11918312125294832,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 963534
+            "estimated_operations": 1287900,
+            "operations": 610734
           }
         },
         {
@@ -1078,8 +1126,8 @@
           },
           "of_oracle": 0.13131573961497076,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 583953
+            "estimated_operations": 1287900,
+            "operations": 377817
           }
         },
         {
@@ -1164,8 +1212,8 @@
           },
           "of_oracle": 0.29086675185018684,
           "work": {
-            "estimated_operations": 168689900,
-            "operations": 57042261
+            "estimated_operations": 119711100,
+            "operations": 40512213
           }
         },
         {
@@ -1250,8 +1298,8 @@
           },
           "of_oracle": 0.2647024825258872,
           "work": {
-            "estimated_operations": 315271700,
-            "operations": 138221315
+            "estimated_operations": 223643700,
+            "operations": 97109315
           }
         },
         {
@@ -1335,8 +1383,8 @@
             "worlds": 100
           },
           "work": {
-            "estimated_operations": 8417300,
-            "operations": 1821070
+            "estimated_operations": 5976900,
+            "operations": 1294678
           }
         }
       ],
@@ -1360,9 +1408,9 @@
       "best_oracle": "hindsight",
       "errors": [],
       "work": {
-        "estimated_operations": 510404100,
+        "estimated_operations": 359610900,
         "estimated_transitions": 472800,
-        "operations": 205947424,
+        "operations": 144227008,
         "max_forecast_worlds": 20
       }
     },
@@ -1371,8 +1419,8 @@
       "model": "task",
       "provenance": {
         "runtime": "parallax 0.2.0",
-        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
-        "inputs_sha256": "43a7f05f102aaa2d0c4fea19e9e48ecf2060123aa2df48ee18a84b7dfa49c3f9",
+        "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
+        "inputs_sha256": "fe58126e973ffa69bf9afd020a73272e287b95ab81c49ce6f28f1f84dc6c3f52",
         "seed": 11,
         "worlds": 100,
         "world_ids": [
@@ -1389,6 +1437,54 @@
         "time_value": {
           "value": 0.5,
           "unit": "$/min"
+        },
+        "sources": [
+          {
+            "acc": 0.6,
+            "misled": 0.35,
+            "fail": 0.0,
+            "cost": 0.002,
+            "latency": 5.0
+          },
+          {
+            "acc": 0.7,
+            "misled": 0.3,
+            "fail": 0.95,
+            "cost": 0.01,
+            "latency": 15.0
+          },
+          {
+            "acc": 0.85,
+            "misled": 0.1,
+            "fail": 0.2,
+            "cost": 0.01,
+            "latency": 20.0
+          },
+          {
+            "acc": 0.99,
+            "misled": 0.02,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.93,
+            "misled": 0.07,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.98,
+            "misled": 0.02,
+            "fail": 0.1,
+            "cost": 2.0,
+            "latency": 300.0
+          }
+        ],
+        "prior_right": {
+          "easy": 0.6,
+          "hard": 0.2
         }
       },
       "objectives": [
@@ -1481,8 +1577,8 @@
           },
           "of_oracle": 0.059686678134172534,
           "work": {
-            "estimated_operations": 297500,
-            "operations": 162542
+            "estimated_operations": 212100,
+            "operations": 119342
           }
         },
         {
@@ -1567,8 +1663,8 @@
           },
           "of_oracle": 0.07041803016119448,
           "work": {
-            "estimated_operations": 301100,
-            "operations": 183960
+            "estimated_operations": 215700,
+            "operations": 133560
           }
         },
         {
@@ -1653,8 +1749,8 @@
           },
           "of_oracle": 0.1410102529023604,
           "work": {
-            "estimated_operations": 1243100,
-            "operations": 444224
+            "estimated_operations": 639300,
+            "operations": 250400
           }
         },
         {
@@ -1743,8 +1839,8 @@
           },
           "of_oracle": 0.1397943236500049,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 437237
+            "estimated_operations": 642300,
+            "operations": 247373
           }
         },
         {
@@ -1833,8 +1929,8 @@
           },
           "of_oracle": 0.12599264117986925,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 366570
+            "estimated_operations": 642300,
+            "operations": 213642
           }
         },
         {
@@ -1923,8 +2019,8 @@
           },
           "of_oracle": 0.08376028655224695,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 309496
+            "estimated_operations": 642300,
+            "operations": 186376
           }
         },
         {
@@ -2010,8 +2106,8 @@
           },
           "of_oracle": 0.2698990284641815,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1096682
+            "estimated_operations": 1259700,
+            "operations": 668930
           }
         },
         {
@@ -2097,8 +2193,8 @@
           },
           "of_oracle": 0.17815527283729932,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1451162
+            "estimated_operations": 1259700,
+            "operations": 877898
           }
         },
         {
@@ -2184,8 +2280,8 @@
           },
           "of_oracle": 0.15543890815220626,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1652967
+            "estimated_operations": 1259700,
+            "operations": 997047
           }
         },
         {
@@ -2262,8 +2358,8 @@
           ],
           "of_oracle": 0.3276702361169984,
           "work": {
-            "estimated_operations": 1790300,
-            "operations": 1083452
+            "estimated_operations": 930300,
+            "operations": 566636
           }
         },
         {
@@ -2352,8 +2448,8 @@
           },
           "of_oracle": 0.08661009762109084,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 579107
+            "estimated_operations": 1287900,
+            "operations": 374699
           }
         },
         {
@@ -2442,8 +2538,8 @@
           },
           "of_oracle": 0.09815404746963434,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 246683
+            "estimated_operations": 1287900,
+            "operations": 171083
           }
         },
         {
@@ -2528,8 +2624,8 @@
           },
           "of_oracle": 0.27185954335504764,
           "work": {
-            "estimated_operations": 168689900,
-            "operations": 56260774
+            "estimated_operations": 119711100,
+            "operations": 39957886
           }
         },
         {
@@ -2614,8 +2710,8 @@
           },
           "of_oracle": 0.27388201926529104,
           "work": {
-            "estimated_operations": 315271700,
-            "operations": 129814100
+            "estimated_operations": 223643700,
+            "operations": 91204388
           }
         },
         {
@@ -2699,8 +2795,8 @@
             "worlds": 100
           },
           "work": {
-            "estimated_operations": 8417300,
-            "operations": 1821070
+            "estimated_operations": 5976900,
+            "operations": 1294678
           }
         }
       ],
@@ -2724,9 +2820,9 @@
       "best_oracle": "hindsight",
       "errors": [],
       "work": {
-        "estimated_operations": 510404100,
+        "estimated_operations": 359610900,
         "estimated_transitions": 472800,
-        "operations": 195910026,
+        "operations": 137263938,
         "max_forecast_worlds": 20
       }
     },
@@ -2735,8 +2831,8 @@
       "model": "task",
       "provenance": {
         "runtime": "parallax 0.2.0",
-        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
-        "inputs_sha256": "4083bcd71c1e6a6415983e35e5a269a6cc2895826c602601c13c0eda8a2f82ba",
+        "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
+        "inputs_sha256": "d3f90f28940fd0f4d4f0c8d1f7af3a008bfe10f6d09423326ebcd4409586c4c5",
         "seed": 11,
         "worlds": 100,
         "world_ids": [
@@ -2753,6 +2849,54 @@
         "time_value": {
           "value": 0.5,
           "unit": "$/min"
+        },
+        "sources": [
+          {
+            "acc": 0.6,
+            "misled": 0.35,
+            "fail": 0.0,
+            "cost": 0.002,
+            "latency": 5.0
+          },
+          {
+            "acc": 0.7,
+            "misled": 0.3,
+            "fail": 0.95,
+            "cost": 0.01,
+            "latency": 15.0
+          },
+          {
+            "acc": 0.85,
+            "misled": 0.1,
+            "fail": 0.2,
+            "cost": 0.01,
+            "latency": 20.0
+          },
+          {
+            "acc": 0.99,
+            "misled": 0.02,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.93,
+            "misled": 0.07,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.98,
+            "misled": 0.02,
+            "fail": 0.1,
+            "cost": 2.0,
+            "latency": 300.0
+          }
+        ],
+        "prior_right": {
+          "easy": 0.6,
+          "hard": 0.2
         }
       },
       "objectives": [
@@ -2845,8 +2989,8 @@
           },
           "of_oracle": 0.06058799825426666,
           "work": {
-            "estimated_operations": 297500,
-            "operations": 162540
+            "estimated_operations": 212100,
+            "operations": 119340
           }
         },
         {
@@ -2931,8 +3075,8 @@
           },
           "of_oracle": 0.0756523234148055,
           "work": {
-            "estimated_operations": 301100,
-            "operations": 184671
+            "estimated_operations": 215700,
+            "operations": 134271
           }
         },
         {
@@ -3017,8 +3161,8 @@
           },
           "of_oracle": 0.10692852422369617,
           "work": {
-            "estimated_operations": 1243100,
-            "operations": 441807
+            "estimated_operations": 639300,
+            "operations": 249135
           }
         },
         {
@@ -3107,8 +3251,8 @@
           },
           "of_oracle": 0.10692151180427921,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 435120
+            "estimated_operations": 642300,
+            "operations": 246264
           }
         },
         {
@@ -3197,8 +3341,8 @@
           },
           "of_oracle": 0.11141208705690549,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 365046
+            "estimated_operations": 642300,
+            "operations": 212838
           }
         },
         {
@@ -3287,8 +3431,8 @@
           },
           "of_oracle": 0.0823845000642234,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 309194
+            "estimated_operations": 642300,
+            "operations": 186218
           }
         },
         {
@@ -3374,8 +3518,8 @@
           },
           "of_oracle": 0.1108295187184624,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1238072
+            "estimated_operations": 1259700,
+            "operations": 753872
           }
         },
         {
@@ -3461,8 +3605,8 @@
           },
           "of_oracle": 0.12809962575455758,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1514697
+            "estimated_operations": 1259700,
+            "operations": 917097
           }
         },
         {
@@ -3548,8 +3692,8 @@
           },
           "of_oracle": 0.12031462407351029,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1665568
+            "estimated_operations": 1259700,
+            "operations": 1006336
           }
         },
         {
@@ -3626,8 +3770,8 @@
           ],
           "of_oracle": 0.15282001037648207,
           "work": {
-            "estimated_operations": 1790300,
-            "operations": 1130182
+            "estimated_operations": 930300,
+            "operations": 590110
           }
         },
         {
@@ -3716,8 +3860,8 @@
           },
           "of_oracle": 0.10554998781051511,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 613462
+            "estimated_operations": 1287900,
+            "operations": 395878
           }
         },
         {
@@ -3806,8 +3950,8 @@
           },
           "of_oracle": 0.09479885199075432,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 249388
+            "estimated_operations": 1287900,
+            "operations": 172708
           }
         },
         {
@@ -3892,8 +4036,8 @@
           },
           "of_oracle": 0.11874325953694063,
           "work": {
-            "estimated_operations": 168689900,
-            "operations": 56353925
+            "estimated_operations": 119711100,
+            "operations": 40044557
           }
         },
         {
@@ -3978,8 +4122,8 @@
           },
           "of_oracle": 0.12652879033462508,
           "work": {
-            "estimated_operations": 315271700,
-            "operations": 138046269
+            "estimated_operations": 223643700,
+            "operations": 97075677
           }
         },
         {
@@ -4063,8 +4207,8 @@
             "worlds": 100
           },
           "work": {
-            "estimated_operations": 8417300,
-            "operations": 1811549
+            "estimated_operations": 5976900,
+            "operations": 1288685
           }
         }
       ],
@@ -4088,9 +4232,9 @@
       "best_oracle": "hindsight",
       "errors": [],
       "work": {
-        "estimated_operations": 510404100,
+        "estimated_operations": 359610900,
         "estimated_transitions": 472800,
-        "operations": 204521490,
+        "operations": 143392986,
         "max_forecast_worlds": 20
       }
     },
@@ -4099,8 +4243,8 @@
       "model": "task",
       "provenance": {
         "runtime": "parallax 0.2.0",
-        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
-        "inputs_sha256": "6ae495698780a28c736884b6ed72b4c0cc6ad6d02513cd175e018afb00b11ee2",
+        "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
+        "inputs_sha256": "01149a4e248595842d74850a9b0ecda038236b7be5baad2067ae31258a676f50",
         "seed": 11,
         "worlds": 100,
         "world_ids": [
@@ -4117,6 +4261,54 @@
         "time_value": {
           "value": 0.5,
           "unit": "$/min"
+        },
+        "sources": [
+          {
+            "acc": 0.6,
+            "misled": 0.35,
+            "fail": 0.0,
+            "cost": 0.002,
+            "latency": 5.0
+          },
+          {
+            "acc": 0.7,
+            "misled": 0.3,
+            "fail": 0.95,
+            "cost": 0.01,
+            "latency": 15.0
+          },
+          {
+            "acc": 0.85,
+            "misled": 0.1,
+            "fail": 0.2,
+            "cost": 0.01,
+            "latency": 20.0
+          },
+          {
+            "acc": 0.99,
+            "misled": 0.02,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.93,
+            "misled": 0.07,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.98,
+            "misled": 0.02,
+            "fail": 0.1,
+            "cost": 2.0,
+            "latency": 300.0
+          }
+        ],
+        "prior_right": {
+          "easy": 0.6,
+          "hard": 0.2
         }
       },
       "objectives": [
@@ -4209,8 +4401,8 @@
           },
           "of_oracle": 0.11082581142952455,
           "work": {
-            "estimated_operations": 297500,
-            "operations": 162537
+            "estimated_operations": 212100,
+            "operations": 119337
           }
         },
         {
@@ -4295,8 +4487,8 @@
           },
           "of_oracle": 0.09468226176034597,
           "work": {
-            "estimated_operations": 301100,
-            "operations": 183733
+            "estimated_operations": 215700,
+            "operations": 133333
           }
         },
         {
@@ -4381,8 +4573,8 @@
           },
           "of_oracle": 0.10325765171962874,
           "work": {
-            "estimated_operations": 1243100,
-            "operations": 415837
+            "estimated_operations": 639300,
+            "operations": 235693
           }
         },
         {
@@ -4471,8 +4663,8 @@
           },
           "of_oracle": 0.10361142662746481,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 410347
+            "estimated_operations": 642300,
+            "operations": 233443
           }
         },
         {
@@ -4561,8 +4753,8 @@
           },
           "of_oracle": 0.10705934698823374,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 352801
+            "estimated_operations": 642300,
+            "operations": 206497
           }
         },
         {
@@ -4651,8 +4843,8 @@
           },
           "of_oracle": 0.11001943568247731,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 306517
+            "estimated_operations": 642300,
+            "operations": 184837
           }
         },
         {
@@ -4738,8 +4930,8 @@
           },
           "of_oracle": 0.1497083402310085,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1597480
+            "estimated_operations": 1259700,
+            "operations": 993112
           }
         },
         {
@@ -4825,8 +5017,8 @@
           },
           "of_oracle": 0.14132187494184395,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1690042
+            "estimated_operations": 1259700,
+            "operations": 1050106
           }
         },
         {
@@ -4912,8 +5104,8 @@
           },
           "of_oracle": 0.14011258555464093,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1714488
+            "estimated_operations": 1259700,
+            "operations": 1064976
           }
         },
         {
@@ -4990,8 +5182,8 @@
           ],
           "of_oracle": 0.2265265208568949,
           "work": {
-            "estimated_operations": 1790300,
-            "operations": 1349521
+            "estimated_operations": 930300,
+            "operations": 707929
           }
         },
         {
@@ -5080,8 +5272,8 @@
           },
           "of_oracle": 0.12997123473865338,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 797508
+            "estimated_operations": 1287900,
+            "operations": 509580
           }
         },
         {
@@ -5170,8 +5362,8 @@
           },
           "of_oracle": 0.1850135143774236,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 283046
+            "estimated_operations": 1287900,
+            "operations": 193334
           }
         },
         {
@@ -5256,8 +5448,8 @@
           },
           "of_oracle": 0.22158375394181484,
           "work": {
-            "estimated_operations": 168689900,
-            "operations": 54283045
+            "estimated_operations": 119711100,
+            "operations": 38487469
           }
         },
         {
@@ -5342,8 +5534,8 @@
           },
           "of_oracle": 0.17785573711819136,
           "work": {
-            "estimated_operations": 315271700,
-            "operations": 131970584
+            "estimated_operations": 223643700,
+            "operations": 92475704
           }
         },
         {
@@ -5427,8 +5619,8 @@
             "worlds": 100
           },
           "work": {
-            "estimated_operations": 8417300,
-            "operations": 1727789
+            "estimated_operations": 5976900,
+            "operations": 1226093
           }
         }
       ],
@@ -5452,9 +5644,9 @@
       "best_oracle": "hindsight",
       "errors": [],
       "work": {
-        "estimated_operations": 510404100,
+        "estimated_operations": 359610900,
         "estimated_transitions": 472800,
-        "operations": 197245275,
+        "operations": 137821443,
         "max_forecast_worlds": 20
       }
     },
@@ -5463,8 +5655,8 @@
       "model": "task",
       "provenance": {
         "runtime": "parallax 0.2.0",
-        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
-        "inputs_sha256": "8b72c4cddbec4bfba31b935c75976babbea343c1f50b04df21cbe09d195d2a60",
+        "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
+        "inputs_sha256": "ca507828b55306022a0633dfe8d35ecf7840b6b45dd43b8ffbe327a947f7e9b8",
         "seed": 11,
         "worlds": 100,
         "world_ids": [
@@ -5481,6 +5673,54 @@
         "time_value": {
           "value": 0.5,
           "unit": "$/min"
+        },
+        "sources": [
+          {
+            "acc": 0.6,
+            "misled": 0.35,
+            "fail": 0.0,
+            "cost": 0.002,
+            "latency": 5.0
+          },
+          {
+            "acc": 0.7,
+            "misled": 0.3,
+            "fail": 0.95,
+            "cost": 0.01,
+            "latency": 15.0
+          },
+          {
+            "acc": 0.85,
+            "misled": 0.1,
+            "fail": 0.2,
+            "cost": 0.01,
+            "latency": 20.0
+          },
+          {
+            "acc": 0.99,
+            "misled": 0.02,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.93,
+            "misled": 0.07,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.98,
+            "misled": 0.02,
+            "fail": 0.1,
+            "cost": 2.0,
+            "latency": 300.0
+          }
+        ],
+        "prior_right": {
+          "easy": 0.6,
+          "hard": 0.2
         }
       },
       "objectives": [
@@ -5573,8 +5813,8 @@
           },
           "of_oracle": 0.0796693198626247,
           "work": {
-            "estimated_operations": 297500,
-            "operations": 162536
+            "estimated_operations": 212100,
+            "operations": 119336
           }
         },
         {
@@ -5659,8 +5899,8 @@
           },
           "of_oracle": 0.09112389073476496,
           "work": {
-            "estimated_operations": 301100,
-            "operations": 184907
+            "estimated_operations": 215700,
+            "operations": 134507
           }
         },
         {
@@ -5745,8 +5985,8 @@
           },
           "of_oracle": 0.07659589646329323,
           "work": {
-            "estimated_operations": 1243100,
-            "operations": 421232
+            "estimated_operations": 639300,
+            "operations": 238496
           }
         },
         {
@@ -5835,8 +6075,8 @@
           },
           "of_oracle": 0.07687312776834171,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 415742
+            "estimated_operations": 642300,
+            "operations": 236246
           }
         },
         {
@@ -5925,8 +6165,8 @@
           },
           "of_oracle": 0.07690013678401689,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 354300
+            "estimated_operations": 642300,
+            "operations": 207276
           }
         },
         {
@@ -6015,8 +6255,8 @@
           },
           "of_oracle": 0.07907608254089465,
           "work": {
-            "estimated_operations": 1246100,
-            "operations": 307116
+            "estimated_operations": 642300,
+            "operations": 185148
           }
         },
         {
@@ -6102,8 +6342,8 @@
           },
           "of_oracle": 0.1111919516620544,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1407006
+            "estimated_operations": 1259700,
+            "operations": 867582
           }
         },
         {
@@ -6189,8 +6429,8 @@
           },
           "of_oracle": 0.15588538645574845,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1602603
+            "estimated_operations": 1259700,
+            "operations": 986859
           }
         },
         {
@@ -6276,8 +6516,8 @@
           },
           "of_oracle": 0.14538499417672293,
           "work": {
-            "estimated_operations": 2119700,
-            "operations": 1698373
+            "estimated_operations": 1259700,
+            "operations": 1045765
           }
         },
         {
@@ -6354,8 +6594,8 @@
           ],
           "of_oracle": 0.20775052731932359,
           "work": {
-            "estimated_operations": 1790300,
-            "operations": 1263253
+            "estimated_operations": 930300,
+            "operations": 661693
           }
         },
         {
@@ -6444,8 +6684,8 @@
           },
           "of_oracle": 0.09442910490917887,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 735772
+            "estimated_operations": 1287900,
+            "operations": 471028
           }
         },
         {
@@ -6534,8 +6774,8 @@
           },
           "of_oracle": 0.12352160330698432,
           "work": {
-            "estimated_operations": 2147900,
-            "operations": 277992
+            "estimated_operations": 1287900,
+            "operations": 190296
           }
         },
         {
@@ -6620,8 +6860,8 @@
           },
           "of_oracle": 0.10007435524675824,
           "work": {
-            "estimated_operations": 168689900,
-            "operations": 48847846
+            "estimated_operations": 119711100,
+            "operations": 34656502
           }
         },
         {
@@ -6706,8 +6946,8 @@
           },
           "of_oracle": 0.20309809860039055,
           "work": {
-            "estimated_operations": 315271700,
-            "operations": 141670580
+            "estimated_operations": 223643700,
+            "operations": 99369068
           }
         },
         {
@@ -6791,8 +7031,8 @@
             "worlds": 100
           },
           "work": {
-            "estimated_operations": 8417300,
-            "operations": 1767015
+            "estimated_operations": 5976900,
+            "operations": 1254735
           }
         }
       ],
@@ -6816,9 +7056,1421 @@
       "best_oracle": "hindsight",
       "errors": [],
       "work": {
-        "estimated_operations": 510404100,
+        "estimated_operations": 359610900,
         "estimated_transitions": 472800,
-        "operations": 201116273,
+        "operations": 140624537,
+        "max_forecast_worlds": 20
+      }
+    },
+    {
+      "study": "as_given",
+      "model": "task",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "93011e1593981746b184abd153de32947253f3884c09a5b9b81ebbe01c82be87",
+        "inputs_sha256": "fe58126e973ffa69bf9afd020a73272e287b95ab81c49ce6f28f1f84dc6c3f52",
+        "seed": 11,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "domain": "novel",
+        "stakes_median": {
+          "value": 5.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 0.5,
+          "unit": "$/min"
+        },
+        "sources": [
+          {
+            "acc": 0.6,
+            "misled": 0.35,
+            "fail": 0.0,
+            "cost": 0.002,
+            "latency": 5.0
+          },
+          {
+            "acc": 0.7,
+            "misled": 0.3,
+            "fail": 0.95,
+            "cost": 0.01,
+            "latency": 15.0
+          },
+          {
+            "acc": 0.85,
+            "misled": 0.1,
+            "fail": 0.2,
+            "cost": 0.01,
+            "latency": 20.0
+          },
+          {
+            "acc": 0.99,
+            "misled": 0.02,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.93,
+            "misled": 0.07,
+            "fail": 0.05,
+            "cost": 0.01,
+            "latency": 10.0
+          },
+          {
+            "acc": 0.98,
+            "misled": 0.02,
+            "fail": 0.1,
+            "cost": 2.0,
+            "latency": 300.0
+          }
+        ],
+        "prior_right": {
+          "easy": 0.6,
+          "hard": 0.2
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "answer_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 4.066795838428671,
+              "unit": "$",
+              "ci95": [
+                2.1218296759266533,
+                6.011762000930689
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.58,
+              "ci95": [
+                0.4820648670304296,
+                0.6720161732564526
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 37.51357771566322,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 3.326009805732636,
+            "ci95": [
+              1.4565781696022981,
+              5.195441441862974
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.059686678134172534,
+          "work": {
+            "estimated_operations": 212100,
+            "operations": 119342
+          }
+        },
+        {
+          "name": "reflect",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.447036699124374,
+              "unit": "$",
+              "ci95": [
+                1.5947868619334051,
+                5.299286536315343
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.64,
+              "ci95": [
+                0.5423540245160874,
+                0.7272877959859567
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0020000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.002000000000000001,
+                0.0020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 5.0,
+              "unit": "s",
+              "ci95": [
+                5.0,
+                5.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 34.24942804979184,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.7062506664283434,
+            "ci95": [
+              0.7085049688191929,
+              4.7039963640374935
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.07041803016119448,
+          "work": {
+            "estimated_operations": 215700,
+            "operations": 133560
+          }
+        },
+        {
+          "name": "verify_once",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.7213892553881183,
+              "unit": "$",
+              "ci95": [
+                0.4021774510697562,
+                3.0406010597064803
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.84,
+              "ci95": [
+                0.7557973061072976,
+                0.8990471151119521
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.010000000000000007,
+              "unit": "$",
+              "ci95": [
+                0.010000000000000005,
+                0.010000000000000009
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 10.0,
+              "unit": "s",
+              "ci95": [
+                10.0,
+                10.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 21.906435415368605,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.9806032226920831,
+            "ci95": [
+              -0.16797315588347206,
+              2.129179601267638
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1410102529023604,
+          "work": {
+            "estimated_operations": 639300,
+            "operations": 250400
+          }
+        },
+        {
+          "name": "risk_gate[1 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 1.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.736361877277668,
+              "unit": "$",
+              "ci95": [
+                0.4177150007634931,
+                3.055008753791843
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.81,
+              "ci95": [
+                0.7222115462093562,
+                0.8748524849023126
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.009500000000000007,
+              "unit": "$",
+              "ci95": [
+                0.00907068377835841,
+                0.009929316221641603
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 9.5,
+              "unit": "s",
+              "ci95": [
+                9.070683778358402,
+                9.929316221641598
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.95,
+              "ci95": [
+                0.9070683778358402,
+                0.9929316221641598
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 21.906435415368605,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.995575844581633,
+            "ci95": [
+              -0.15264271251080497,
+              2.1437944016740706
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1397943236500049,
+          "work": {
+            "estimated_operations": 642300,
+            "operations": 247373
+          }
+        },
+        {
+          "name": "risk_gate[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.9265691390591129,
+              "unit": "$",
+              "ci95": [
+                0.610188207057859,
+                3.242950071060367
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.71,
+              "ci95": [
+                0.6146110882442888,
+                0.7898516425087772
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.004800000000000002,
+              "unit": "$",
+              "ci95": [
+                0.003815869290090427,
+                0.0057841307099095775
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 4.8,
+              "unit": "s",
+              "ci95": [
+                3.8158692900904247,
+                5.784130709909575
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.48,
+              "ci95": [
+                0.3815869290090425,
+                0.5784130709909574
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 21.906435415368605,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1857831063630782,
+            "ci95": [
+              0.024667128923388182,
+              2.346899083802768
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12599264117986925,
+          "work": {
+            "estimated_operations": 642300,
+            "operations": 213642
+          }
+        },
+        {
+          "name": "risk_gate[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8979549167883416,
+              "unit": "$",
+              "ci95": [
+                1.4913634841016825,
+                4.304546349475
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.61,
+              "ci95": [
+                0.5120301704584073,
+                0.6998312599360558
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.001,
+              "unit": "$",
+              "ci95": [
+                0.0004090486236973366,
+                0.0015909513763026635
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 1.0,
+              "unit": "s",
+              "ci95": [
+                0.4090486236973372,
+                1.5909513763026628
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.1,
+              "ci95": [
+                0.04090486236973378,
+                0.15909513763026623
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 24.697234625221743,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.157168884092307,
+            "ci95": [
+              0.8761250586922678,
+              3.438212709492346
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.08376028655224695,
+          "work": {
+            "estimated_operations": 642300,
+            "operations": 186376
+          }
+        },
+        {
+          "name": "until_sure[0.9]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "parameter": 0.9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.8993494182877274,
+              "unit": "$",
+              "ci95": [
+                0.1805225589150672,
+                1.6181762776603876
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.023299999999999998,
+              "unit": "$",
+              "ci95": [
+                0.0200506032266127,
+                0.026549396773387295
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 25.5,
+              "unit": "s",
+              "ci95": [
+                21.52722220769349,
+                29.47277779230651
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.33,
+              "ci95": [
+                2.00506032266127,
+                2.65493967733873
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.736988927253995,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.1585633855916927,
+            "ci95": [
+              -0.11080673122059193,
+              0.4279335024039773
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.2698990284641815,
+          "work": {
+            "estimated_operations": 1259700,
+            "operations": 668930
+          }
+        },
+        {
+          "name": "until_sure[0.97]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": 0.97,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.3624830204568874,
+              "unit": "$",
+              "ci95": [
+                0.2571316750734831,
+                2.4678343658402917
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.03759999999999999,
+              "unit": "$",
+              "ci95": [
+                0.033998696649754,
+                0.04120130335024597
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 41.8,
+              "unit": "s",
+              "ci95": [
+                37.25330000755015,
+                46.34669999244984
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.76,
+              "ci95": [
+                3.399869664975401,
+                4.120130335024599
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 16.228660074517766,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.6216969877608527,
+            "ci95": [
+              -0.25988928325251726,
+              1.5032832587742226
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.17815527283729932,
+          "work": {
+            "estimated_operations": 1259700,
+            "operations": 877898
+          }
+        },
+        {
+          "name": "until_sure[0.99]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.99,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.5616008702788815,
+              "unit": "$",
+              "ci95": [
+                0.44806026591440506,
+                2.675141474643358
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.046399999999999955,
+              "unit": "$",
+              "ci95": [
+                0.04321738559513713,
+                0.04958261440486278
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 53.0,
+              "unit": "s",
+              "ci95": [
+                48.88214346156344,
+                57.11785653843656
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.64,
+              "ci95": [
+                4.321738559513717,
+                4.958261440486282
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 17.232057041444346,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.8208148375828466,
+            "ci95": [
+              -0.07375805676047453,
+              1.7153877319261677
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.15543890815220626,
+          "work": {
+            "estimated_operations": 1259700,
+            "operations": 997047
+          }
+        },
+        {
+          "name": "until_sure_naive",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.7407860326960355,
+              "unit": "$",
+              "ci95": [
+                0.07198910557374749,
+                1.4095829598183234
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.96,
+              "ci95": [
+                0.9016292856411208,
+                0.9843366960084523
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.030799999999999998,
+              "unit": "$",
+              "ci95": [
+                0.027701901440282076,
+                0.03389809855971792
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 30.8,
+              "unit": "s",
+              "ci95": [
+                27.701901440282082,
+                33.898098559717916
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.08,
+              "ci95": [
+                2.770190144028208,
+                3.389809855971792
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 7.928656100489465,
+              "unit": "$"
+            }
+          ],
+          "of_oracle": 0.3276702361169984,
+          "work": {
+            "estimated_operations": 930300,
+            "operations": 566636
+          }
+        },
+        {
+          "name": "two_sources[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8026008619412437,
+              "unit": "$",
+              "ci95": [
+                2.134319406243159,
+                3.470882317639328
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.72,
+              "ci95": [
+                0.6251197129007884,
+                0.7986031478881379
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.7473999999999998,
+              "unit": "$",
+              "ci95": [
+                0.5562218521131603,
+                0.9385781478868394
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 118.6,
+              "unit": "s",
+              "ci95": [
+                89.05371817367029,
+                148.1462818263297
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.11,
+              "ci95": [
+                0.8721548161902057,
+                1.3478451838097945
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.37,
+              "ci95": [
+                0.28182360534324524,
+                0.4677947041905709
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 12.349354771785478,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.0618148292452076,
+            "ci95": [
+              1.1374513038108431,
+              2.986178354679572
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.08661009762109084,
+          "work": {
+            "estimated_operations": 1287900,
+            "operations": 374699
+          }
+        },
+        {
+          "name": "two_sources[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.4729854805098923,
+              "unit": "$",
+              "ci95": [
+                1.7179636559517297,
+                3.228007305068055
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.20119999999999996,
+              "unit": "$",
+              "ci95": [
+                0.08230032200960614,
+                0.3200996779903938
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 31.2,
+              "unit": "s",
+              "ci95": [
+                12.760633514064512,
+                49.63936648593548
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.22,
+              "ci95": [
+                0.08762454668383074,
+                0.35237545331616926
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.1,
+              "ci95": [
+                0.0552291370606751,
+                0.17436566150491345
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 14.128624376885034,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.7321994478138563,
+            "ci95": [
+              0.7449678236033717,
+              2.719431072024341
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.09815404746963434,
+          "work": {
+            "estimated_operations": 1287900,
+            "operations": 171083
+          }
+        },
+        {
+          "name": "forecast_voi",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.8928637606393508,
+              "unit": "$",
+              "ci95": [
+                0.16674044479665506,
+                1.6189870764820466
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.05249999999999989,
+              "unit": "$",
+              "ci95": [
+                -0.0027555337456009257,
+                0.1077555337456007
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 18.7,
+              "unit": "s",
+              "ci95": [
+                10.146932897431535,
+                27.253067102568465
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.27,
+              "ci95": [
+                1.0855175535537975,
+                1.4544824464462025
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.02,
+              "ci95": [
+                0.00550196755016235,
+                0.07001179072854388
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.950388225376761,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.15207772794331603,
+            "ci95": [
+              -0.1398685804621697,
+              0.4440240363488018
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.27185954335504764,
+          "work": {
+            "estimated_operations": 119711100,
+            "operations": 39957886
+          }
+        },
+        {
+          "name": "lookahead2",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.8862704273060177,
+              "unit": "$",
+              "ci95": [
+                0.16224055468579546,
+                1.61030029992624
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0367399999999999,
+              "unit": "$",
+              "ci95": [
+                -0.0025800829155012903,
+                0.07606008291550109
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 19.8,
+              "unit": "s",
+              "ci95": [
+                13.48587819720678,
+                26.11412180279322
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.7,
+              "ci95": [
+                1.4797654251983645,
+                1.9202345748016354
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.835077615671457,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.1454843946099827,
+            "ci95": [
+              -0.13598020077715012,
+              0.4269489899971155
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.27388201926529104,
+          "work": {
+            "estimated_operations": 223643700,
+            "operations": 91204388
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.24273353424568445,
+              "unit": "$",
+              "ci95": [
+                -0.03833921204561669,
+                0.5238062805369856
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.97,
+              "ci95": [
+                0.9154806357094724,
+                0.9897454759759611
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.003180000000000001,
+              "unit": "$",
+              "ci95": [
+                0.002293625466113741,
+                0.004066374533886261
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 3.45,
+              "unit": "s",
+              "ci95": [
+                2.5614415069925376,
+                4.338558493007463
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.39,
+              "ci95": [
+                0.2939211680234869,
+                0.48607883197651314
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 3.5600589040947397,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.498052498450351,
+            "ci95": [
+              -1.2173711026800855,
+              0.2212661057793835
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 5976900,
+            "operations": 1294678
+          }
+        }
+      ],
+      "ranking": [
+        "until_sure_naive",
+        "lookahead2",
+        "forecast_voi",
+        "until_sure[0.9]",
+        "until_sure[0.97]",
+        "until_sure[0.99]",
+        "verify_once",
+        "risk_gate[1 $]",
+        "risk_gate[5 $]",
+        "two_sources[20 $]",
+        "two_sources[5 $]",
+        "risk_gate[20 $]",
+        "reflect",
+        "answer_now"
+      ],
+      "recommended": "until_sure_naive",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 359610900,
+        "estimated_transitions": 472800,
+        "operations": 137263938,
         "max_forecast_worlds": 20
       }
     }
