@@ -272,6 +272,30 @@ impl<'p> Analyzer<'p> {
         }
     }
 
+    /// One served decision: the policy, deciding from `seen` (what a
+    /// sequential policy observes) at step `t`.
+    pub fn decision(
+        &mut self,
+        pol: &PolicyDef,
+        family: Option<&Value>,
+        seen: Option<(&Value, i64)>,
+    ) -> AR<Cost> {
+        let mut args: Vec<Abs> = family.map(Abs::of).into_iter().collect();
+        let seen = match seen {
+            Some((o, t)) => {
+                let o = Abs::of(o);
+                args.push(o.clone());
+                args.push(Abs::Int(t, t));
+                o
+            }
+            None => Abs::Top,
+        };
+        self.decision = Some(seen);
+        let r = self.call(pol.func, args);
+        self.decision = None;
+        Ok(r?.1)
+    }
+
     /// `stop`, `step` and the invariants, once; and one transition.
     fn step_cost(&mut self, m: &SeqModel, s: &Abs, t: &Abs) -> AR<Cost> {
         let mut c = Cost {
@@ -512,7 +536,7 @@ impl<'p> Analyzer<'p> {
                     c += per.times(n as f64);
                 }
             }
-            St::Assert(e, _, _) | St::Expr(e) => c += self.ex(e, env)?.1,
+            St::Assert(e, _, _) | St::Note(_, _, e) | St::Expr(e) => c += self.ex(e, env)?.1,
         }
         Ok(c)
     }
@@ -675,6 +699,7 @@ impl<'p> Analyzer<'p> {
                 action,
                 horizon,
                 worlds,
+                skip,
                 then,
                 line,
             } => {
@@ -690,6 +715,9 @@ impl<'p> Analyzer<'p> {
                 };
                 let (k, kc) = self.ex(worlds, env)?;
                 c += kc;
+                if let Some(s) = skip {
+                    c += self.ex(s, env)?.1;
+                }
                 if let Some(t) = then {
                     c += self.ex(t, env)?.1;
                 }

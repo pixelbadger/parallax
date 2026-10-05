@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
   "studies": [
     {
       "study": "this_session",
       "model": "task",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
         "inputs_sha256": "a607dbd01e4c4e806d31b3871bee95d01d8e8d42594a3b54433906d95e4c31b9",
         "seed": 11,
@@ -1370,7 +1370,7 @@
       "study": "novel_language",
       "model": "task",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
         "inputs_sha256": "43a7f05f102aaa2d0c4fea19e9e48ecf2060123aa2df48ee18a84b7dfa49c3f9",
         "seed": 11,
@@ -2734,7 +2734,7 @@
       "study": "codebase_question",
       "model": "task",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
         "inputs_sha256": "4083bcd71c1e6a6415983e35e5a269a6cc2895826c602601c13c0eda8a2f82ba",
         "seed": 11,
@@ -4098,7 +4098,7 @@
       "study": "current_events",
       "model": "task",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
         "inputs_sha256": "6ae495698780a28c736884b6ed72b4c0cc6ad6d02513cd175e018afb00b11ee2",
         "seed": 11,
@@ -5462,7 +5462,7 @@
       "study": "general_knowledge",
       "model": "task",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
         "inputs_sha256": "8b72c4cddbec4bfba31b935c75976babbea343c1f50b04df21cbe09d195d2a60",
         "seed": 11,

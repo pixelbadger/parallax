@@ -96,6 +96,11 @@ fn island() {
 }
 
 #[test]
+fn tool_choice() {
+    golden("simulations/tool_choice.px");
+}
+
+#[test]
 fn tooluse() {
     golden("simulations/tooluse.px");
 }
@@ -110,6 +115,7 @@ fn every_program_is_tested() {
         "reactor",
         "circumbinary",
         "island",
+        "tool_choice",
         "tooluse",
     ];
     for dir in ["tests", "simulations"] {
@@ -163,7 +169,14 @@ fn examples() {
 /// `check` describes every simulation and bounds its work without running.
 #[test]
 fn check_describes_programs() {
-    for f in ["prewarm", "reactor", "circumbinary", "island", "tooluse"] {
+    for f in [
+        "prewarm",
+        "reactor",
+        "circumbinary",
+        "island",
+        "tool_choice",
+        "tooluse",
+    ] {
         let src = std::fs::read_to_string(root().join(format!("simulations/{f}.px"))).unwrap();
         let c = parallax::check(&src, &Options::default()).unwrap();
         assert!(!c.studies.is_empty());

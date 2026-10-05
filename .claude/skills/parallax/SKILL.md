@@ -1,6 +1,6 @@
 ---
 name: parallax
-description: Write, check, run and interpret parallax programs (.px), the decision language in this repo for comparing interventions (policies) across the same uncertain worlds. Use when asked to model a decision under uncertainty, compare options or policies, estimate risk, build a simulation study, write or fix a .px file, or explain a parallax report.
+description: Write, check, run, serve and interpret parallax programs (.px), the decision language in this repo for comparing interventions (policies) across the same uncertain worlds. Use when asked to model a decision under uncertainty, compare options or policies, estimate risk, build a simulation study, write or fix a .px file, explain a parallax report, or get a decision now from an already-chosen policy (`parallax decide` / `parallax serve`).
 ---
 
 # Programming in parallax
@@ -45,6 +45,9 @@ from source instead: `cargo run --release -- <args>` in place of `parallax`.
 5. **Interpret it** (see below). Report the recommendation with its
    uncertainty and provenance; don't claim more precision than the
    intervals give.
+6. **Serve it**, once a policy is chosen (see "Serving a chosen policy"):
+   `parallax decide model.px --policy NAME [--input ...]` answers "what
+   should I do now?" without rerunning the study.
 
 ## Rules the checker enforces
 
@@ -178,6 +181,55 @@ study ops {
   one study each.
 - Use the same `seed` everywhere you compare, and a different seed to check
   that a conclusion is stable.
+
+## Serving a chosen policy
+
+A study picks the policy; serving follows it. Keep a domain's program
+(world, model, policies) and supply the current situation as inputs.
+
+```sh
+# A decision model's policy: inputs only.
+parallax decide tool_choice.px --policy adaptive --input confidence=60% --input stakes="5 min"
+# A sequential policy: what it observes now, and the step.
+parallax decide plant.px --policy 'rule[10]' --step 7 --observation '{"level": 12, "alarm": false}'
+# Many decisions: check once, then one JSON request per line on stdin.
+parallax serve tool_choice.px      # {"id": 1, "policy": "adaptive", "inputs": {...}}
+```
+
+The answer has `action`, the policy's `notes`, and `work` (estimated and
+actual operations). A served decision runs no evaluation worlds: only the
+policy and its forecasts, typically well under a millisecond in `serve`.
+Oracles can't be served. Pass `--seed` to vary the imagined worlds; with a
+study's seed, a decision model's policy chooses exactly what the study
+reported. `--history '[{"step": 6, "observation": {...}}]'` pins facts
+earlier observations revealed. `unpinned` lists revealed facts whose key
+depends on the state, which forecasts had to redraw: key observed facts by
+`t`, constants or inputs to avoid it.
+
+Write policies to be served:
+
+- **Give reasons** with `note name = expr` in the policy body
+  (`note predicted_error = mean(errs)`). Notes are reported by decide with
+  their units, and ignored by studies.
+- **Take fast paths** for obvious cases before forecasting:
+  `if fresh and stakes > 60 s { search } else { ... }`.
+- **Spend simulation in proportion to ambiguity**: forecast in batches
+  and stop once one action clearly wins. `skip: n` continues the same
+  imagined worlds, so batches add up, and the batch loop stays bounded:
+
+```parallax
+const BATCHES = [16, 48, 192]
+...
+for r in 0..len(BATCHES) while not clear {
+    let a = forecast(direct, worlds: BATCHES[r], skip: seen)
+    let b = forecast(search, worlds: BATCHES[r], skip: seen)
+    ...                                  # accumulate paired differences
+    seen = seen + BATCHES[r]
+    clear = abs(mean_diff) > 3.0 * stderr
+}
+```
+
+See `simulations/tool_choice.px` for a complete domain.
 
 ## Interpreting the report
 

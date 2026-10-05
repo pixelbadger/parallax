@@ -31,6 +31,7 @@
 pub mod ast;
 pub mod check;
 pub mod cost;
+pub mod decide;
 pub mod error;
 pub mod eval;
 pub mod ir;
@@ -42,6 +43,7 @@ pub mod units;
 pub mod value;
 pub mod world;
 
+pub use decide::{Decision, Engine, Request};
 pub use error::{Error, ErrorKind};
 pub use study::{CheckReport, Limits, Options, Report};
 
@@ -55,6 +57,12 @@ pub fn compile(src: &str) -> Result<ir::Program, Error> {
 pub fn check(src: &str, opts: &Options) -> Result<CheckReport, Error> {
     let p = compile(src)?;
     study::check(src, &p, opts)
+}
+
+/// Serve one decision with a chosen policy. A host serving many keeps an
+/// [`Engine`] instead, so the program is checked once.
+pub fn decide(src: &str, req: &Request) -> Result<Decision, Error> {
+    Engine::new(src)?.decide(req)
 }
 
 /// Run every study (or `opts.study`).

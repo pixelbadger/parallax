@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "7dabb50963f499a6e79958d29ec826182eeff0521fc5b4c1db5c8338f9b12117",
   "studies": [
     {
       "study": "launch",
       "model": "voyage",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "7dabb50963f499a6e79958d29ec826182eeff0521fc5b4c1db5c8338f9b12117",
         "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
         "seed": 1,

@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
   "studies": [
     {
       "study": "cold_and_empty",
       "model": "overnight",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
         "inputs_sha256": "3a9c7ba3c39048fde9753ab8304b56eb1c936265b7ef87ab818fd4024d585e71",
         "seed": 42,
@@ -1761,7 +1761,7 @@
       "study": "frozen_and_part_charged",
       "model": "overnight",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
         "inputs_sha256": "8ae4e3b7d2f9e362b518f6900f44b79f43acba7c66bfe33b21ad43460b4eb745",
         "seed": 42,
@@ -3516,7 +3516,7 @@
       "study": "mild_and_empty",
       "model": "overnight",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "701e4b7afd82195f516a4b5501f0fde1b40162db85c85b2dc432d9655591022d",
         "inputs_sha256": "292fe303c13bbef9052174d228dbbce747ec0cd29453d38cb1d42128a83a7e0c",
         "seed": 42,

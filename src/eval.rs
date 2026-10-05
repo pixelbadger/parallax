@@ -7,7 +7,7 @@
 
 use std::rc::Rc;
 
-use rustc_hash::FxHashSet;
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::ir::*;
 use crate::stats;
@@ -62,6 +62,11 @@ pub struct Machine<'p> {
     revealed: FxHashSet<u64>,
     observing: bool,
     decision: Option<Decision>,
+    /// When serving a decision: the policy's notes, by name, latest value.
+    pub notes: Option<Vec<(Rc<str>, Ty, Value)>>,
+    /// When serving a decision: facts the observations revealed, by key.
+    /// A forecast holds them at these values.
+    pub pinned: FxHashMap<u64, Value>,
 }
 
 fn arith(op: ArOp, a: Value, b: Value, line: u32) -> R<Value> {
@@ -209,6 +214,8 @@ impl<'p> Machine<'p> {
             revealed: FxHashSet::default(),
             observing: false,
             decision: None,
+            notes: None,
+            pinned: FxHashMap::default(),
         }
     }
 
@@ -270,6 +277,69 @@ impl<'p> Machine<'p> {
         });
         let r = self.call(policy.func, family.into_iter().cloned().collect());
         self.decision = None;
+        r
+    }
+
+    /// Serve one decision, outside any study world: a decision model's
+    /// policy (`seen` is `None`) or a sequential policy at step `t` given
+    /// what it observes. Forecasts imagine the same worlds a decision model's
+    /// study does, and for a sequential model the worlds of step `t`.
+    pub fn serve(
+        &mut self,
+        policy: &PolicyDef,
+        family: Option<&Value>,
+        seen: Option<(Value, i64)>,
+    ) -> R<Value> {
+        self.enter_world(u64::MAX);
+        let mut args: Vec<Value> = family.into_iter().cloned().collect();
+        let (value, t) = match seen {
+            Some((o, t)) => {
+                args.push(o.clone());
+                args.push(Value::Int(t));
+                (o, t)
+            }
+            None => (Value::Unit, 0),
+        };
+        self.decision = Some(Decision {
+            t,
+            value,
+            eval: None,
+        });
+        let r = self.call(policy.func, args);
+        self.decision = None;
+        r
+    }
+
+    /// The key of fact `f` with these arguments.
+    pub fn fact_key(&self, f: u32, args: &[Value]) -> u64 {
+        let p = self.p;
+        let def = &p.facts[f as usize];
+        let mut key = def.prefix;
+        for (i, a) in args.iter().enumerate() {
+            let w = match a {
+                Value::Int(n) => *n as u64,
+                Value::Bool(b) => *b as u64,
+                Value::Str(s) => fnv(s),
+                Value::Variant(tag) => {
+                    p.variant_keys[def.param_enums[i].unwrap() as usize][*tag as usize]
+                }
+                _ => 0,
+            };
+            key = combine(key, w);
+        }
+        key
+    }
+
+    /// Evaluate `e` in a frame of `nslots` starting with `slots`.
+    pub fn eval_in(&mut self, e: &Ex, slots: Vec<Value>, nslots: u32) -> R<Value> {
+        let base = self.stack.len();
+        let n = (nslots as usize).max(slots.len());
+        self.stack.extend(slots);
+        self.stack.resize(base + n, Value::Unit);
+        let old = std::mem::replace(&mut self.base, base);
+        let r = self.eval(e);
+        self.base = old;
+        self.stack.truncate(base);
         r
     }
 
@@ -402,6 +472,7 @@ impl<'p> Machine<'p> {
         action: &Ex,
         horizon: Option<&Ex>,
         worlds: &Ex,
+        skip: Option<&Ex>,
         then: Option<&Ex>,
         line: u32,
     ) -> R<Value> {
@@ -411,23 +482,28 @@ impl<'p> Machine<'p> {
             None => 1,
         };
         let k = self.eval(worlds)?.as_int();
+        let skip = match skip {
+            Some(s) => self.eval(s)?.as_int(),
+            None => 0,
+        };
         let then = match then {
             Some(t) => Some(self.eval(t)?),
             None => None,
         };
-        if k < 0 || h < 0 {
+        if k < 0 || h < 0 || skip < 0 {
             return Err(fault(
                 line,
-                "forecast needs non-negative `worlds` and `horizon`",
+                "forecast needs non-negative `worlds`, `horizon` and `skip`",
             ));
         }
+        let skip = skip as u64;
         let d = self.decision.clone().expect("forecast outside a decision");
         let saved = (self.world, self.eval_world, self.forecasting);
         let mut out = Vec::with_capacity(k as usize);
         let r: R<()> = (|| {
             match &self.p.models[model as usize] {
                 ModelDef::Decision { func, .. } => {
-                    for j in 0..k as u64 {
+                    for j in skip..skip.saturating_add(k as u64) {
                         self.ops += 1;
                         self.world = forecast_world(None, 0, j);
                         self.forecasting = true;
@@ -439,12 +515,15 @@ impl<'p> Machine<'p> {
                         Some(b) => self.call(b, vec![d.value.clone(), Value::Int(d.t)])?,
                         None => d.value.clone(),
                     };
-                    let eval = d.eval.expect("sequential decision has a world");
                     let horizon = self.horizons[model as usize];
-                    for j in 0..k as u64 {
+                    for j in skip..skip.saturating_add(k as u64) {
                         self.ops += 1;
-                        self.world = forecast_world(Some(eval), d.t, j);
-                        self.eval_world = eval;
+                        // A served decision has no evaluation world: its
+                        // revealed facts are pinned instead.
+                        self.world = forecast_world(d.eval, d.t, j);
+                        if let Some(eval) = d.eval {
+                            self.eval_world = eval;
+                        }
                         self.forecasting = true;
                         let s =
                             self.advance(m, horizon, start.clone(), d.t, h, &a, then.as_ref())?;
@@ -491,20 +570,14 @@ impl<'p> Machine<'p> {
 
     #[inline(never)]
     fn fact(&mut self, f: u32, args: Vec<Value>, line: u32) -> R<Value> {
-        let p = self.p;
-        let def = &p.facts[f as usize];
-        let mut key = def.prefix;
-        for (i, a) in args.iter().enumerate() {
-            let w = match a {
-                Value::Int(n) => *n as u64,
-                Value::Bool(b) => *b as u64,
-                Value::Str(s) => fnv(s),
-                Value::Variant(tag) => {
-                    p.variant_keys[def.param_enums[i].unwrap() as usize][*tag as usize]
-                }
-                _ => 0,
-            };
-            key = combine(key, w);
+        let def = &self.p.facts[f as usize];
+        let key = self.fact_key(f, &args);
+        // A served decision's forecasts hold revealed facts at their
+        // observed values.
+        if self.forecasting
+            && let Some(v) = self.pinned.get(&key)
+        {
+            return Ok(v.clone());
         }
         if self.observing {
             self.revealed.insert(key);
@@ -673,6 +746,15 @@ impl<'p> Machine<'p> {
             St::Assert(c, msg, line) => {
                 if !self.eval(c)?.as_bool() {
                     return Err(fault(*line, msg.clone()));
+                }
+            }
+            St::Note(name, ty, e) => {
+                let v = self.eval(e)?;
+                if let Some(notes) = &mut self.notes {
+                    match notes.iter_mut().find(|n| n.0 == *name) {
+                        Some(n) => n.2 = v,
+                        None => notes.push((name.clone(), ty.clone(), v)),
+                    }
                 }
             }
             St::Expr(e) => {
@@ -889,6 +971,7 @@ impl<'p> Machine<'p> {
                 action,
                 horizon,
                 worlds,
+                skip,
                 then,
                 line,
             } => self.forecast(
@@ -896,6 +979,7 @@ impl<'p> Machine<'p> {
                 action,
                 horizon.as_deref(),
                 worlds,
+                skip.as_deref(),
                 then.as_deref(),
                 *line,
             ),

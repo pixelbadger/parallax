@@ -453,7 +453,7 @@ pub fn json_value(p: &Program, j: &Json, t: &Ty, what: &str) -> std::result::Res
         Ty::Num(d, _) => match j {
             Json::Number(n) => Ok(Value::Num(n.as_f64().ok_or_else(bad)? * scale(p, t))),
             Json::String(s) => {
-                let (x, dim) = parse_quantity(p, s)?;
+                let (x, dim) = parse_quantity(p, s).map_err(|e| format!("{what}: {e}"))?;
                 if dim != *d {
                     return Err(format!("{what}: `{s}` isn't in units of {}", ty_name(p, t)));
                 }
@@ -533,7 +533,7 @@ pub fn json_value(p: &Program, j: &Json, t: &Ty, what: &str) -> std::result::Res
 // ---------------------------------------------------------------------
 
 #[allow(clippy::boxed_local)]
-fn fault_err(kind: ErrorKind, f: Box<Fault>, ctx: &str) -> Error {
+pub(crate) fn fault_err(kind: ErrorKind, f: Box<Fault>, ctx: &str) -> Error {
     Error::line(kind, f.line, format!("{ctx}: {}", f.message))
 }
 
@@ -559,8 +559,8 @@ struct Setup {
     work: Work,
 }
 
-fn input_ids(p: &Program, opts: &Options) -> Result<()> {
-    for k in opts.inputs.keys() {
+pub(crate) fn input_ids(p: &Program, inputs: &Map<String, Json>) -> Result<()> {
+    for k in inputs.keys() {
         if !p
             .globals
             .iter()
@@ -620,7 +620,13 @@ fn check_len(p: &Program, m: &mut Machine, g: &GlobalDef, v: &Value) -> Result<(
     Ok(())
 }
 
-fn globals(p: &Program, sd: &StudyDef, opts: &Options) -> Result<(Vec<Value>, Map<String, Json>)> {
+/// Every global's value: constants, then a study's `with` and the host's
+/// inputs (or their defaults), then derived values. Also the inputs as shown.
+pub(crate) fn globals(
+    p: &Program,
+    with: &[(u32, Code)],
+    inputs: &Map<String, Json>,
+) -> Result<(Vec<Value>, Map<String, Json>)> {
     let mut m = Machine::new(p, vec![Value::Unit; p.globals.len()], 0);
     // Constants first: a study's `with` may use them.
     for &g in &p.global_order {
@@ -632,12 +638,12 @@ fn globals(p: &Program, sd: &StudyDef, opts: &Options) -> Result<(Vec<Value>, Ma
             m.globals[g as usize] = v;
         }
     }
-    let mut with: HashMap<u32, Value> = HashMap::new();
-    for (g, code) in &sd.with {
+    let mut overrides: HashMap<u32, Value> = HashMap::new();
+    for (g, code) in with {
         let v = m
             .code(code)
             .map_err(|f| fault_err(ErrorKind::Runtime, f, "evaluating `with`"))?;
-        with.insert(*g, v);
+        overrides.insert(*g, v);
     }
     let mut shown = Map::new();
     for &g in &p.global_order {
@@ -652,9 +658,9 @@ fn globals(p: &Program, sd: &StudyDef, opts: &Options) -> Result<(Vec<Value>, Ma
             }
             GlobalKind::Input => {
                 let spec = def.input.as_ref().unwrap();
-                let v = if let Some(v) = with.remove(&g) {
+                let v = if let Some(v) = overrides.remove(&g) {
                     v
-                } else if let Some(j) = opts.inputs.get(&def.name) {
+                } else if let Some(j) = inputs.get(&def.name) {
                     json_value(p, j, &def.ty, &format!("input `{}`", def.name))
                         .map_err(|msg| Error::new(ErrorKind::Input, msg))?
                 } else if let Some(d) = &spec.default {
@@ -705,8 +711,38 @@ fn globals(p: &Program, sd: &StudyDef, opts: &Options) -> Result<(Vec<Value>, Ma
     Ok((m.globals, ordered))
 }
 
+/// Each sequential model's horizon, within the host's limit.
+pub(crate) fn horizons(
+    p: &Program,
+    m: &mut Machine,
+    limits: &Limits,
+    line: u32,
+) -> Result<Vec<i64>> {
+    let mut horizons = vec![0; p.models.len()];
+    for (i, model) in p.models.iter().enumerate() {
+        if let ModelDef::Sequential(s) = model {
+            let h = m
+                .code(&s.horizon)
+                .map_err(|f| fault_err(ErrorKind::Runtime, f, "the horizon"))?
+                .as_int();
+            if h < 0 || h as u64 > limits.max_horizon {
+                return Err(Error::line(
+                    ErrorKind::Budget,
+                    line,
+                    format!(
+                        "model `{}` has horizon {h}; the limit is {}",
+                        s.name, limits.max_horizon
+                    ),
+                ));
+            }
+            horizons[i] = h;
+        }
+    }
+    Ok(horizons)
+}
+
 fn setup(p: &Program, sd: &StudyDef, opts: &Options) -> Result<Setup> {
-    let (globals, inputs) = globals(p, sd, opts)?;
+    let (globals, inputs) = globals(p, &sd.with, &opts.inputs)?;
     let mut m = Machine::new(p, globals.clone(), 0);
     let int = |m: &mut Machine, c: &Option<Code>, what: &str| -> Result<Option<i64>> {
         match c {
@@ -740,22 +776,7 @@ fn setup(p: &Program, sd: &StudyDef, opts: &Options) -> Result<Setup> {
             sd.name, opts.limits.max_worlds
         )));
     }
-    let mut horizons = vec![0; p.models.len()];
-    for (i, model) in p.models.iter().enumerate() {
-        if let ModelDef::Sequential(s) = model {
-            let h = m
-                .code(&s.horizon)
-                .map_err(|f| fault_err(ErrorKind::Runtime, f, "the horizon"))?
-                .as_int();
-            if h < 0 || h as u64 > opts.limits.max_horizon {
-                return Err(budget(format!(
-                    "model `{}` has horizon {h}; the limit is {}",
-                    s.name, opts.limits.max_horizon
-                )));
-            }
-            horizons[i] = h;
-        }
-    }
+    let horizons = horizons(p, &mut m, &opts.limits, sd.line)?;
     let mut instances = Vec::new();
     for &pid in &sd.compare {
         let pol = &p.policies[pid as usize];
@@ -840,7 +861,7 @@ fn setup(p: &Program, sd: &StudyDef, opts: &Options) -> Result<Setup> {
 // ---------------------------------------------------------------------
 
 pub fn check(src: &str, p: &Program, opts: &Options) -> Result<CheckReport> {
-    input_ids(p, opts)?;
+    input_ids(p, &opts.inputs)?;
     let mut m = Machine::new(p, vec![Value::Unit; p.globals.len()], 0);
     for &g in &p.global_order {
         let def = &p.globals[g as usize];
@@ -973,7 +994,7 @@ pub fn check(src: &str, p: &Program, opts: &Options) -> Result<CheckReport> {
 }
 
 pub fn run(src: &str, p: &Program, opts: &Options) -> Result<Report> {
-    input_ids(p, opts)?;
+    input_ids(p, &opts.inputs)?;
     if let Some(name) = &opts.study
         && !p.studies.iter().any(|s| s.name == *name)
     {

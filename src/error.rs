@@ -37,6 +37,9 @@ pub enum ErrorKind {
     Budget,
     /// Evaluating inputs, constants or a study's settings failed.
     Runtime,
+    /// A served decision failed: an assertion, an overflow, an index out
+    /// of range in the policy, its forecasts or the model.
+    Model,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -86,6 +89,7 @@ impl fmt::Display for Error {
             ErrorKind::Input => "input error",
             ErrorKind::Budget => "budget error",
             ErrorKind::Runtime => "runtime error",
+            ErrorKind::Model => "model error",
         };
         match (self.line, self.col) {
             (Some(l), Some(c)) => write!(f, "{kind} at {l}:{c}: {}", self.message),

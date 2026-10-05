@@ -152,6 +152,72 @@ study day {
 }
 ```
 
+## 5. A policy built to be served
+
+```parallax
+# Retry a flaky call now, or wait for a backoff? A study picks the policy;
+# then `parallax decide this.px --policy measured --input failures=3` gives
+# one decision with its reasons, in a few thousand operations.
+input failures: Int between 0 and 20 = 1       # failures in a row so far
+input deadline: s = 30 s
+
+type Call = { ok: Bool, took: s }
+action Retry = now | backoff
+
+world Service {
+    latent down ~ bernoulli(0.2)                # an outage, not bad luck
+    uncertain flake ~ bernoulli(0.3)
+    uncertain recovery ~ lognormal(20 s, 0.8)
+}
+
+model attempt(r: Retry) -> Call = {
+    # The more failures in a row, the likelier it's an outage.
+    let outage = Service.down and failures >= 2
+    let wait = match r { now => 0 s, backoff => 10 s }
+    let up = not Service.flake and (not outage or wait > Service.recovery)
+    Call { ok: up, took: wait + 1 s }
+}
+
+policy eager = now
+policy patient = backoff
+
+const BATCHES = [16, 48, 192]
+
+# Compares the actions in growing batches of the same imagined worlds, and
+# stops once one clearly wins where they differ (a sign test), or they
+# rarely differ at all and the choice hardly matters.
+policy measured = {
+    var seen = 0
+    var wins = 0                                # now beats backoff, net
+    var differ = 0                              # worlds where they differ
+    var clear = false
+    for r in 0..len(BATCHES) while not clear {
+        let k = BATCHES[r]
+        let a = forecast(now, worlds: k, skip: seen)
+        let b = forecast(backoff, worlds: k, skip: seen)
+        for i in 0..k {
+            if a[i].ok != b[i].ok {
+                differ = differ + 1
+                wins = wins + if a[i].ok { 1 } else { -1 }
+            }
+        }
+        seen = seen + k
+        clear = float(abs(wins)) > 3.0 * sqrt(float(max(differ, 1))) or differ * 10 < seen
+    }
+    note worlds = seen
+    note differ = differ
+    note retry_now_edge = float(wins) / float(seen) * 100%
+    if wins >= 0 { now } else { backoff }
+}
+
+study retry {
+    worlds 2000
+    with failures = 3
+    maximize probability(ok)
+    report mean(took)
+}
+```
+
 ## What the language rejects
 
 A policy can't peek at the world it is being evaluated in:
@@ -188,6 +254,16 @@ Units are checked:
 ```parallax
 # error: units don't match
 const MIXED = 5 min + 3 kWh
+```
+
+A `note` is a policy's reason, so only policies give one:
+
+```parallax
+# error: use it in a policy's body
+fn score(x: Int) -> Int = {
+    note doubled = 2 * x
+    x
+}
 ```
 
 Uncertainty only enters in a `world`:

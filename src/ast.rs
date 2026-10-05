@@ -301,6 +301,12 @@ pub enum Stmt {
         msg: Option<String>,
         span: Span,
     },
+    /// `note name = expr` in a policy: a reason reported with a decision.
+    Note {
+        name: String,
+        value: Expr,
+        span: Span,
+    },
     Expr(Expr),
 }
 

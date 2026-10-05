@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "780f733b12f2bb687b80bc908eed862f5d41bacba54019b085b3d3f908260e7d",
   "studies": [
     {
       "study": "ranger",
       "model": "years",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "780f733b12f2bb687b80bc908eed862f5d41bacba54019b085b3d3f908260e7d",
         "inputs_sha256": "2a344e69f1ab80348ee42f2c1471af9c87cf0d6e78783700741f2f3ce9fb2cf6",
         "seed": 3,
@@ -566,7 +566,7 @@
       "study": "ranger_reseeded",
       "model": "years",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "780f733b12f2bb687b80bc908eed862f5d41bacba54019b085b3d3f908260e7d",
         "inputs_sha256": "2a344e69f1ab80348ee42f2c1471af9c87cf0d6e78783700741f2f3ce9fb2cf6",
         "seed": 99,
