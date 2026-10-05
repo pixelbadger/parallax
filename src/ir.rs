@@ -1,6 +1,8 @@
 //! The checked program: resolved names, types, and every decision the
 //! checker made (slots, promotions, which statistic) baked in.
 
+use std::rc::Rc;
+
 use crate::units::{Dim, Units};
 use crate::value::Value;
 
@@ -378,6 +380,8 @@ pub enum Ex {
         action: Box<Ex>,
         horizon: Option<Box<Ex>>,
         worlds: Box<Ex>,
+        /// Imagine worlds `skip..skip + worlds`, to extend an earlier forecast.
+        skip: Option<Box<Ex>>,
         then: Option<Box<Ex>>,
         line: u32,
     },
@@ -438,5 +442,7 @@ pub enum St {
         line: u32,
     },
     Assert(Ex, String, u32),
+    /// A policy's reason, recorded when a decision is served.
+    Note(Rc<str>, Ty, Ex),
     Expr(Ex),
 }

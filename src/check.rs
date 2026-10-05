@@ -2676,7 +2676,8 @@ impl<'a> Checker<'a> {
                             | Stmt::Assign { span, .. }
                             | Stmt::For { span, .. }
                             | Stmt::Iterate { span, .. }
-                            | Stmt::Assert { span, .. } => *span,
+                            | Stmt::Assert { span, .. }
+                            | Stmt::Note { span, .. } => *span,
                             Stmt::Expr(e) => e.span,
                         })
                         .unwrap_or_default(),
@@ -2874,6 +2875,19 @@ impl<'a> Checker<'a> {
                     .clone()
                     .unwrap_or_else(|| format!("assertion failed: {}", self.label(cond.span)));
                 out.push(St::Assert(cx, msg, span.line));
+            }
+            Stmt::Note { name, value, span } => {
+                if !matches!(self.frame.ctx, Ctx::Policy { .. }) {
+                    return Err(err(
+                        *span,
+                        "`note` gives a policy's reasons: use it in a policy's body",
+                    ));
+                }
+                let (ex, ty) = self.expr(value)?;
+                if ty == Ty::Unit {
+                    return Err(err(value.span, format!("note `{name}` has no value")));
+                }
+                out.push(St::Note(name.as_str().into(), ty, ex));
             }
             Stmt::Expr(e) => {
                 let (ex, _) = self.expr(e)?;
@@ -3218,7 +3232,7 @@ impl<'a> Checker<'a> {
         let m = self.models[model as usize].clone();
         let seq = matches!(m, ModelDef::Sequential(_));
         let mut action = None;
-        let (mut horizon, mut worlds, mut then) = (None, None, None);
+        let (mut horizon, mut worlds, mut skip, mut then) = (None, None, None, None);
         for (i, a) in args.iter().enumerate() {
             match (a.name.as_deref(), i) {
                 (None, 0) => action = Some(self.expr_as(&a.value, m.action())?),
@@ -3227,6 +3241,9 @@ impl<'a> Checker<'a> {
                 }
                 (Some("worlds"), _) if is_forecast => {
                     worlds = Some(Box::new(self.expr_as(&a.value, &Ty::Int)?))
+                }
+                (Some("skip"), _) if is_forecast => {
+                    skip = Some(Box::new(self.expr_as(&a.value, &Ty::Int)?))
                 }
                 (Some("then"), _) if seq => {
                     then = Some(Box::new(self.expr_as(&a.value, m.action())?))
@@ -3259,6 +3276,7 @@ impl<'a> Checker<'a> {
                     action: Box::new(action),
                     horizon,
                     worlds,
+                    skip,
                     then,
                     line,
                 },

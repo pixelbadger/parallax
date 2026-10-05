@@ -783,6 +783,18 @@ impl Parser {
                 };
                 Ok(Stmt::Assert { cond, msg, span })
             }
+            // `note` is contextual: `note name = expr`.
+            Tok::Ident(n)
+                if n == "note"
+                    && matches!(self.peek_at(1), Tok::Ident(_))
+                    && *self.peek_at(2) == Tok::Assign =>
+            {
+                self.next();
+                let (name, _) = self.ident("a note's name")?;
+                self.expect(&Tok::Assign, "`=`")?;
+                let value = self.expr()?;
+                Ok(Stmt::Note { name, value, span })
+            }
             _ => {
                 let e = self.expr()?;
                 if self.eat(&Tok::Assign) {

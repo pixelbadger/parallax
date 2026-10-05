@@ -1,0 +1,122 @@
+# ============================================================
+# Tool choice: answer from memory, or search first?
+#
+# A persistent decision domain for an agent. The causal structure stays put;
+# each question supplies the situation as inputs (how sure the agent is,
+# what a wrong answer costs, whether the answer must be fresh), and
+# telemetry can recalibrate the rates without touching the policies.
+#
+#   offline  `parallax run tool_choice.px` compares the policies across
+#            shared worlds, for a given situation
+#   online   `parallax decide tool_choice.px --policy adaptive --input ...`
+#            serves one decision, with its reasons
+#
+# Costs are in seconds of the user's time: a wrong answer costs `stakes`.
+# ============================================================
+
+input confidence: % between 0% and 100% = 70%    # chance the agent's own answer is right
+input stakes: s between 0 s and 3600 s = 120 s   # what a wrong answer costs
+input fresh: Bool = false                        # the answer may have changed recently
+
+# Telemetry: recalibrated from what actually happened.
+input search_works: % between 0% and 100% = 95%  # a search finds a relevant source
+input source_right: % between 0% and 100% = 90%  # a found source is right
+input check_catches: % between 0% and 100% = 70% # verifying catches a wrong source
+input search_time: s between 0 s and 600 s = 6 s # median latency of one search
+
+type Answer = { wrong: Bool, cost: s, waited: s }
+
+action Tool = direct | search | search_and_check
+
+world Question {
+    # Memory goes stale when the answer may have changed.
+    uncertain memory_right ~ bernoulli(if fresh { confidence * 0.5 } else { confidence })
+    uncertain found ~ bernoulli(search_works)
+    uncertain source_ok ~ bernoulli(source_right)
+    uncertain caught ~ bernoulli(check_catches)
+    uncertain latency(n: Int) ~ lognormal(search_time, 0.6)
+}
+
+model ask(tool: Tool) -> Answer = {
+    let searched_right = if Question.found { Question.source_ok } else { Question.memory_right }
+    let right = match tool {
+        direct => Question.memory_right,
+        search => searched_right,
+        # A check catches most wrong sources, at the price of a second search.
+        search_and_check => searched_right or (Question.found and Question.caught),
+    }
+    let waited = match tool {
+        direct => 0 s,
+        search => Question.latency(0),
+        search_and_check => Question.latency(0) + Question.latency(1),
+    }
+    Answer { wrong: not right, cost: waited + if right { 0 s } else { stakes }, waited }
+}
+
+policy always_direct = direct
+policy always_search = search
+policy always_check = search_and_check
+
+# The habit an agent might write by hand.
+policy search_if_unsure = if fresh or confidence < 80% { search } else { direct }
+
+const BATCHES = [16, 48, 192, 768]
+
+# Spends simulation in proportion to ambiguity. Obvious cases take a fast
+# path; otherwise it compares answering directly with searching in batches
+# of shared imagined worlds (`skip` extends the same ones), and stops once
+# the difference is clear: over 3 standard errors, or under 1 s either way.
+policy adaptive = {
+    if fresh and stakes > 60 s {
+        note why = "fresh and costly: search without simulating"
+        search_and_check
+    } else if confidence > 99% {
+        note why = "certain: answer directly"
+        direct
+    } else {
+        var seen = 0
+        var sum = 0.0
+        var sq = 0.0
+        var wrong_direct = 0
+        var wrong_search = 0
+        var clear = false
+        for r in 0..len(BATCHES) while not clear {
+            let k = BATCHES[r]
+            let d = forecast(direct, worlds: k, skip: seen)
+            let s = forecast(search, worlds: k, skip: seen)
+            for i in 0..k {
+                let x = (d[i].cost - s[i].cost) in s
+                sum = sum + x
+                sq = sq + x * x
+                wrong_direct = wrong_direct + if d[i].wrong { 1 } else { 0 }
+                wrong_search = wrong_search + if s[i].wrong { 1 } else { 0 }
+            }
+            seen = seen + k
+            let m = sum / float(seen)
+            let se = sqrt(max(0.0, sq / float(seen) - m * m) / float(seen))
+            clear = abs(m) > 3.0 * se or 3.0 * se < 1.0
+        }
+        let saving = sum / float(seen) * 1 s
+        note worlds = seen
+        note predicted_error_direct = float(wrong_direct) / float(seen) * 100%
+        note predicted_error_search = float(wrong_search) / float(seen) * 100%
+        note search_saves = saving
+        if saving > 0 s { search } else { direct }
+    }
+}
+
+study unsure_question {
+    worlds 20_000
+    seed 1
+    minimize mean(cost)
+    report probability(wrong), mean(waited), p95(cost)
+}
+
+# The same domain in another situation: the answer may have changed.
+study fresh_question {
+    worlds 20_000
+    seed 1
+    with fresh = true, confidence = 90%
+    minimize mean(cost)
+    report probability(wrong), mean(waited)
+}

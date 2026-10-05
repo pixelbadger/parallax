@@ -95,6 +95,11 @@ fn island() {
     golden("simulations/island.px");
 }
 
+#[test]
+fn tool_choice() {
+    golden("simulations/tool_choice.px");
+}
+
 /// Every golden program above is listed: a new `.px` needs a test.
 #[test]
 fn every_program_is_tested() {
@@ -105,6 +110,7 @@ fn every_program_is_tested() {
         "reactor",
         "circumbinary",
         "island",
+        "tool_choice",
     ];
     for dir in ["tests", "simulations"] {
         for entry in std::fs::read_dir(root().join(dir)).unwrap() {
@@ -157,7 +163,13 @@ fn examples() {
 /// `check` describes every simulation and bounds its work without running.
 #[test]
 fn check_describes_programs() {
-    for f in ["prewarm", "reactor", "circumbinary", "island"] {
+    for f in [
+        "prewarm",
+        "reactor",
+        "circumbinary",
+        "island",
+        "tool_choice",
+    ] {
         let src = std::fs::read_to_string(root().join(format!("simulations/{f}.px"))).unwrap();
         let c = parallax::check(&src, &Options::default()).unwrap();
         assert!(!c.studies.is_empty());

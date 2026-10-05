@@ -13,6 +13,11 @@ worlds and returns a typed result tree.
 > compare those policies across the same possible worlds. Objectives decide
 > which trade-off we prefer.
 
+It has two modes. Offline, a **study** asks which policy to use, across
+thousands of common worlds. Online, **decide** asks what the chosen policy
+does now, given what is known: one call of the policy and its forecasts,
+typically well under a millisecond (see [Serving decisions](#serving-decisions)).
+
 It is meant as a safe executable substrate for agents. A program can't do
 I/O, read the clock or the environment, or call anything outside itself, so
 untrusted model-generated code can use CPU but can't cause side effects.
@@ -134,6 +139,9 @@ decides once, from inputs and constants. For a sequential model it is
 - Families generate candidates: `policy gauge[limit in [40, 50, 60]](o: Plant, t: Int) -> Mode = ...`
   is three policies, `gauge[40]`, `gauge[50]` and `gauge[60]`.
 - If several models fit a policy, write `policy name for model ...`.
+- `note name = expr` in a policy's body records a reason (a predicted
+  error, the worlds it simulated) reported with a served decision. Studies
+  ignore notes.
 
 ### Forecasts and oracles
 
@@ -144,6 +152,11 @@ decides once, from inputs and constants. For a sequential model it is
 including the future, is redrawn. It returns an array of `k` outcomes, and
 every action and policy at the same step imagines the same `k` worlds. A
 decision model's policy uses `forecast(action, worlds: k)`.
+
+`skip: n` imagines worlds `n..n + k` instead, continuing an earlier
+forecast. So a policy can spend simulation in proportion to ambiguity:
+forecast 16 worlds, and only if the actions are close, 48 more, and so on,
+in a loop with a fixed maximum (`for r in 0..4 while not clear { ... }`).
 
 An `oracle policy` is clairvoyant, and says so. It receives the true state,
 may read the world, and uses `rollout(action, horizon: h, then: a2)` to live
@@ -300,6 +313,68 @@ As a library: `parallax::run(src, &Options)` and `parallax::check(...)`
 return the same typed `Report` and `CheckReport`; `Options::limits` sets
 the host's budget.
 
+### Serving decisions
+
+Once a study has chosen a policy, `decide` follows it for one decision,
+without the study's evaluation worlds:
+
+```sh
+parallax decide simulations/tool_choice.px --policy adaptive --input confidence=60%
+```
+
+```json
+{
+  "policy": "adaptive",
+  "model": "ask",
+  "seed": 0,
+  "action": "search",
+  "notes": {
+    "worlds": 64,
+    "predicted_error_direct": { "value": 48.4375, "unit": "%" },
+    "predicted_error_search": { "value": 10.9375, "unit": "%" },
+    "search_saves": { "value": 37.17, "unit": "s" }
+  },
+  "work": { "estimated_operations": 427295, "operations": 6772, "max_forecast_worlds": 768 }
+}
+```
+
+(Abridged: the answer also carries `runtime`, `model_sha256` and
+`inputs_sha256`.)
+
+- A **decision model's policy** decides from inputs alone. Its forecasts
+  imagine the same worlds as in a study, so with the study's `--seed` it
+  chooses exactly the `action` the study reported.
+- A **sequential policy** decides one step: give `--step t` and
+  `--observation` (JSON, or a file holding it). Forecasts start from
+  `belief(observation, t)`. A fact that `observe` reveals is held at the
+  observed field's value, as a study holds it at its real value. Facts
+  revealed earlier can be given as `--history '[{"step": 3, "observation":
+  {...}}]'`. A revealed fact whose key depends on the state can't be keyed
+  without the state, so it is listed in `unpinned` and forecasts redraw it.
+- Oracles can't be served: there is no real future to look at.
+- The decision's work is bounded before it runs (`--max-operations`), and
+  `work` reports the bound and the actual count.
+- Errors are JSON, as for `run`. A failure in the policy or its forecasts
+  is `{"kind": "model"}`.
+
+For an agent that decides often, `serve` checks the program once, then
+answers one JSON request per line on stdin with one JSON line on stdout:
+
+```sh
+parallax serve simulations/tool_choice.px --input stakes="2 min"
+{"id": 1, "policy": "adaptive", "inputs": {"confidence": "60%"}}
+{"id": 2, "policy": "adaptive", "inputs": {"fresh": true}}
+```
+
+A request has `policy` and optionally `id` (echoed back), `inputs` (laid
+over those on the command line), `observation`, `step`, `history` and
+`seed`. Answers come in order; a bad request gets `{"id", "error"}` and
+the server carries on. Recalibrating a domain from telemetry only changes
+its inputs: no restart and no new program.
+
+As a library, `parallax::Engine::new(src)` holds the checked program, and
+`engine.decide(&Request)` returns the typed `Decision`.
+
 ### Testing
 
 ```sh
@@ -356,6 +431,7 @@ stmt        = ( "let" | "var" ) IDENT [ ":" type ] "=" expr
             | "for" IDENT "in" iter [ "while" expr ] block
             | "iterate" expr block
             | "assert" expr [ "," STRING ]
+            | "note" IDENT "=" expr                  (* in a policy *)
             | expr ;
 place       = IDENT { "." IDENT | "[" expr "]" } ;
 iter        = expr ( ".." | "..=" ) expr [ "step" expr ] | expr ;
@@ -386,4 +462,5 @@ than a record: parenthesise a record there.
 Built-in functions: `min`, `max` (two values, or one array), `abs`, `sqrt`,
 `exp`, `ln`, `sin`, `cos`, `pow`, `floor`, `ceil`, `round`, `float`, `clamp`,
 `mod`, `len`, `fill(n, v)`, `sum`, `any`, `all`, `argmin`, `argmax`, the
-statistics above over an array, `forecast` and `rollout`; `pi` is a constant.
+statistics above over an array, `forecast(action, horizon:, worlds:, skip:,
+then:)` and `rollout(action, horizon:, then:)`; `pi` is a constant.

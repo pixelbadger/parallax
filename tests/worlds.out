@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "889c2d77a7e7d196a8f54fe9ed3629d4052e0944151ae5a41b126f6518fac600",
   "studies": [
     {
       "study": "market_week",
       "model": "market",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "889c2d77a7e7d196a8f54fe9ed3629d4052e0944151ae5a41b126f6518fac600",
         "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
         "seed": 5,
@@ -363,7 +363,7 @@
       "study": "same_markets",
       "model": "market",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "889c2d77a7e7d196a8f54fe9ed3629d4052e0944151ae5a41b126f6518fac600",
         "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
         "seed": 5,

@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "befa20e4d84c894e0a4d4c294aecd1acbb17e2e222c099342c1f9ad6e60d0d9c",
   "studies": [
     {
       "study": "night_shift",
       "model": "shift",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "befa20e4d84c894e0a4d4c294aecd1acbb17e2e222c099342c1f9ad6e60d0d9c",
         "inputs_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
         "seed": 7,

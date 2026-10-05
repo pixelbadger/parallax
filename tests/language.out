@@ -1,12 +1,12 @@
 {
-  "runtime": "parallax 0.1.0",
+  "runtime": "parallax 0.2.0",
   "model_sha256": "7de3a7d6820665b1e56c896f29bd45de888d8c1d31b9f35fef385cccfbaa77e7",
   "studies": [
     {
       "study": "features",
       "model": "deliver",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "7de3a7d6820665b1e56c896f29bd45de888d8c1d31b9f35fef385cccfbaa77e7",
         "inputs_sha256": "3f113e31aa7f7875f010a75e8bf8ce8b75a838df17b525c3d437a39c4f3f7658",
         "seed": 11,
@@ -528,7 +528,7 @@
       "study": "arithmetic",
       "model": "sums",
       "provenance": {
-        "runtime": "parallax 0.1.0",
+        "runtime": "parallax 0.2.0",
         "model_sha256": "7de3a7d6820665b1e56c896f29bd45de888d8c1d31b9f35fef385cccfbaa77e7",
         "inputs_sha256": "3f113e31aa7f7875f010a75e8bf8ce8b75a838df17b525c3d437a39c4f3f7658",
         "seed": 0,
