@@ -1,0 +1,2098 @@
+{
+  "runtime": "parallax 0.2.0",
+  "model_sha256": "32b6dbe1a1c2533649ab3c52fbd23fd1b34d025575a674ec9530beb676c64aef",
+  "studies": [
+    {
+      "study": "typical",
+      "model": "ask",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "32b6dbe1a1c2533649ab3c52fbd23fd1b34d025575a674ec9530beb676c64aef",
+        "inputs_sha256": "94a1b6bdb2c27e9e4e623043d6c7f2da58c6b7645ac760d8e5853db3b7e1a97d",
+        "seed": 1,
+        "worlds": 20000,
+        "world_ids": [
+          0,
+          19999
+        ]
+      },
+      "inputs": {
+        "difficulty": 0.4,
+        "stakes": {
+          "value": 20.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 1.0,
+          "unit": "$/min"
+        },
+        "draft_easy": {
+          "value": 99.0,
+          "unit": "%"
+        },
+        "draft_hard": {
+          "value": 58.70000000000001,
+          "unit": "%"
+        },
+        "source_unable": {
+          "value": 0.25,
+          "unit": "%"
+        },
+        "source_right": {
+          "value": 99.25,
+          "unit": "%"
+        },
+        "code_unable": {
+          "value": 4.73,
+          "unit": "%"
+        },
+        "code_right": {
+          "value": 99.22,
+          "unit": "%"
+        },
+        "source_cost": {
+          "value": 0.0049,
+          "unit": "$"
+        },
+        "code_cost": {
+          "value": 0.0018,
+          "unit": "$"
+        },
+        "source_time": {
+          "value": 2.57,
+          "unit": "s"
+        },
+        "code_time": {
+          "value": 2.9,
+          "unit": "s"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "always_answer",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.426,
+              "unit": "$",
+              "ci95": [
+                3.321563743217986,
+                3.5304362567820142
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.1713,
+              "ci95": [
+                0.166141559810167,
+                0.17658468469311614
+              ]
+            },
+            {
+              "metric": "mean(spent)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(checks)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 3.3162928000005194,
+            "ci95": [
+              3.21242544570916,
+              3.420160154291879
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 840001
+          }
+        },
+        {
+          "name": "always_verify",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.10970719999999554,
+              "unit": "$",
+              "ci95": [
+                0.09544201734372358,
+                0.12397238265626749
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00265,
+              "ci95": [
+                0.00202671224195328,
+                0.003464306023053991
+              ]
+            },
+            {
+              "metric": "mean(spent)",
+              "value": 0.00522220000000143,
+              "unit": "$",
+              "ci95": [
+                0.005212636550918362,
+                0.005231763449084498
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.0890999999999202,
+              "unit": "s",
+              "ci95": [
+                3.073692220921642,
+                3.1045077790781983
+              ]
+            },
+            {
+              "metric": "mean(checks)",
+              "value": 1.179,
+              "ci95": [
+                1.173686972731629,
+                1.184313027268371
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1128351
+          }
+        },
+        {
+          "name": "always_verify_twice",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": "verify_twice",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.150866666666632,
+              "unit": "$",
+              "ci95": [
+                0.1366164758608104,
+                0.1651168574724536
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00265,
+              "ci95": [
+                0.00202671224195328,
+                0.003464306023053991
+              ]
+            },
+            {
+              "metric": "mean(spent)",
+              "value": 0.0066999999999977885,
+              "unit": "$",
+              "ci95": [
+                0.006699999999997758,
+                0.006699999999997819
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 5.4700000000009465,
+              "unit": "s",
+              "ci95": [
+                5.470000000000933,
+                5.47000000000096
+              ]
+            },
+            {
+              "metric": "mean(checks)",
+              "value": 2.0,
+              "ci95": [
+                2.0,
+                2.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.04115946666665652,
+            "ci95": [
+              0.04089310689960214,
+              0.0414258264337109
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1528203
+          }
+        },
+        {
+          "name": "verify_if_hard[0.3]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 0.3,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.10970719999999554,
+              "unit": "$",
+              "ci95": [
+                0.09544201734372358,
+                0.12397238265626749
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00265,
+              "ci95": [
+                0.00202671224195328,
+                0.003464306023053991
+              ]
+            },
+            {
+              "metric": "mean(spent)",
+              "value": 0.00522220000000143,
+              "unit": "$",
+              "ci95": [
+                0.005212636550918362,
+                0.005231763449084498
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.0890999999999202,
+              "unit": "s",
+              "ci95": [
+                3.073692220921642,
+                3.1045077790781983
+              ]
+            },
+            {
+              "metric": "mean(checks)",
+              "value": 1.179,
+              "ci95": [
+                1.173686972731629,
+                1.184313027268371
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 1128355
+          }
+        },
+        {
+          "name": "verify_if_hard[0.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.5,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.426,
+              "unit": "$",
+              "ci95": [
+                3.321563743217986,
+                3.5304362567820142
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.1713,
+              "ci95": [
+                0.166141559810167,
+                0.17658468469311614
+              ]
+            },
+            {
+              "metric": "mean(spent)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(checks)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 3.3162928000005194,
+            "ci95": [
+              3.21242544570916,
+              3.420160154291879
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "best",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.10970719999999554,
+              "unit": "$",
+              "ci95": [
+                0.09544201734372358,
+                0.12397238265626749
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00265,
+              "ci95": [
+                0.00202671224195328,
+                0.003464306023053991
+              ]
+            },
+            {
+              "metric": "mean(spent)",
+              "value": 0.00522220000000143,
+              "unit": "$",
+              "ci95": [
+                0.005212636550918362,
+                0.005231763449084498
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.0890999999999202,
+              "unit": "s",
+              "ci95": [
+                3.073692220921642,
+                3.1045077790781983
+              ]
+            },
+            {
+              "metric": "mean(checks)",
+              "value": 1.179,
+              "ci95": [
+                1.173686972731629,
+                1.184313027268371
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1541041,
+            "operations": 1129166
+          }
+        }
+      ],
+      "ranking": [
+        "always_verify",
+        "verify_if_hard[0.3]",
+        "best",
+        "always_verify_twice",
+        "always_answer",
+        "verify_if_hard[0.5]"
+      ],
+      "recommended": "always_verify",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 9241054,
+        "estimated_transitions": 120000,
+        "operations": 6594081,
+        "max_forecast_worlds": 0
+      }
+    },
+    {
+      "study": "easy_cheap",
+      "model": "ask",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "32b6dbe1a1c2533649ab3c52fbd23fd1b34d025575a674ec9530beb676c64aef",
+        "inputs_sha256": "7a394d05abda6a9b0d004b62d5ad610402ee1282644bbbeafd55d720a066fcca",
+        "seed": 1,
+        "worlds": 20000,
+        "world_ids": [
+          0,
+          19999
+        ]
+      },
+      "inputs": {
+        "difficulty": 0.1,
+        "stakes": {
+          "value": 0.2,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 1.0,
+          "unit": "$/min"
+        },
+        "draft_easy": {
+          "value": 99.0,
+          "unit": "%"
+        },
+        "draft_hard": {
+          "value": 58.70000000000001,
+          "unit": "%"
+        },
+        "source_unable": {
+          "value": 0.25,
+          "unit": "%"
+        },
+        "source_right": {
+          "value": 99.25,
+          "unit": "%"
+        },
+        "code_unable": {
+          "value": 4.73,
+          "unit": "%"
+        },
+        "code_right": {
+          "value": 99.22,
+          "unit": "%"
+        },
+        "source_cost": {
+          "value": 0.0049,
+          "unit": "$"
+        },
+        "code_cost": {
+          "value": 0.0018,
+          "unit": "$"
+        },
+        "source_time": {
+          "value": 2.57,
+          "unit": "s"
+        },
+        "code_time": {
+          "value": 2.9,
+          "unit": "s"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "always_answer",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.010459999999999834,
+              "unit": "$",
+              "ci95": [
+                0.009842893343188677,
+                0.01107710665681099
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 840001
+          }
+        },
+        {
+          "name": "always_verify",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.05108410666665908,
+              "unit": "$",
+              "ci95": [
+                0.05088385490089996,
+                0.0512843584324182
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0012,
+              "ci95": [
+                0.0008065616688691384,
+                0.0017850135007008356
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 2.7499449999998,
+              "unit": "s",
+              "ci95": [
+                2.7402487749818505,
+                2.7596412250177496
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.04062410666666113,
+            "ci95": [
+              0.040151120363323294,
+              0.041097092969998965
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1109639
+          }
+        },
+        {
+          "name": "always_verify_twice",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "action": "verify_twice",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.0981066666666871,
+              "unit": "$",
+              "ci95": [
+                0.09801070366228869,
+                0.09820262967108552
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0012,
+              "ci95": [
+                0.0008065616688691384,
+                0.0017850135007008356
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 5.4700000000009465,
+              "unit": "s",
+              "ci95": [
+                5.470000000000933,
+                5.47000000000096
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0876466666666819,
+            "ci95": [
+              0.08703003281291823,
+              0.08826330052044558
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1528203
+          }
+        },
+        {
+          "name": "verify_if_hard[0.3]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 0.3,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.010459999999999834,
+              "unit": "$",
+              "ci95": [
+                0.009842893343188677,
+                0.01107710665681099
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "verify_if_hard[0.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": 0.5,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.010459999999999834,
+              "unit": "$",
+              "ci95": [
+                0.009842893343188677,
+                0.01107710665681099
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "best",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.010459999999999834,
+              "unit": "$",
+              "ci95": [
+                0.009842893343188677,
+                0.01107710665681099
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1541041,
+            "operations": 840816
+          }
+        }
+      ],
+      "ranking": [
+        "always_answer",
+        "verify_if_hard[0.3]",
+        "verify_if_hard[0.5]",
+        "best",
+        "always_verify",
+        "always_verify_twice"
+      ],
+      "recommended": "always_answer",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 9241054,
+        "estimated_transitions": 120000,
+        "operations": 5998669,
+        "max_forecast_worlds": 0
+      }
+    },
+    {
+      "study": "hard_costly",
+      "model": "ask",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "32b6dbe1a1c2533649ab3c52fbd23fd1b34d025575a674ec9530beb676c64aef",
+        "inputs_sha256": "e3edeed1c20905a99d5e55d92511de07ff9cd26941e3e5957d7c182bc939bfbe",
+        "seed": 1,
+        "worlds": 20000,
+        "world_ids": [
+          0,
+          19999
+        ]
+      },
+      "inputs": {
+        "difficulty": 0.8,
+        "stakes": {
+          "value": 500.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 1.0,
+          "unit": "$/min"
+        },
+        "draft_easy": {
+          "value": 99.0,
+          "unit": "%"
+        },
+        "draft_hard": {
+          "value": 58.70000000000001,
+          "unit": "%"
+        },
+        "source_unable": {
+          "value": 0.25,
+          "unit": "%"
+        },
+        "source_right": {
+          "value": 99.25,
+          "unit": "%"
+        },
+        "code_unable": {
+          "value": 4.73,
+          "unit": "%"
+        },
+        "code_right": {
+          "value": 99.22,
+          "unit": "%"
+        },
+        "source_cost": {
+          "value": 0.0049,
+          "unit": "$"
+        },
+        "code_cost": {
+          "value": 0.0018,
+          "unit": "$"
+        },
+        "source_time": {
+          "value": 2.57,
+          "unit": "s"
+        },
+        "code_time": {
+          "value": 2.9,
+          "unit": "s"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "always_answer",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 166.725,
+              "unit": "$",
+              "ci95": [
+                163.4580259681816,
+                169.9919740318184
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.33345,
+              "ci95": [
+                0.32694874799479134,
+                0.34001521921549716
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 163.98533162664293,
+            "ci95": [
+              160.72758881054892,
+              167.24307444273694
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 840001
+          }
+        },
+        {
+          "name": "always_verify",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.7396683733327345,
+              "unit": "$",
+              "ci95": [
+                2.2341546176959333,
+                3.2451821289695357
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00535,
+              "ci95": [
+                0.004429648540629079,
+                0.006460332729675226
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.5496200000004623,
+              "unit": "s",
+              "ci95": [
+                3.5306106897195777,
+                3.568629310281347
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1153759
+          }
+        },
+        {
+          "name": "always_verify_twice",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "action": "verify_twice",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.772866666665583,
+              "unit": "$",
+              "ci95": [
+                2.2673610450430672,
+                3.2783722882880983
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00535,
+              "ci95": [
+                0.004429648540629079,
+                0.006460332729675226
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 5.4700000000009465,
+              "unit": "s",
+              "ci95": [
+                5.470000000000933,
+                5.47000000000096
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.03319829333332975,
+            "ci95": [
+              0.03286967261307165,
+              0.03352691405358785
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1528203
+          }
+        },
+        {
+          "name": "verify_if_hard[0.3]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 0.3,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.7396683733327345,
+              "unit": "$",
+              "ci95": [
+                2.2341546176959333,
+                3.2451821289695357
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00535,
+              "ci95": [
+                0.004429648540629079,
+                0.006460332729675226
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.5496200000004623,
+              "unit": "s",
+              "ci95": [
+                3.5306106897195777,
+                3.568629310281347
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 1153763
+          }
+        },
+        {
+          "name": "verify_if_hard[0.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": 0.5,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.7396683733327345,
+              "unit": "$",
+              "ci95": [
+                2.2341546176959333,
+                3.2451821289695357
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00535,
+              "ci95": [
+                0.004429648540629079,
+                0.006460332729675226
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.5496200000004623,
+              "unit": "s",
+              "ci95": [
+                3.5306106897195777,
+                3.568629310281347
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 1153763
+          }
+        },
+        {
+          "name": "best",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.7396683733327345,
+              "unit": "$",
+              "ci95": [
+                2.2341546176959333,
+                3.2451821289695357
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00535,
+              "ci95": [
+                0.004429648540629079,
+                0.006460332729675226
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 3.5496200000004623,
+              "unit": "s",
+              "ci95": [
+                3.5306106897195777,
+                3.568629310281347
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1541041,
+            "operations": 1154574
+          }
+        }
+      ],
+      "ranking": [
+        "always_verify",
+        "verify_if_hard[0.3]",
+        "verify_if_hard[0.5]",
+        "best",
+        "always_verify_twice",
+        "always_answer"
+      ],
+      "recommended": "always_verify",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 9241054,
+        "estimated_transitions": 120000,
+        "operations": 6984063,
+        "max_forecast_worlds": 0
+      }
+    },
+    {
+      "study": "slow_checks",
+      "model": "ask",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "32b6dbe1a1c2533649ab3c52fbd23fd1b34d025575a674ec9530beb676c64aef",
+        "inputs_sha256": "caee5710f8ab10b034c72e2a55ab65a86ae27f72514971d6a9269438f2d691cc",
+        "seed": 1,
+        "worlds": 20000,
+        "world_ids": [
+          0,
+          19999
+        ]
+      },
+      "inputs": {
+        "difficulty": 0.2,
+        "stakes": {
+          "value": 5.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 5.0,
+          "unit": "$/min"
+        },
+        "draft_easy": {
+          "value": 99.0,
+          "unit": "%"
+        },
+        "draft_hard": {
+          "value": 58.70000000000001,
+          "unit": "%"
+        },
+        "source_unable": {
+          "value": 0.25,
+          "unit": "%"
+        },
+        "source_right": {
+          "value": 99.25,
+          "unit": "%"
+        },
+        "code_unable": {
+          "value": 4.73,
+          "unit": "%"
+        },
+        "code_right": {
+          "value": 99.22,
+          "unit": "%"
+        },
+        "source_cost": {
+          "value": 0.0049,
+          "unit": "$"
+        },
+        "code_cost": {
+          "value": 0.0018,
+          "unit": "$"
+        },
+        "source_time": {
+          "value": 30.0,
+          "unit": "s"
+        },
+        "code_time": {
+          "value": 60.0,
+          "unit": "s"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "always_answer",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.46175,
+              "unit": "$",
+              "ci95": [
+                0.44168719689485086,
+                0.4818128031051491
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.09235,
+              "ci95": [
+                0.0884154448194722,
+                0.0964411221770699
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 840001
+          }
+        },
+        {
+          "name": "always_verify",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.0213330599998742,
+              "unit": "$",
+              "ci95": [
+                3.000024307021195,
+                3.0426418129785535
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00155,
+              "ci95": [
+                0.001092225196048294,
+                0.002199215548282407
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 36.102,
+              "unit": "s",
+              "ci95": [
+                35.85065724130817,
+                36.353342758691824
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.5595830599998974,
+            "ci95": [
+              2.552059235524912,
+              2.567106884474883
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1115983
+          }
+        },
+        {
+          "name": "always_verify_twice",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "action": "verify_twice",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 7.514449999998687,
+              "unit": "$",
+              "ci95": [
+                7.511723892578361,
+                7.517176107419013
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.00155,
+              "ci95": [
+                0.001092225196048294,
+                0.002199215548282407
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 90.0,
+              "unit": "s",
+              "ci95": [
+                90.0,
+                90.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 7.052699999998725,
+            "ci95": [
+              7.032669070033591,
+              7.07273092996386
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1528203
+          }
+        },
+        {
+          "name": "verify_if_hard[0.3]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 0.3,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.46175,
+              "unit": "$",
+              "ci95": [
+                0.44168719689485086,
+                0.4818128031051491
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.09235,
+              "ci95": [
+                0.0884154448194722,
+                0.0964411221770699
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "verify_if_hard[0.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": 0.5,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.46175,
+              "unit": "$",
+              "ci95": [
+                0.44168719689485086,
+                0.4818128031051491
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.09235,
+              "ci95": [
+                0.0884154448194722,
+                0.0964411221770699
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "best",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.46175,
+              "unit": "$",
+              "ci95": [
+                0.44168719689485086,
+                0.4818128031051491
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.09235,
+              "ci95": [
+                0.0884154448194722,
+                0.0964411221770699
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1541041,
+            "operations": 840816
+          }
+        }
+      ],
+      "ranking": [
+        "always_answer",
+        "verify_if_hard[0.3]",
+        "verify_if_hard[0.5]",
+        "best",
+        "always_verify",
+        "always_verify_twice"
+      ],
+      "recommended": "always_answer",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 9241054,
+        "estimated_transitions": 120000,
+        "operations": 6005013,
+        "max_forecast_worlds": 0
+      }
+    },
+    {
+      "study": "easy_costly",
+      "model": "ask",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "32b6dbe1a1c2533649ab3c52fbd23fd1b34d025575a674ec9530beb676c64aef",
+        "inputs_sha256": "3392bdfe548655b8b7619b3babe637e45aad24ec779ce64bdde89f8ab5d438bc",
+        "seed": 1,
+        "worlds": 20000,
+        "world_ids": [
+          0,
+          19999
+        ]
+      },
+      "inputs": {
+        "difficulty": 0.1,
+        "stakes": {
+          "value": 200.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 1.0,
+          "unit": "$/min"
+        },
+        "draft_easy": {
+          "value": 99.0,
+          "unit": "%"
+        },
+        "draft_hard": {
+          "value": 58.70000000000001,
+          "unit": "%"
+        },
+        "source_unable": {
+          "value": 0.25,
+          "unit": "%"
+        },
+        "source_right": {
+          "value": 99.25,
+          "unit": "%"
+        },
+        "code_unable": {
+          "value": 4.73,
+          "unit": "%"
+        },
+        "code_right": {
+          "value": 99.22,
+          "unit": "%"
+        },
+        "source_cost": {
+          "value": 0.0049,
+          "unit": "$"
+        },
+        "code_cost": {
+          "value": 0.0018,
+          "unit": "$"
+        },
+        "source_time": {
+          "value": 2.57,
+          "unit": "s"
+        },
+        "code_time": {
+          "value": 2.9,
+          "unit": "s"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "always_answer",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 10.46,
+              "unit": "$",
+              "ci95": [
+                9.842893343188809,
+                11.077106656811193
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 10.169155893329197,
+            "ci95": [
+              9.552671733540317,
+              10.785640053118078
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 840001
+          }
+        },
+        {
+          "name": "always_verify",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.2908441066667921,
+              "unit": "$",
+              "ci95": [
+                0.19486639563732625,
+                0.386821817696258
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0012,
+              "ci95": [
+                0.0008065616688691384,
+                0.0017850135007008356
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 2.7499449999998,
+              "unit": "s",
+              "ci95": [
+                2.7402487749818505,
+                2.7596412250177496
+              ]
+            }
+          ],
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1109639
+          }
+        },
+        {
+          "name": "always_verify_twice",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "action": "verify_twice",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.3378666666667252,
+              "unit": "$",
+              "ci95": [
+                0.24190366226832355,
+                0.4338296710651269
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0012,
+              "ci95": [
+                0.0008065616688691384,
+                0.0017850135007008356
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 5.4700000000009465,
+              "unit": "s",
+              "ci95": [
+                5.470000000000933,
+                5.47000000000096
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.047022559999985065,
+            "ci95": [
+              0.04685493790312308,
+              0.04719018209684705
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540001,
+            "operations": 1528203
+          }
+        },
+        {
+          "name": "verify_if_hard[0.3]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": 0.3,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 10.46,
+              "unit": "$",
+              "ci95": [
+                9.842893343188809,
+                11.077106656811193
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 10.169155893329197,
+            "ci95": [
+              9.552671733540317,
+              10.785640053118078
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "verify_if_hard[0.5]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.5,
+          "action": "answer",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 10.46,
+              "unit": "$",
+              "ci95": [
+                9.842893343188809,
+                11.077106656811193
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0523,
+              "ci95": [
+                0.049299616971929236,
+                0.05547233211270684
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 10.169155893329197,
+            "ci95": [
+              9.552671733540317,
+              10.785640053118078
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1540005,
+            "operations": 840005
+          }
+        },
+        {
+          "name": "best",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "action": "verify",
+          "worlds_completed": 20000,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.2908441066667921,
+              "unit": "$",
+              "ci95": [
+                0.19486639563732625,
+                0.386821817696258
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(wrong)",
+              "value": 0.0012,
+              "ci95": [
+                0.0008065616688691384,
+                0.0017850135007008356
+              ]
+            },
+            {
+              "metric": "mean(waited)",
+              "value": 2.7499449999998,
+              "unit": "s",
+              "ci95": [
+                2.7402487749818505,
+                2.7596412250177496
+              ]
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "worlds": 20000
+          },
+          "work": {
+            "estimated_operations": 1541041,
+            "operations": 1110454
+          }
+        }
+      ],
+      "ranking": [
+        "always_verify",
+        "best",
+        "always_verify_twice",
+        "always_answer",
+        "verify_if_hard[0.3]",
+        "verify_if_hard[0.5]"
+      ],
+      "recommended": "always_verify",
+      "best_oracle": null,
+      "errors": [],
+      "work": {
+        "estimated_operations": 9241054,
+        "estimated_transitions": 120000,
+        "operations": 6268307,
+        "max_forecast_worlds": 0
+      }
+    }
+  ]
+}

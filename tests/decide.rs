@@ -66,6 +66,35 @@ fn a_served_decision_matches_the_study() {
     }
 }
 
+/// verify.px's `best` computes expected losses in closed form; in every
+/// situation a study poses, it picks what the simulated worlds recommend.
+#[test]
+fn the_closed_form_agrees_with_the_worlds() {
+    let src = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("simulations/verify.px"),
+    )
+    .unwrap();
+    let engine = Engine::new(&src).unwrap();
+    let report = parallax::run(&src, &Options::default()).unwrap();
+    for study in &report.studies {
+        // the study's resolved inputs, as plain numbers in their units
+        let situation = study
+            .inputs
+            .iter()
+            .map(|(k, v)| (k.clone(), v.get("value").cloned().unwrap_or(v.clone())))
+            .collect();
+        let d = engine
+            .decide(&Request {
+                inputs: situation,
+                ..req("best")
+            })
+            .unwrap();
+        let winner = study.recommended.as_ref().unwrap();
+        let chose = study.policies.iter().find(|p| &p.name == winner).unwrap();
+        assert_eq!(Some(&d.action), chose.action.as_ref(), "{}", study.study);
+    }
+}
+
 #[test]
 fn notes_give_the_reasons_with_units() {
     let d = parallax::decide(&tool_choice(), &req("adaptive")).unwrap();

@@ -105,6 +105,11 @@ fn tooluse() {
     golden("simulations/tooluse.px");
 }
 
+#[test]
+fn verify() {
+    golden("simulations/verify.px");
+}
+
 /// Every golden program above is listed: a new `.px` needs a test.
 #[test]
 fn every_program_is_tested() {
@@ -117,6 +122,7 @@ fn every_program_is_tested() {
         "island",
         "tool_choice",
         "tooluse",
+        "verify",
     ];
     for dir in ["tests", "simulations"] {
         for entry in std::fs::read_dir(root().join(dir)).unwrap() {
@@ -176,6 +182,7 @@ fn check_describes_programs() {
         "island",
         "tool_choice",
         "tooluse",
+        "verify",
     ] {
         let src = std::fs::read_to_string(root().join(format!("simulations/{f}.px"))).unwrap();
         let c = parallax::check(&src, &Options::default()).unwrap();

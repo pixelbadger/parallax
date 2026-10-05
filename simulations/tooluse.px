@@ -30,9 +30,37 @@
 #   codebase   questions about a private repository
 #   current    events after the model's training cutoff
 #   novel      a language the model has never seen (parallax itself)
+#   calibrated the rates in the `sources` and `prior_right` inputs
+#
+# Calibrating: with `domain = calibrated`, the sources and the draft's
+# prior come from inputs, so measured rates replace the guesses without
+# touching the policies. Serve and study with the same inputs file:
+#   parallax run tooluse.px --study as_given --inputs calibration.json
+#   parallax decide tooluse.px --policy lookahead2 --inputs calibration.json ...
+# scripts/calibrate_tooluse.py estimates the inputs from a log of tasks
+# whose truth is known (see its docstring for the log format and the
+# estimators: two calls per source separate being misled from noise).
+#
+# Measured in one session (tooluse_log.jsonl, tooluse_calibration.json):
+# 100 yes/no claims about parallax, true answers settled with the binary
+# and the source. Each source call was a fresh agent allowed only that
+# source; each had CLAUDE.md in context, as an agent in this repo does.
+#   - Drafts were right 90 times in 100.
+#   - Thinking again never changed a draft (0 of 200): a pure echo.
+#   - github, code, doc and web (web on 20 claims) were each wrong at
+#     most once; doc couldn't answer 30% of the claims, code 4%, github
+#     almost never.
+# With those rates (stakes 20 $, time 1 $/min, 2000 worlds) the
+# until_sure rules lead (about 1.4-1.9 $ against 8.6-9.0 $ for answering
+# now), the leaders can't be told apart across seeds, and they check the
+# source code first. Caveats: costs and latencies are per claim in a
+# batch of 20, so they understate one call's overhead; the claims were
+# chosen by hand; and the world's difficulty stays uniform, while these
+# claims were rated easier (mean 0.38). verify.px serves what this found:
+# answer, or check the source then code, decided per question.
 #
 # The studies run 100 worlds so the golden test stays quick; for an answer,
-# run with `--worlds 5000` (about 10 minutes). At 5000 worlds, seed 11:
+# run with `--worlds 5000` (about 12 minutes). At 5000 worlds, seed 11:
 #   - Answering from context, or thinking again first, is the worst policy
 #     everywhere: reflection echoes the draft's own errors.
 #   - Verifying once, gated by stakes or not, recovers about half of that
@@ -52,7 +80,7 @@ const NAMES = ["context", "web", "github", "code", "doc", "ask"]
 const CONTEXT = 0
 const ASK = 5
 
-enum Domain = general | codebase | current | novel
+enum Domain = general | codebase | current | novel | calibrated
 
 input domain: Domain = novel
 input stakes_median: $ between 0 $ and 1000 $ = 5 $
@@ -117,39 +145,67 @@ world Agent {
 fn s(acc: Float, misled: Float, fail: Float, cost: $, latency: s) -> Source =
     Source { acc, misled, fail, cost, latency }
 
+# How often the draft is right falls linearly with difficulty, from `easy`
+# (difficulty 0) to `hard` (difficulty 1)
+type Prior = { easy: Float, hard: Float }
+
+# The presets, by domain, in source order
+const GENERAL = [
+    s(0.80, 0.15, 0.00, 0.002 $, 5 s),
+    s(0.90, 0.10, 0.10, 0.01 $, 15 s),
+    s(0.85, 0.10, 0.90, 0.01 $, 20 s),
+    s(0.99, 0.02, 0.80, 0.02 $, 30 s),
+    s(0.92, 0.08, 0.30, 0.01 $, 20 s),
+    s(0.98, 0.02, 0.10, 2 $, 300 s),
+]
+const CODEBASE = [
+    s(0.70, 0.20, 0.00, 0.002 $, 5 s),
+    s(0.70, 0.30, 0.70, 0.01 $, 15 s),
+    s(0.92, 0.05, 0.10, 0.01 $, 15 s),
+    s(0.98, 0.03, 0.20, 0.03 $, 40 s),
+    s(0.90, 0.10, 0.10, 0.01 $, 15 s),
+    s(0.98, 0.02, 0.10, 2 $, 300 s),
+]
+const CURRENT = [
+    s(0.60, 0.40, 0.00, 0.002 $, 5 s),
+    s(0.88, 0.12, 0.10, 0.01 $, 15 s),
+    s(0.85, 0.10, 0.80, 0.01 $, 20 s),
+    s(0.99, 0.02, 0.95, 0.02 $, 30 s),
+    s(0.90, 0.10, 0.40, 0.01 $, 20 s),
+    s(0.98, 0.02, 0.10, 2 $, 300 s),
+]
+const NOVEL = [
+    s(0.60, 0.35, 0.00, 0.002 $, 5 s),
+    s(0.70, 0.30, 0.95, 0.01 $, 15 s),
+    s(0.85, 0.10, 0.20, 0.01 $, 20 s),
+    s(0.99, 0.02, 0.05, 0.01 $, 10 s),
+    s(0.93, 0.07, 0.05, 0.01 $, 10 s),
+    s(0.98, 0.02, 0.10, 2 $, 300 s),
+]
+
+# Measured rates, used when `domain = calibrated` (see "Calibrating" above).
+# The defaults are the novel preset.
+input sources: [Source; N] = NOVEL
+input prior_right: Prior = Prior { easy: 0.60, hard: 0.20 }
+
+fn chance(x: Float) -> Bool = x >= 0.0 and x <= 1.0
+
+derived calibration_ok = {
+    for i in 0..N {
+        let c = sources[i]
+        assert chance(c.acc) and chance(c.misled) and chance(c.fail), "sources: acc, misled and fail are chances in 0..1"
+        assert c.cost >= 0 $ and c.latency >= 0 s, "sources: cost and latency can't be negative"
+    }
+    assert chance(prior_right.easy) and chance(prior_right.hard), "prior_right: easy and hard are chances in 0..1"
+    true
+}
+
 fn source(d: Domain, i: Int) -> Source = match d {
-    general => [
-        s(0.80, 0.15, 0.00, 0.002 $, 5 s),
-        s(0.90, 0.10, 0.10, 0.01 $, 15 s),
-        s(0.85, 0.10, 0.90, 0.01 $, 20 s),
-        s(0.99, 0.02, 0.80, 0.02 $, 30 s),
-        s(0.92, 0.08, 0.30, 0.01 $, 20 s),
-        s(0.98, 0.02, 0.10, 2 $, 300 s),
-    ][i],
-    codebase => [
-        s(0.70, 0.20, 0.00, 0.002 $, 5 s),
-        s(0.70, 0.30, 0.70, 0.01 $, 15 s),
-        s(0.92, 0.05, 0.10, 0.01 $, 15 s),
-        s(0.98, 0.03, 0.20, 0.03 $, 40 s),
-        s(0.90, 0.10, 0.10, 0.01 $, 15 s),
-        s(0.98, 0.02, 0.10, 2 $, 300 s),
-    ][i],
-    current => [
-        s(0.60, 0.40, 0.00, 0.002 $, 5 s),
-        s(0.88, 0.12, 0.10, 0.01 $, 15 s),
-        s(0.85, 0.10, 0.80, 0.01 $, 20 s),
-        s(0.99, 0.02, 0.95, 0.02 $, 30 s),
-        s(0.90, 0.10, 0.40, 0.01 $, 20 s),
-        s(0.98, 0.02, 0.10, 2 $, 300 s),
-    ][i],
-    novel => [
-        s(0.60, 0.35, 0.00, 0.002 $, 5 s),
-        s(0.70, 0.30, 0.95, 0.01 $, 15 s),
-        s(0.85, 0.10, 0.20, 0.01 $, 20 s),
-        s(0.99, 0.02, 0.05, 0.01 $, 10 s),
-        s(0.93, 0.07, 0.05, 0.01 $, 10 s),
-        s(0.98, 0.02, 0.10, 2 $, 300 s),
-    ][i],
+    general => GENERAL[i],
+    codebase => CODEBASE[i],
+    current => CURRENT[i],
+    novel => NOVEL[i],
+    calibrated => sources[i],
 }
 
 # How often the draft is right, by domain and difficulty
@@ -158,6 +214,7 @@ fn prior(d: Domain, x: Float) -> Float = match d {
     codebase => 0.80 - 0.5 * x,
     current => 0.70 - 0.5 * x,
     novel => 0.60 - 0.4 * x,
+    calibrated => prior_right.easy + (prior_right.hard - prior_right.easy) * x,
 }
 
 # Difficulty makes calls noisier and sources more often misled
@@ -449,6 +506,16 @@ study general_knowledge {
     worlds 100
     seed 11
     with domain = general
+    minimize mean(loss)
+    report probability(correct), mean(cost), mean(latency), mean(calls),
+           probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
+}
+
+# Whatever domain the inputs give: with `--inputs` holding `domain:
+# "calibrated"`, `sources` and `prior_right`, this studies measured rates
+study as_given {
+    worlds 100
+    seed 11
     minimize mean(loss)
     report probability(correct), mean(cost), mean(latency), mean(calls),
            probability(asked), probability(correct where stakes > 20 $), cvar95(loss)
