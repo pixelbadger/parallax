@@ -1,0 +1,6826 @@
+{
+  "runtime": "parallax 0.2.0",
+  "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+  "studies": [
+    {
+      "study": "this_session",
+      "model": "task",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+        "inputs_sha256": "a607dbd01e4c4e806d31b3871bee95d01d8e8d42594a3b54433906d95e4c31b9",
+        "seed": 11,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "domain": "novel",
+        "stakes_median": {
+          "value": 20.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 1.0,
+          "unit": "$/min"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "answer_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 16.267183353714685,
+              "unit": "$",
+              "ci95": [
+                8.487318703706613,
+                24.047048003722757
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.58,
+              "ci95": [
+                0.4820648670304296,
+                0.6720161732564526
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5833333333333334
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 150.05431086265287,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 13.909772556263885,
+            "ci95": [
+              6.437100278491618,
+              21.38244483403615
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.05556549756207971,
+          "work": {
+            "estimated_operations": 297500,
+            "operations": 162542
+          }
+        },
+        {
+          "name": "reflect",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 13.698813463164184,
+              "unit": "$",
+              "ci95": [
+                6.289814114400309,
+                21.10781281192806
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.64,
+              "ci95": [
+                0.5423540245160874,
+                0.7272877959859567
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0020000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.002000000000000001,
+                0.0020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 5.0,
+              "unit": "s",
+              "ci95": [
+                5.0,
+                5.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6458333333333334
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 136.90837886583404,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 11.341402665713375,
+            "ci95": [
+              3.3529518464521217,
+              19.329853484974628
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.06598338895651722,
+          "work": {
+            "estimated_operations": 301100,
+            "operations": 183960
+          }
+        },
+        {
+          "name": "verify_once",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 6.688890354885796,
+              "unit": "$",
+              "ci95": [
+                1.412043137612348,
+                11.965737572159245
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.84,
+              "ci95": [
+                0.7557973061072976,
+                0.8990471151119521
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.010000000000000007,
+              "unit": "$",
+              "ci95": [
+                0.010000000000000005,
+                0.010000000000000009
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 10.0,
+              "unit": "s",
+              "ci95": [
+                10.0,
+                10.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8541666666666666
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 87.42907499480776,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 4.331479557435,
+            "ci95": [
+              -0.27495152416807134,
+              8.937910639038073
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1351336453470943,
+          "work": {
+            "estimated_operations": 1243100,
+            "operations": 444224
+          }
+        },
+        {
+          "name": "risk_gate[1 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 1.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 6.688890354885796,
+              "unit": "$",
+              "ci95": [
+                1.412043137612348,
+                11.965737572159245
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.84,
+              "ci95": [
+                0.7557973061072976,
+                0.8990471151119521
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.010000000000000007,
+              "unit": "$",
+              "ci95": [
+                0.010000000000000005,
+                0.010000000000000009
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 10.0,
+              "unit": "s",
+              "ci95": [
+                10.0,
+                10.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8541666666666666
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 87.42907499480776,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 4.331479557435,
+            "ci95": [
+              -0.27495152416807134,
+              8.937910639038073
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1351336453470943,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 444824
+          }
+        },
+        {
+          "name": "risk_gate[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 6.869906594628324,
+              "unit": "$",
+              "ci95": [
+                1.599471552445623,
+                12.140341636811025
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.78,
+              "ci95": [
+                0.6892964648501421,
+                0.8499871761539459
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.008800000000000006,
+              "unit": "$",
+              "ci95": [
+                0.008159878443152632,
+                0.00944012155684738
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 8.8,
+              "unit": "s",
+              "ci95": [
+                8.159878443152625,
+                9.440121556847377
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.88,
+              "ci95": [
+                0.8159878443152625,
+                0.9440121556847375
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8541666666666666
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 87.42907499480776,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 4.512495797177531,
+            "ci95": [
+              -0.089329549876493,
+              9.114321144231553
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.13157298786121843,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 426614
+          }
+        },
+        {
+          "name": "risk_gate[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 7.611876556236446,
+              "unit": "$",
+              "ci95": [
+                2.349128475138863,
+                12.87462463733403
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.71,
+              "ci95": [
+                0.6146110882442888,
+                0.7898516425087772
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.004800000000000002,
+              "unit": "$",
+              "ci95": [
+                0.003815869290090427,
+                0.0057841307099095775
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 4.8,
+              "unit": "s",
+              "ci95": [
+                3.8158692900904247,
+                5.784130709909575
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.48,
+              "ci95": [
+                0.3815869290090425,
+                0.5784130709909574
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8541666666666666
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 87.42907499480776,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 5.2544657587856465,
+            "ci95": [
+              0.603429056586096,
+              9.905502460985197
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.11874787121214837,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 366570
+          }
+        },
+        {
+          "name": "until_sure[0.9]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 0.9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.1059310064842487,
+              "unit": "$",
+              "ci95": [
+                0.22925272550908948,
+                5.9826092874594075
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.023399999999999997,
+              "unit": "$",
+              "ci95": [
+                0.020124851955859516,
+                0.02667514804414048
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 25.7,
+              "unit": "s",
+              "ci95": [
+                21.67984118434307,
+                29.72015881565693
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.34,
+              "ci95": [
+                2.0124851955859517,
+                2.667514804414048
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9583333333333334
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 42.33517793123819,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.7485202090334382,
+            "ci95": [
+              -0.34451582696140215,
+              1.8415562450282785
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.2910219625277181,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1099402
+          }
+        },
+        {
+          "name": "until_sure[0.97]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": 0.97,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 4.650765415160882,
+              "unit": "$",
+              "ci95": [
+                0.247136584806535,
+                9.05439424551523
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.03789999999999999,
+              "unit": "$",
+              "ci95": [
+                0.03424336317375923,
+                0.04155663682624075
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 42.4,
+              "unit": "s",
+              "ci95": [
+                37.754188315666255,
+                47.04581168433374
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.79,
+              "ci95": [
+                3.4243363173759245,
+                4.155663682624076
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9583333333333334
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 63.72686252029329,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.2933546177100776,
+            "ci95": [
+              -1.2283540469097152,
+              5.81506328232987
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1943538442158706,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1451411
+          }
+        },
+        {
+          "name": "until_sure[0.99]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.99,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 5.183706068669737,
+              "unit": "$",
+              "ci95": [
+                0.7427221704793343,
+                9.62468996686014
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.91,
+              "ci95": [
+                0.837737871472837,
+                0.9519274599974348
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.04629999999999995,
+              "unit": "$",
+              "ci95": [
+                0.04312794925525861,
+                0.04947205074474129
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 53.1,
+              "unit": "s",
+              "ci95": [
+                48.970898315681445,
+                57.22910168431856
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.63,
+              "ci95": [
+                4.312794925525866,
+                4.947205074474134
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9375
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 67.61433927688849,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.8262952712189304,
+            "ci95": [
+              -0.7499565165018285,
+              6.402547058939689
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.17437218179592842,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1652292
+          }
+        },
+        {
+          "name": "until_sure_naive",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.3574107974508025,
+              "unit": "$",
+              "ci95": [
+                -0.31951265402633,
+                5.0343342489279355
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.96,
+              "ci95": [
+                0.9016292856411208,
+                0.9843366960084523
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.030799999999999998,
+              "unit": "$",
+              "ci95": [
+                0.027701901440282076,
+                0.03389809855971792
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 30.8,
+              "unit": "s",
+              "ci95": [
+                27.701901440282082,
+                33.898098559717916
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.08,
+              "ci95": [
+                2.770190144028208,
+                3.389809855971792
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9791666666666666
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 30.927957735291198,
+              "unit": "$"
+            }
+          ],
+          "of_oracle": 0.38342665519313274,
+          "work": {
+            "estimated_operations": 1790300,
+            "operations": 1083452
+          }
+        },
+        {
+          "name": "two_sources[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 7.584078412113046,
+              "unit": "$",
+              "ci95": [
+                5.778059045739077,
+                9.390097778487014
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.85,
+              "ci95": [
+                0.7671644040916763,
+                0.9069401471634337
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 1.4542000000000002,
+              "unit": "$",
+              "ci95": [
+                1.2771445988946546,
+                1.6312554011053457
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 231.55,
+              "unit": "s",
+              "ci95": [
+                204.7856740020435,
+                258.31432599795653
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.18,
+              "ci95": [
+                1.9635328267621206,
+                2.3964671732378795
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.72,
+              "ci95": [
+                0.6251197129007884,
+                0.7986031478881379
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9375
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 36.99186689556944,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 5.226667614662241,
+            "ci95": [
+              2.071300238485378,
+              8.382034990839104
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.11918312125294832,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 963534
+          }
+        },
+        {
+          "name": "two_sources[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 6.883364778914041,
+              "unit": "$",
+              "ci95": [
+                5.029224490608432,
+                8.73750506721965
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.75,
+              "ci95": [
+                0.656955364519384,
+                0.8245478863771232
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.9664200000000001,
+              "unit": "$",
+              "ci95": [
+                0.7682760779860311,
+                1.164563922013969
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 150.65,
+              "unit": "s",
+              "ci95": [
+                119.74624531619911,
+                181.5537546838009
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.13,
+              "ci95": [
+                0.882936460329157,
+                1.3770635396708428
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.48,
+              "ci95": [
+                0.384645517580519,
+                0.5768342223477603
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9375
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 33.71954063111675,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 4.525953981463237,
+            "ci95": [
+              1.2761613392662068,
+              7.775746623660268
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.13131573961497076,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 583953
+          }
+        },
+        {
+          "name": "forecast_voi",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.1075883758907397,
+              "unit": "$",
+              "ci95": [
+                0.22931229583805246,
+                5.985864455943426
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.052799999999999875,
+              "unit": "$",
+              "ci95": [
+                -0.0024476013818977432,
+                0.10804760138189749
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 19.0,
+              "unit": "s",
+              "ci95": [
+                10.452174380470243,
+                27.547825619529757
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.3,
+              "ci95": [
+                1.1141658621999266,
+                1.4858341378000735
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.02,
+              "ci95": [
+                0.00550196755016235,
+                0.07001179072854388
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9583333333333334
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 41.9262890423493,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.7501775784399314,
+            "ci95": [
+              -0.3552591282913722,
+              1.855614285171235
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.29086675185018684,
+          "work": {
+            "estimated_operations": 168689900,
+            "operations": 57042261
+          }
+        },
+        {
+          "name": "lookahead2",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.414755042557406,
+              "unit": "$",
+              "ci95": [
+                0.5204392510639719,
+                6.30907083405084
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.11829999999999984,
+              "unit": "$",
+              "ci95": [
+                0.0019517420574325095,
+                0.23464825794256716
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 33.5,
+              "unit": "s",
+              "ci95": [
+                16.088649527780884,
+                50.91135047221911
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.88,
+              "ci95": [
+                1.6566513017523203,
+                2.1033486982476792
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.03,
+              "ci95": [
+                0.010254524024038925,
+                0.0845193642905276
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9583333333333334
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 42.34919935157472,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.057344245106598,
+            "ci95": [
+              -0.0966378388206115,
+              2.2113263290338074
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.2647024825258872,
+          "work": {
+            "estimated_operations": 315271700,
+            "operations": 138221315
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.9038941369827369,
+              "unit": "$",
+              "ci95": [
+                -0.22196864480342038,
+                2.029756918768894
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.97,
+              "ci95": [
+                0.9154806357094724,
+                0.9897454759759611
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.003180000000000001,
+              "unit": "$",
+              "ci95": [
+                0.002293625466113741,
+                0.004066374533886261
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 3.45,
+              "unit": "s",
+              "ci95": [
+                2.5614415069925376,
+                4.338558493007463
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.39,
+              "ci95": [
+                0.2939211680234869,
+                0.48607883197651314
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9791666666666666
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 14.141902283045624,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.453516660468066,
+            "ci95": [
+              -4.338083193069833,
+              1.431049872133701
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 8417300,
+            "operations": 1821070
+          }
+        }
+      ],
+      "ranking": [
+        "until_sure_naive",
+        "until_sure[0.9]",
+        "forecast_voi",
+        "lookahead2",
+        "until_sure[0.97]",
+        "until_sure[0.99]",
+        "verify_once",
+        "risk_gate[1 $]",
+        "risk_gate[5 $]",
+        "two_sources[20 $]",
+        "two_sources[5 $]",
+        "risk_gate[20 $]",
+        "reflect",
+        "answer_now"
+      ],
+      "recommended": "until_sure_naive",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 510404100,
+        "estimated_transitions": 472800,
+        "operations": 205947424,
+        "max_forecast_worlds": 20
+      }
+    },
+    {
+      "study": "novel_language",
+      "model": "task",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+        "inputs_sha256": "43a7f05f102aaa2d0c4fea19e9e48ecf2060123aa2df48ee18a84b7dfa49c3f9",
+        "seed": 11,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "domain": "novel",
+        "stakes_median": {
+          "value": 5.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 0.5,
+          "unit": "$/min"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "answer_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 4.066795838428671,
+              "unit": "$",
+              "ci95": [
+                2.1218296759266533,
+                6.011762000930689
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.58,
+              "ci95": [
+                0.4820648670304296,
+                0.6720161732564526
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 37.51357771566322,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 3.326009805732636,
+            "ci95": [
+              1.4565781696022981,
+              5.195441441862974
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.059686678134172534,
+          "work": {
+            "estimated_operations": 297500,
+            "operations": 162542
+          }
+        },
+        {
+          "name": "reflect",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.447036699124374,
+              "unit": "$",
+              "ci95": [
+                1.5947868619334051,
+                5.299286536315343
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.64,
+              "ci95": [
+                0.5423540245160874,
+                0.7272877959859567
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0020000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.002000000000000001,
+                0.0020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 5.0,
+              "unit": "s",
+              "ci95": [
+                5.0,
+                5.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 34.24942804979184,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.7062506664283434,
+            "ci95": [
+              0.7085049688191929,
+              4.7039963640374935
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.07041803016119448,
+          "work": {
+            "estimated_operations": 301100,
+            "operations": 183960
+          }
+        },
+        {
+          "name": "verify_once",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.7213892553881183,
+              "unit": "$",
+              "ci95": [
+                0.4021774510697562,
+                3.0406010597064803
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.84,
+              "ci95": [
+                0.7557973061072976,
+                0.8990471151119521
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.010000000000000007,
+              "unit": "$",
+              "ci95": [
+                0.010000000000000005,
+                0.010000000000000009
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 10.0,
+              "unit": "s",
+              "ci95": [
+                10.0,
+                10.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 21.906435415368605,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.9806032226920831,
+            "ci95": [
+              -0.16797315588347206,
+              2.129179601267638
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1410102529023604,
+          "work": {
+            "estimated_operations": 1243100,
+            "operations": 444224
+          }
+        },
+        {
+          "name": "risk_gate[1 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 1.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.736361877277668,
+              "unit": "$",
+              "ci95": [
+                0.4177150007634931,
+                3.055008753791843
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.81,
+              "ci95": [
+                0.7222115462093562,
+                0.8748524849023126
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.009500000000000007,
+              "unit": "$",
+              "ci95": [
+                0.00907068377835841,
+                0.009929316221641603
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 9.5,
+              "unit": "s",
+              "ci95": [
+                9.070683778358402,
+                9.929316221641598
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.95,
+              "ci95": [
+                0.9070683778358402,
+                0.9929316221641598
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 21.906435415368605,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.995575844581633,
+            "ci95": [
+              -0.15264271251080497,
+              2.1437944016740706
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1397943236500049,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 437237
+          }
+        },
+        {
+          "name": "risk_gate[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.9265691390591129,
+              "unit": "$",
+              "ci95": [
+                0.610188207057859,
+                3.242950071060367
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.71,
+              "ci95": [
+                0.6146110882442888,
+                0.7898516425087772
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.004800000000000002,
+              "unit": "$",
+              "ci95": [
+                0.003815869290090427,
+                0.0057841307099095775
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 4.8,
+              "unit": "s",
+              "ci95": [
+                3.8158692900904247,
+                5.784130709909575
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.48,
+              "ci95": [
+                0.3815869290090425,
+                0.5784130709909574
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 21.906435415368605,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1857831063630782,
+            "ci95": [
+              0.024667128923388182,
+              2.346899083802768
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12599264117986925,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 366570
+          }
+        },
+        {
+          "name": "risk_gate[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8979549167883416,
+              "unit": "$",
+              "ci95": [
+                1.4913634841016825,
+                4.304546349475
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.61,
+              "ci95": [
+                0.5120301704584073,
+                0.6998312599360558
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.001,
+              "unit": "$",
+              "ci95": [
+                0.0004090486236973366,
+                0.0015909513763026635
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 1.0,
+              "unit": "s",
+              "ci95": [
+                0.4090486236973372,
+                1.5909513763026628
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.1,
+              "ci95": [
+                0.04090486236973378,
+                0.15909513763026623
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 24.697234625221743,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.157168884092307,
+            "ci95": [
+              0.8761250586922678,
+              3.438212709492346
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.08376028655224695,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 309496
+          }
+        },
+        {
+          "name": "until_sure[0.9]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "parameter": 0.9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.8993494182877274,
+              "unit": "$",
+              "ci95": [
+                0.1805225589150672,
+                1.6181762776603876
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.023299999999999998,
+              "unit": "$",
+              "ci95": [
+                0.0200506032266127,
+                0.026549396773387295
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 25.5,
+              "unit": "s",
+              "ci95": [
+                21.52722220769349,
+                29.47277779230651
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.33,
+              "ci95": [
+                2.00506032266127,
+                2.65493967733873
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.736988927253995,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.1585633855916927,
+            "ci95": [
+              -0.11080673122059193,
+              0.4279335024039773
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.2698990284641815,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1096682
+          }
+        },
+        {
+          "name": "until_sure[0.97]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": 0.97,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.3624830204568874,
+              "unit": "$",
+              "ci95": [
+                0.2571316750734831,
+                2.4678343658402917
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.92,
+              "ci95": [
+                0.8500189229905127,
+                0.9589065385156194
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.03759999999999999,
+              "unit": "$",
+              "ci95": [
+                0.033998696649754,
+                0.04120130335024597
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 41.8,
+              "unit": "s",
+              "ci95": [
+                37.25330000755015,
+                46.34669999244984
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.76,
+              "ci95": [
+                3.399869664975401,
+                4.120130335024599
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 16.228660074517766,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.6216969877608527,
+            "ci95": [
+              -0.25988928325251726,
+              1.5032832587742226
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.17815527283729932,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1451162
+          }
+        },
+        {
+          "name": "until_sure[0.99]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.99,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.5616008702788815,
+              "unit": "$",
+              "ci95": [
+                0.44806026591440506,
+                2.675141474643358
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.046399999999999955,
+              "unit": "$",
+              "ci95": [
+                0.04321738559513713,
+                0.04958261440486278
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 53.0,
+              "unit": "s",
+              "ci95": [
+                48.88214346156344,
+                57.11785653843656
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.64,
+              "ci95": [
+                4.321738559513717,
+                4.958261440486282
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 17.232057041444346,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.8208148375828466,
+            "ci95": [
+              -0.07375805676047453,
+              1.7153877319261677
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.15543890815220626,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1652967
+          }
+        },
+        {
+          "name": "until_sure_naive",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.7407860326960355,
+              "unit": "$",
+              "ci95": [
+                0.07198910557374749,
+                1.4095829598183234
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.96,
+              "ci95": [
+                0.9016292856411208,
+                0.9843366960084523
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.030799999999999998,
+              "unit": "$",
+              "ci95": [
+                0.027701901440282076,
+                0.03389809855971792
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 30.8,
+              "unit": "s",
+              "ci95": [
+                27.701901440282082,
+                33.898098559717916
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.08,
+              "ci95": [
+                2.770190144028208,
+                3.389809855971792
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 7.928656100489465,
+              "unit": "$"
+            }
+          ],
+          "of_oracle": 0.3276702361169984,
+          "work": {
+            "estimated_operations": 1790300,
+            "operations": 1083452
+          }
+        },
+        {
+          "name": "two_sources[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8026008619412437,
+              "unit": "$",
+              "ci95": [
+                2.134319406243159,
+                3.470882317639328
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.72,
+              "ci95": [
+                0.6251197129007884,
+                0.7986031478881379
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.7473999999999998,
+              "unit": "$",
+              "ci95": [
+                0.5562218521131603,
+                0.9385781478868394
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 118.6,
+              "unit": "s",
+              "ci95": [
+                89.05371817367029,
+                148.1462818263297
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.11,
+              "ci95": [
+                0.8721548161902057,
+                1.3478451838097945
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.37,
+              "ci95": [
+                0.28182360534324524,
+                0.4677947041905709
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 12.349354771785478,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.0618148292452076,
+            "ci95": [
+              1.1374513038108431,
+              2.986178354679572
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.08661009762109084,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 579107
+          }
+        },
+        {
+          "name": "two_sources[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.4729854805098923,
+              "unit": "$",
+              "ci95": [
+                1.7179636559517297,
+                3.228007305068055
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.20119999999999996,
+              "unit": "$",
+              "ci95": [
+                0.08230032200960614,
+                0.3200996779903938
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 31.2,
+              "unit": "s",
+              "ci95": [
+                12.760633514064512,
+                49.63936648593548
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.22,
+              "ci95": [
+                0.08762454668383074,
+                0.35237545331616926
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.1,
+              "ci95": [
+                0.0552291370606751,
+                0.17436566150491345
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 14.128624376885034,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.7321994478138563,
+            "ci95": [
+              0.7449678236033717,
+              2.719431072024341
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.09815404746963434,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 246683
+          }
+        },
+        {
+          "name": "forecast_voi",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.8928637606393508,
+              "unit": "$",
+              "ci95": [
+                0.16674044479665506,
+                1.6189870764820466
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.05249999999999989,
+              "unit": "$",
+              "ci95": [
+                -0.0027555337456009257,
+                0.1077555337456007
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 18.7,
+              "unit": "s",
+              "ci95": [
+                10.146932897431535,
+                27.253067102568465
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.27,
+              "ci95": [
+                1.0855175535537975,
+                1.4544824464462025
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.02,
+              "ci95": [
+                0.00550196755016235,
+                0.07001179072854388
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.950388225376761,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.15207772794331603,
+            "ci95": [
+              -0.1398685804621697,
+              0.4440240363488018
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.27185954335504764,
+          "work": {
+            "estimated_operations": 168689900,
+            "operations": 56260774
+          }
+        },
+        {
+          "name": "lookahead2",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.8862704273060177,
+              "unit": "$",
+              "ci95": [
+                0.16224055468579546,
+                1.61030029992624
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0367399999999999,
+              "unit": "$",
+              "ci95": [
+                -0.0025800829155012903,
+                0.07606008291550109
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 19.8,
+              "unit": "s",
+              "ci95": [
+                13.48587819720678,
+                26.11412180279322
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.7,
+              "ci95": [
+                1.4797654251983645,
+                1.9202345748016354
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.835077615671457,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.1454843946099827,
+            "ci95": [
+              -0.13598020077715012,
+              0.4269489899971155
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.27388201926529104,
+          "work": {
+            "estimated_operations": 315271700,
+            "operations": 129814100
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.24273353424568445,
+              "unit": "$",
+              "ci95": [
+                -0.03833921204561669,
+                0.5238062805369856
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.97,
+              "ci95": [
+                0.9154806357094724,
+                0.9897454759759611
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.003180000000000001,
+              "unit": "$",
+              "ci95": [
+                0.002293625466113741,
+                0.004066374533886261
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 3.45,
+              "unit": "s",
+              "ci95": [
+                2.5614415069925376,
+                4.338558493007463
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.39,
+              "ci95": [
+                0.2939211680234869,
+                0.48607883197651314
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 3.5600589040947397,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -0.498052498450351,
+            "ci95": [
+              -1.2173711026800855,
+              0.2212661057793835
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 8417300,
+            "operations": 1821070
+          }
+        }
+      ],
+      "ranking": [
+        "until_sure_naive",
+        "lookahead2",
+        "forecast_voi",
+        "until_sure[0.9]",
+        "until_sure[0.97]",
+        "until_sure[0.99]",
+        "verify_once",
+        "risk_gate[1 $]",
+        "risk_gate[5 $]",
+        "two_sources[20 $]",
+        "two_sources[5 $]",
+        "risk_gate[20 $]",
+        "reflect",
+        "answer_now"
+      ],
+      "recommended": "until_sure_naive",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 510404100,
+        "estimated_transitions": 472800,
+        "operations": 195910026,
+        "max_forecast_worlds": 20
+      }
+    },
+    {
+      "study": "codebase_question",
+      "model": "task",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+        "inputs_sha256": "4083bcd71c1e6a6415983e35e5a269a6cc2895826c602601c13c0eda8a2f82ba",
+        "seed": 11,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "domain": "codebase",
+        "stakes_median": {
+          "value": 5.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 0.5,
+          "unit": "$/min"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "answer_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 4.3899405127078985,
+              "unit": "$",
+              "ci95": [
+                2.3453411918005718,
+                6.434539833615226
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.6,
+              "ci95": [
+                0.5020025867910618,
+                0.6905987135675411
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 37.840369132206035,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.649476633239319,
+            "ci95": [
+              0.6953512977588128,
+              4.6036019687198255
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.06058799825426666,
+          "work": {
+            "estimated_operations": 297500,
+            "operations": 162540
+          }
+        },
+        {
+          "name": "reflect",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.515790343436136,
+              "unit": "$",
+              "ci95": [
+                1.7576382861388398,
+                5.273942400733432
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0020000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.002000000000000001,
+                0.0020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 5.0,
+              "unit": "s",
+              "ci95": [
+                5.0,
+                5.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.7
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 30.76973561033097,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.7753264639675574,
+            "ci95": [
+              0.08204027022459082,
+              3.468612657710524
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.0756523234148055,
+          "work": {
+            "estimated_operations": 301100,
+            "operations": 184671
+          }
+        },
+        {
+          "name": "verify_once",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.487434574182012,
+              "unit": "$",
+              "ci95": [
+                1.081073854228141,
+                3.893795294135883
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.78,
+              "ci95": [
+                0.6892964648501421,
+                0.8499871761539459
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.02979999999999995,
+              "unit": "$",
+              "ci95": [
+                0.02940800720309194,
+                0.030191992796907964
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 39.75,
+              "unit": "s",
+              "ci95": [
+                39.26000900386499,
+                40.23999099613501
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 26.10369676681186,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.7469706947134298,
+            "ci95": [
+              -0.4608814065948692,
+              1.9548227960217288
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10692852422369617,
+          "work": {
+            "estimated_operations": 1243100,
+            "operations": 441807
+          }
+        },
+        {
+          "name": "risk_gate[1 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "parameter": {
+            "value": 1.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.487597711928683,
+              "unit": "$",
+              "ci95": [
+                1.081252731798934,
+                3.8939426920584324
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.75,
+              "ci95": [
+                0.656955364519384,
+                0.8245478863771232
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.02849999999999996,
+              "unit": "$",
+              "ci95": [
+                0.027212051335075167,
+                0.029787948664924752
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 38.0,
+              "unit": "s",
+              "ci95": [
+                36.28273511343361,
+                39.71726488656639
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.95,
+              "ci95": [
+                0.9070683778358402,
+                0.9929316221641598
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 26.10369676681186,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.747133832460101,
+            "ci95": [
+              -0.46063519105910544,
+              1.9549028559793076
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10692151180427921,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 435120
+          }
+        },
+        {
+          "name": "risk_gate[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.387332605881697,
+              "unit": "$",
+              "ci95": [
+                0.9757323231913111,
+                3.798932888572083
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.72,
+              "ci95": [
+                0.6251197129007884,
+                0.7986031478881379
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.01440000000000001,
+              "unit": "$",
+              "ci95": [
+                0.011447607870271286,
+                0.017352392129728736
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 19.2,
+              "unit": "s",
+              "ci95": [
+                15.263477160361699,
+                23.1365228396383
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.48,
+              "ci95": [
+                0.3815869290090425,
+                0.5784130709909574
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 26.10369676681186,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.6468687264131162,
+            "ci95": [
+              -0.5770271204591259,
+              1.8707645732853582
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.11141208705690549,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 365046
+          }
+        },
+        {
+          "name": "risk_gate[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.228492106075001,
+              "unit": "$",
+              "ci95": [
+                1.7425242394479765,
+                4.714459972702025
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0030000000000000005,
+              "unit": "$",
+              "ci95": [
+                0.0012271458710920095,
+                0.004772854128907992
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 4.0,
+              "unit": "s",
+              "ci95": [
+                1.6361944947893488,
+                6.363805505210651
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.1,
+              "ci95": [
+                0.04090486236973378,
+                0.15909513763026623
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 25.940447997318756,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.4880282266064209,
+            "ci95": [
+              0.1546885543786516,
+              2.82136789883419
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.0823845000642234,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 309194
+          }
+        },
+        {
+          "name": "until_sure[0.9]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "parameter": 0.9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.3998814683652783,
+              "unit": "$",
+              "ci95": [
+                0.9594975692142755,
+                3.840265367516281
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.05690000000000001,
+              "unit": "$",
+              "ci95": [
+                0.05086383674434456,
+                0.06293616325565546
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 78.5,
+              "unit": "s",
+              "ci95": [
+                70.07160239297656,
+                86.92839760702344
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.95,
+              "ci95": [
+                2.5800321336640204,
+                3.31996786633598
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.7
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 27.030777110334473,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.6594175888966974,
+            "ci95": [
+              -0.5808369448055658,
+              1.8996721225989606
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1108295187184624,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1238072
+          }
+        },
+        {
+          "name": "until_sure[0.97]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "parameter": 0.97,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.0763347789157582,
+              "unit": "$",
+              "ci95": [
+                1.062771004382884,
+                3.0898985534486325
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.91,
+              "ci95": [
+                0.837737871472837,
+                0.9519274599974348
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.07384,
+              "unit": "$",
+              "ci95": [
+                0.06746510291697541,
+                0.0802148970830246
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 102.55,
+              "unit": "s",
+              "ci95": [
+                93.72466994110722,
+                111.37533005889277
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.1,
+              "ci95": [
+                3.728854097497921,
+                4.471145902502078
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 19.2257496617148,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.33587089944717824,
+            "ci95": [
+              -0.35003344877080994,
+              1.0217752476651665
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12809962575455758,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1514697
+          }
+        },
+        {
+          "name": "until_sure[0.99]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "parameter": 0.99,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.210684778915758,
+              "unit": "$",
+              "ci95": [
+                1.202989225343114,
+                3.2183803324884024
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.91,
+              "ci95": [
+                0.837737871472837,
+                0.9519274599974348
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.08443999999999996,
+              "unit": "$",
+              "ci95": [
+                0.0784939392512114,
+                0.09038606074878852
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 117.4,
+              "unit": "s",
+              "ci95": [
+                109.25015416782429,
+                125.54984583217572
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.74,
+              "ci95": [
+                4.41677846780089,
+                5.06322153219911
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 19.2257496617148,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.47022089944717793,
+            "ci95": [
+              -0.2127541689125122,
+              1.1531959678068682
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12031462407351029,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1665568
+          }
+        },
+        {
+          "name": "until_sure_naive",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.74046387946858,
+              "unit": "$",
+              "ci95": [
+                1.0135731294329584,
+                2.467354629504202
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.94,
+              "ci95": [
+                0.8752318455410406,
+                0.9722138760368118
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.09109999999999994,
+              "unit": "$",
+              "ci95": [
+                0.08164110576530664,
+                0.10055889423469325
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 122.3,
+              "unit": "s",
+              "ci95": [
+                109.7536477946139,
+                134.8463522053861
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 3.37,
+              "ci95": [
+                3.0326397353698984,
+                3.707360264630102
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 11.532731324476325,
+              "unit": "$"
+            }
+          ],
+          "of_oracle": 0.15282001037648207,
+          "work": {
+            "estimated_operations": 1790300,
+            "operations": 1130182
+          }
+        },
+        {
+          "name": "two_sources[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.5199217322295455,
+              "unit": "$",
+              "ci95": [
+                1.8322006266696582,
+                3.207642837789433
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.78,
+              "ci95": [
+                0.6892964648501421,
+                0.8499871761539459
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.67862,
+              "unit": "$",
+              "ci95": [
+                0.4908514643895699,
+                0.8663885356104302
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 124.55,
+              "unit": "s",
+              "ci95": [
+                93.08770611491866,
+                156.01229388508133
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.24,
+              "ci95": [
+                0.9668807113598588,
+                1.5131192886401412
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.33,
+              "ci95": [
+                0.24563122734128034,
+                0.4269465620490947
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.902273622803499,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.7794578527609656,
+            "ci95": [
+              -0.16007842122508786,
+              1.718994126747019
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10554998781051511,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 613462
+          }
+        },
+        {
+          "name": "two_sources[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8057060031298833,
+              "unit": "$",
+              "ci95": [
+                1.9101509877395286,
+                3.701261018520238
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.65,
+              "ci95": [
+                0.5525444329688796,
+                0.7363575175690247
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.20329999999999998,
+              "unit": "$",
+              "ci95": [
+                0.083159246072091,
+                0.32344075392790894
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 34.45,
+              "unit": "s",
+              "ci95": [
+                14.087222689141612,
+                54.812777310858394
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.23,
+              "ci95": [
+                0.09111594910283402,
+                0.368884050897166
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.1,
+              "ci95": [
+                0.0552291370606751,
+                0.17436566150491345
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 15.730362270158922,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.0652421236613043,
+            "ci95": [
+              0.005583002058050512,
+              2.1249012452645584
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.09479885199075432,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 249388
+          }
+        },
+        {
+          "name": "forecast_voi",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.2399394218880766,
+              "unit": "$",
+              "ci95": [
+                1.2587933710035268,
+                3.2210854727726264
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.75,
+              "ci95": [
+                0.656955364519384,
+                0.8245478863771232
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.04231999999999991,
+              "unit": "$",
+              "ci95": [
+                0.0027526008341349564,
+                0.08188739916586488
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 34.15,
+              "unit": "s",
+              "ci95": [
+                25.8813076271166,
+                42.4186923728834
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.31,
+              "ci95": [
+                1.0984005276495725,
+                1.5215994723504276
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 18.370160474253154,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.49947554241949726,
+            "ci95": [
+              -0.19425189240291413,
+              1.1932029772419086
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.11874325953694063,
+          "work": {
+            "estimated_operations": 168689900,
+            "operations": 56353925
+          }
+        },
+        {
+          "name": "lookahead2",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.1021121550033097,
+              "unit": "$",
+              "ci95": [
+                1.101914714989538,
+                3.1023095950170814
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.8,
+              "ci95": [
+                0.7111708344068411,
+                0.8666330666689676
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.048179999999999897,
+              "unit": "$",
+              "ci95": [
+                0.008064654526023951,
+                0.08829534547397584
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 43.15,
+              "unit": "s",
+              "ci95": [
+                33.771362930495464,
+                52.52863706950453
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.98,
+              "ci95": [
+                1.6838946346547108,
+                2.276105365345289
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 19.336760705523403,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.36164827553473006,
+            "ci95": [
+              -0.33934287665105795,
+              1.062639427720518
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12652879033462508,
+          "work": {
+            "estimated_operations": 315271700,
+            "operations": 138046269
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.26597770812028065,
+              "unit": "$",
+              "ci95": [
+                -0.03624248800909674,
+                0.5681979042496581
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.98,
+              "ci95": [
+                0.929988209271456,
+                0.9944980324498376
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.022859999999999926,
+              "unit": "$",
+              "ci95": [
+                -0.016294680184497767,
+                0.062014680184497614
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 7.5,
+              "unit": "s",
+              "ci95": [
+                1.5422578540968885,
+                13.457742145903111
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.38,
+              "ci95": [
+                0.2843867376303632,
+                0.4756132623696368
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 3.8658506908935606,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.474486171348299,
+            "ci95": [
+              -2.254721570214729,
+              -0.694250772481869
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 8417300,
+            "operations": 1811549
+          }
+        }
+      ],
+      "ranking": [
+        "until_sure_naive",
+        "until_sure[0.97]",
+        "lookahead2",
+        "until_sure[0.99]",
+        "forecast_voi",
+        "risk_gate[5 $]",
+        "until_sure[0.9]",
+        "verify_once",
+        "risk_gate[1 $]",
+        "two_sources[5 $]",
+        "two_sources[20 $]",
+        "risk_gate[20 $]",
+        "reflect",
+        "answer_now"
+      ],
+      "recommended": "until_sure_naive",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 510404100,
+        "estimated_transitions": 472800,
+        "operations": 204521490,
+        "max_forecast_worlds": 20
+      }
+    },
+    {
+      "study": "current_events",
+      "model": "task",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+        "inputs_sha256": "6ae495698780a28c736884b6ed72b4c0cc6ad6d02513cd175e018afb00b11ee2",
+        "seed": 11,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "domain": "current",
+        "stakes_median": {
+          "value": 5.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 0.5,
+          "unit": "$/min"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "answer_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.6837972549450457,
+              "unit": "$",
+              "ci95": [
+                1.7710408122682832,
+                5.596553697621808
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 36.27588199595912,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.881536670282413,
+            "ci95": [
+              0.028484591486655164,
+              3.7345887490781706
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.11082581142952455,
+          "work": {
+            "estimated_operations": 297500,
+            "operations": 162537
+          }
+        },
+        {
+          "name": "reflect",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 4.311893403587067,
+              "unit": "$",
+              "ci95": [
+                2.161147955421441,
+                6.462638851752693
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.62,
+              "ci95": [
+                0.5220975529551107,
+                0.7090240074752127
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0020000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.002000000000000001,
+                0.0020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 5.0,
+              "unit": "s",
+              "ci95": [
+                5.0,
+                5.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 41.741638614700214,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.509632818924439,
+            "ci95": [
+              0.39959222493957025,
+              4.619673412909307
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.09468226176034597,
+          "work": {
+            "estimated_operations": 301100,
+            "operations": 183733
+          }
+        },
+        {
+          "name": "verify_once",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.9537972549450466,
+              "unit": "$",
+              "ci95": [
+                2.0410408122682844,
+                5.866553697621809
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.020000000000000014,
+              "unit": "$",
+              "ci95": [
+                0.02000000000000001,
+                0.020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 30.0,
+              "unit": "s",
+              "ci95": [
+                30.0,
+                30.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 36.54588199595912,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.151536670282413,
+            "ci95": [
+              0.29848459148665496,
+              4.00458874907817
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10325765171962874,
+          "work": {
+            "estimated_operations": 1243100,
+            "operations": 415837
+          }
+        },
+        {
+          "name": "risk_gate[1 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 1.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.9402972549450475,
+              "unit": "$",
+              "ci95": [
+                2.026611129077242,
+                5.853983380812853
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.019000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.01814136755671682,
+                0.019858632443283206
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 28.5,
+              "unit": "s",
+              "ci95": [
+                27.21205133507521,
+                29.78794866492479
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.95,
+              "ci95": [
+                0.9070683778358402,
+                0.9929316221641598
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 36.54588199595912,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.138036670282413,
+            "ci95": [
+              0.28425768374090854,
+              3.991815656823918
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10361142662746481,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 410347
+          }
+        },
+        {
+          "name": "risk_gate[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.8133972549450466,
+              "unit": "$",
+              "ci95": [
+                1.8921445964090706,
+                5.7346499134810225
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.009600000000000004,
+              "unit": "$",
+              "ci95": [
+                0.007631738580180854,
+                0.011568261419819155
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 14.4,
+              "unit": "s",
+              "ci95": [
+                11.447607870271272,
+                17.352392129728727
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.48,
+              "ci95": [
+                0.3815869290090425,
+                0.5784130709909574
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 36.54588199595912,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.011136670282414,
+            "ci95": [
+              0.15080158492702256,
+              3.8714717556378053
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10705934698823374,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 352801
+          }
+        },
+        {
+          "name": "risk_gate[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.7107972549450454,
+              "unit": "$",
+              "ci95": [
+                1.789163465123954,
+                5.632431044766137
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.63,
+              "ci95": [
+                0.5322052958094291,
+                0.7181763946567546
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.002,
+              "unit": "$",
+              "ci95": [
+                0.0008180972473946732,
+                0.003181902752605327
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 3.0,
+              "unit": "s",
+              "ci95": [
+                1.2271458710920116,
+                4.772854128907989
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.1,
+              "ci95": [
+                0.04090486236973378,
+                0.15909513763026623
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.5
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 36.50088199595912,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.9085366702824131,
+            "ci95": [
+              0.047488024424803044,
+              3.7695853161400232
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.11001943568247731,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 306517
+          }
+        },
+        {
+          "name": "until_sure[0.9]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": 0.9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.72703457463473,
+              "unit": "$",
+              "ci95": [
+                1.4287455121700665,
+                4.025323637099394
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.84,
+              "ci95": [
+                0.7557973061072976,
+                0.8990471151119521
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.061300000000000014,
+              "unit": "$",
+              "ci95": [
+                0.05887054210391573,
+                0.06372945789608431
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 103.6,
+              "unit": "s",
+              "ci95": [
+                99.35208665607085,
+                107.84791334392914
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 5.2,
+              "ci95": [
+                4.952395212740739,
+                5.4476047872592614
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.7
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 24.908868803402914,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.9247739899720985,
+            "ci95": [
+              -0.209422291724764,
+              2.058970271668961
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1497083402310085,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1597480
+          }
+        },
+        {
+          "name": "until_sure[0.97]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.97,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8888650117976766,
+              "unit": "$",
+              "ci95": [
+                1.594286527281304,
+                4.183443496314049
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.83,
+              "ci95": [
+                0.7445199523239887,
+                0.8910643388594006
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.06770000000000007,
+              "unit": "$",
+              "ci95": [
+                0.0664156717179641,
+                0.06898432828203603
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 115.05,
+              "unit": "s",
+              "ci95": [
+                112.7804295453796,
+                117.31957045462039
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 5.84,
+              "ci95": [
+                5.719469096025929,
+                5.960530903974071
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.7
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 24.908868803402914,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.086604427135046,
+            "ci95": [
+              -0.04898548231551758,
+              2.222194336585609
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.14132187494184395,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1690042
+          }
+        },
+        {
+          "name": "until_sure[0.99]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "parameter": 0.99,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.91379834513101,
+              "unit": "$",
+              "ci95": [
+                1.620715380695535,
+                4.2068813095664845
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.83,
+              "ci95": [
+                0.7445199523239887,
+                0.8910643388594006
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.06930000000000008,
+              "unit": "$",
+              "ci95": [
+                0.06848044325736037,
+                0.0701195567426398
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 117.85,
+              "unit": "s",
+              "ci95": [
+                116.51941130086153,
+                119.18058869913845
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 5.99,
+              "ci95": [
+                5.9704003601546,
+                6.0095996398454
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.7
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 24.908868803402914,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1115377604683794,
+            "ci95": [
+              -0.02321300246596314,
+              2.246288523402722
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.14011258555464093,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1714488
+          }
+        },
+        {
+          "name": "until_sure_naive",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.8022605846626343,
+              "unit": "$",
+              "ci95": [
+                1.1064563304183967,
+                2.498064838906872
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.89,
+              "ci95": [
+                0.8136870349691969,
+                0.9374580364293543
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.06370000000000005,
+              "unit": "$",
+              "ci95": [
+                0.061850973675033914,
+                0.06554902632496619
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 110.6,
+              "unit": "s",
+              "ci95": [
+                107.1086602468323,
+                114.09133975316769
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 5.43,
+              "ci95": [
+                5.242596034597481,
+                5.617403965402518
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 12.633938485023156,
+              "unit": "$"
+            }
+          ],
+          "of_oracle": 0.2265265208568949,
+          "work": {
+            "estimated_operations": 1790300,
+            "operations": 1349521
+          }
+        },
+        {
+          "name": "two_sources[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.1411552005493375,
+              "unit": "$",
+              "ci95": [
+                2.495175358826564,
+                3.787135042272111
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.78,
+              "ci95": [
+                0.6892964648501421,
+                0.8499871761539459
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.9598399999999999,
+              "unit": "$",
+              "ci95": [
+                0.7592522977903012,
+                1.1604277022096987
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 174.45,
+              "unit": "s",
+              "ci95": [
+                138.18949048720353,
+                210.71050951279645
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.07,
+              "ci95": [
+                1.6171471573418794,
+                2.5228528426581205
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.47,
+              "ci95": [
+                0.3751081795934127,
+                0.5671114302990063
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 10.777113563941207,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.3388946158867052,
+            "ci95": [
+              0.5657353001710598,
+              2.1120539316023508
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12997123473865338,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 797508
+          }
+        },
+        {
+          "name": "two_sources[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.206648640208512,
+              "unit": "$",
+              "ci95": [
+                1.4714439240610544,
+                2.9418533563559697
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.2036,
+              "unit": "$",
+              "ci95": [
+                0.08328159028401666,
+                0.32391840971598335
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 36.0,
+              "unit": "s",
+              "ci95": [
+                14.713898248618783,
+                57.28610175138122
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.36,
+              "ci95": [
+                0.14328201641354404,
+                0.576717983586456
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.1,
+              "ci95": [
+                0.0552291370606751,
+                0.17436566150491345
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 13.542685247116607,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.40438805554587903,
+            "ci95": [
+              -0.4838925154530613,
+              1.2926686265448193
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1850135143774236,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 283046
+          }
+        },
+        {
+          "name": "forecast_voi",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.842462782846182,
+              "unit": "$",
+              "ci95": [
+                0.8515257038069831,
+                2.833399861885381
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.77,
+              "ci95": [
+                0.6784561697712622,
+                0.8415673411969654
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.09247999999999988,
+              "unit": "$",
+              "ci95": [
+                0.015516516660384963,
+                0.1694434833396148
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 33.2,
+              "unit": "s",
+              "ci95": [
+                21.219141968872606,
+                45.1808580311274
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.29,
+              "ci95": [
+                1.0419333434369467,
+                1.5380666565630534
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.04,
+              "ci95": [
+                0.01566330399154762,
+                0.0983707143588792
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 17.98507923890723,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.04020219818354999,
+            "ci95": [
+              -0.7313674460692942,
+              0.8117718424363941
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.22158375394181484,
+          "work": {
+            "estimated_operations": 168689900,
+            "operations": 54283045
+          }
+        },
+        {
+          "name": "lookahead2",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.29545488122116,
+              "unit": "$",
+              "ci95": [
+                1.069119460226698,
+                3.5217903022156216
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.77,
+              "ci95": [
+                0.6784561697712622,
+                0.8415673411969654
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.13787999999999992,
+              "unit": "$",
+              "ci95": [
+                0.003757430996022687,
+                0.2720025690039771
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 49.05,
+              "unit": "s",
+              "ci95": [
+                28.629280643778685,
+                69.47071935622131
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.96,
+              "ci95": [
+                1.6200445520639983,
+                2.299955447936002
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.04,
+              "ci95": [
+                0.01566330399154762,
+                0.0983707143588792
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 22.122735414556615,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.4931942965585269,
+            "ci95": [
+              -0.8204721374160671,
+              1.806860730533121
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.17785573711819136,
+          "work": {
+            "estimated_operations": 315271700,
+            "operations": 131970584
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.4082598199211398,
+              "unit": "$",
+              "ci95": [
+                0.09219705152332541,
+                0.7243225883189541
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.95,
+              "ci95": [
+                0.8882495307680808,
+                0.9784563208456319
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.06241999999999994,
+              "unit": "$",
+              "ci95": [
+                -0.004706973418375872,
+                0.12954697341837576
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 13.0,
+              "unit": "s",
+              "ci95": [
+                2.9692882101664537,
+                23.030711789833546
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.32,
+              "ci95": [
+                0.22811175873564138,
+                0.41188824126435863
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.03,
+              "ci95": [
+                0.010254524024038925,
+                0.0845193642905276
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 5.763392237428072,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.3940007647414936,
+            "ci95": [
+              -1.9753822291761058,
+              -0.8126193003068812
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 8417300,
+            "operations": 1727789
+          }
+        }
+      ],
+      "ranking": [
+        "until_sure_naive",
+        "forecast_voi",
+        "two_sources[20 $]",
+        "lookahead2",
+        "until_sure[0.9]",
+        "until_sure[0.97]",
+        "until_sure[0.99]",
+        "two_sources[5 $]",
+        "answer_now",
+        "risk_gate[20 $]",
+        "risk_gate[5 $]",
+        "risk_gate[1 $]",
+        "verify_once",
+        "reflect"
+      ],
+      "recommended": "until_sure_naive",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 510404100,
+        "estimated_transitions": 472800,
+        "operations": 197245275,
+        "max_forecast_worlds": 20
+      }
+    },
+    {
+      "study": "general_knowledge",
+      "model": "task",
+      "provenance": {
+        "runtime": "parallax 0.2.0",
+        "model_sha256": "d7a54dee769b4a1762325b02c75db35ed3a7d87be9b0dd272991e480439af76e",
+        "inputs_sha256": "8b72c4cddbec4bfba31b935c75976babbea343c1f50b04df21cbe09d195d2a60",
+        "seed": 11,
+        "worlds": 100,
+        "world_ids": [
+          0,
+          99
+        ]
+      },
+      "inputs": {
+        "domain": "general",
+        "stakes_median": {
+          "value": 5.0,
+          "unit": "$"
+        },
+        "time_value": {
+          "value": 0.5,
+          "unit": "$/min"
+        }
+      },
+      "objectives": [
+        {
+          "sense": "minimize",
+          "metric": "mean(loss)"
+        }
+      ],
+      "constraints": [],
+      "policies": [
+        {
+          "name": "answer_now",
+          "oracle": false,
+          "status": "ok",
+          "rank": 10,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.598988381880087,
+              "unit": "$",
+              "ci95": [
+                1.6582431130894706,
+                5.539733650670703
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.64,
+              "ci95": [
+                0.5423540245160874,
+                0.7272877959859567
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0,
+              "unit": "$",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 0.0,
+              "unit": "s",
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.0,
+              "ci95": [
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 35.27744101806044,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.218828435825378,
+            "ci95": [
+              0.25654449273358937,
+              4.181112378917167
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.0796693198626247,
+          "work": {
+            "estimated_operations": 297500,
+            "operations": 162536
+          }
+        },
+        {
+          "name": "reflect",
+          "oracle": false,
+          "status": "ok",
+          "rank": 9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.1465837802345273,
+              "unit": "$",
+              "ci95": [
+                1.3884364230945438,
+                4.904731137374511
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.73,
+              "ci95": [
+                0.6356788323205499,
+                0.8073041585042365
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.0020000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.002000000000000001,
+                0.0020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 5.0,
+              "unit": "s",
+              "ci95": [
+                5.0,
+                5.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 31.95598473737188,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.766423834179821,
+            "ci95": [
+              -0.05025949191748258,
+              3.583107160277125
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.09112389073476496,
+          "work": {
+            "estimated_operations": 301100,
+            "operations": 184907
+          }
+        },
+        {
+          "name": "verify_once",
+          "oracle": false,
+          "status": "ok",
+          "rank": 14,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.7433984040552715,
+              "unit": "$",
+              "ci95": [
+                1.797740746943818,
+                5.689056061166725
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.020000000000000014,
+              "unit": "$",
+              "ci95": [
+                0.02000000000000001,
+                0.020000000000000018
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 30.0,
+              "unit": "s",
+              "ci95": [
+                30.0,
+                30.0
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 35.54744101806044,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.363238458000565,
+            "ci95": [
+              0.39672533295827295,
+              4.329751583042857
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.07659589646329323,
+          "work": {
+            "estimated_operations": 1243100,
+            "operations": 421232
+          }
+        },
+        {
+          "name": "risk_gate[1 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 13,
+          "parameter": {
+            "value": 1.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.7298984040552714,
+              "unit": "$",
+              "ci95": [
+                1.7833272876699533,
+                5.676469520440589
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.019000000000000013,
+              "unit": "$",
+              "ci95": [
+                0.01814136755671682,
+                0.019858632443283206
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 28.5,
+              "unit": "s",
+              "ci95": [
+                27.21205133507521,
+                29.78794866492479
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.95,
+              "ci95": [
+                0.9070683778358402,
+                0.9929316221641598
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 35.54744101806044,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.3497384580005645,
+            "ci95": [
+              0.38249263143966017,
+              4.316984284561469
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.07687312776834171,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 415742
+          }
+        },
+        {
+          "name": "risk_gate[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 12,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.728588381880085,
+              "unit": "$",
+              "ci95": [
+                1.7799778671164113,
+                5.677198896643759
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.64,
+              "ci95": [
+                0.5423540245160874,
+                0.7272877959859567
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.009600000000000004,
+              "unit": "$",
+              "ci95": [
+                0.007631738580180854,
+                0.011568261419819155
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 14.4,
+              "unit": "s",
+              "ci95": [
+                11.447607870271272,
+                17.352392129728727
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.48,
+              "ci95": [
+                0.3815869290090425,
+                0.5784130709909574
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 35.54744101806044,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.3484284358253773,
+            "ci95": [
+              0.3792915740885614,
+              4.317565297562194
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.07690013678401689,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 354300
+          }
+        },
+        {
+          "name": "risk_gate[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 11,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.625988381880086,
+              "unit": "$",
+              "ci95": [
+                1.6775458924574402,
+                5.574430871302733
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.64,
+              "ci95": [
+                0.5423540245160874,
+                0.7272877959859567
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.002,
+              "unit": "$",
+              "ci95": [
+                0.0008180972473946732,
+                0.003181902752605327
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 3.0,
+              "unit": "s",
+              "ci95": [
+                1.2271458710920116,
+                4.772854128907989
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.1,
+              "ci95": [
+                0.04090486236973378,
+                0.15909513763026623
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.6
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 35.45744101806044,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 2.245828435825378,
+            "ci95": [
+              0.2756271390771161,
+              4.21602973257364
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.07907608254089465,
+          "work": {
+            "estimated_operations": 1246100,
+            "operations": 307116
+          }
+        },
+        {
+          "name": "until_sure[0.9]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 6,
+          "parameter": 0.9,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.578684448756955,
+              "unit": "$",
+              "ci95": [
+                0.8385870951023762,
+                4.318781802411534
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.84,
+              "ci95": [
+                0.7557973061072976,
+                0.8990471151119521
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.045439999999999967,
+              "unit": "$",
+              "ci95": [
+                0.04158230289001132,
+                0.04929769710998861
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 77.6,
+              "unit": "s",
+              "ci95": [
+                70.8126576731814,
+                84.38734232681858
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.08,
+              "ci95": [
+                3.667103927833991,
+                4.492896072166009
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 28.60223236430487,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.1985245027022464,
+            "ci95": [
+              -0.5568548873479617,
+              2.9539038927524546
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.1111919516620544,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1407006
+          }
+        },
+        {
+          "name": "until_sure[0.97]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 3,
+          "parameter": 0.97,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.8393575119324552,
+              "unit": "$",
+              "ci95": [
+                0.729964113049876,
+                2.9487509108150345
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.87,
+              "ci95": [
+                0.7901964855992357,
+                0.9224283257275948
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.05466000000000002,
+              "unit": "$",
+              "ci95": [
+                0.05196769632244684,
+                0.0573523036775532
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 93.95,
+              "unit": "s",
+              "ci95": [
+                89.15455712282423,
+                98.74544287717578
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 5.06,
+              "ci95": [
+                4.752528554816181,
+                5.367471445183818
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 15.843627111624253,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.4591975658777478,
+            "ci95": [
+              -0.6590489302460141,
+              1.5774440620015098
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.15588538645574845,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1602603
+          }
+        },
+        {
+          "name": "until_sure[0.99]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 4,
+          "parameter": 0.99,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.9722046157620705,
+              "unit": "$",
+              "ci95": [
+                0.861496861787244,
+                3.082912369736897
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.86,
+              "ci95": [
+                0.7786281178903616,
+                0.9147365634006086
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.05916000000000003,
+              "unit": "$",
+              "ci95": [
+                0.05720187409611369,
+                0.06111812590388637
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 102.15,
+              "unit": "s",
+              "ci95": [
+                98.76023287214865,
+                105.53976712785136
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 5.56,
+              "ci95": [
+                5.350937174982394,
+                5.769062825017605
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.9
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 16.20916722960091,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.5920446697073622,
+            "ci95": [
+              -0.5313380746432601,
+              1.7154274140579846
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.14538499417672293,
+          "work": {
+            "estimated_operations": 2119700,
+            "operations": 1698373
+          }
+        },
+        {
+          "name": "until_sure_naive",
+          "oracle": false,
+          "status": "ok",
+          "rank": 1,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.3801599460547078,
+              "unit": "$",
+              "ci95": [
+                0.9973132338726529,
+                1.7630066582367627
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.9,
+              "ci95": [
+                0.8256343384950865,
+                0.9447708629393249
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.05616000000000001,
+              "unit": "$",
+              "ci95": [
+                0.05150061748356781,
+                0.06081938251643221
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 95.95,
+              "unit": "s",
+              "ci95": [
+                88.68333358875832,
+                103.21666641124169
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 4.55,
+              "ci95": [
+                4.238074439194633,
+                4.861925560805367
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.0,
+              "ci95": [
+                3.469446951953614e-18,
+                0.03699349820698568
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 8.38608290844016,
+              "unit": "$"
+            }
+          ],
+          "of_oracle": 0.20775052731932359,
+          "work": {
+            "estimated_operations": 1790300,
+            "operations": 1263253
+          }
+        },
+        {
+          "name": "two_sources[5 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 8,
+          "parameter": {
+            "value": 5.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 3.036446833353427,
+              "unit": "$",
+              "ci95": [
+                2.341571756706737,
+                3.731321910000117
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.76,
+              "ci95": [
+                0.6676766365018553,
+                0.8330867444305122
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.8370000000000001,
+              "unit": "$",
+              "ci95": [
+                0.640238905770128,
+                1.033761094229872
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 151.3,
+              "unit": "s",
+              "ci95": [
+                117.09036864244385,
+                185.50963135755617
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.75,
+              "ci95": [
+                1.3656291450443698,
+                2.13437085495563
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.41,
+              "ci95": [
+                0.3186731302113651,
+                0.5079856994658921
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 12.538516167451597,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.6562868872987182,
+            "ci95": [
+              0.9241297875142596,
+              2.3884439870831766
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.09442910490917887,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 735772
+          }
+        },
+        {
+          "name": "two_sources[20 $]",
+          "oracle": false,
+          "status": "ok",
+          "rank": 5,
+          "parameter": {
+            "value": 20.0,
+            "unit": "$"
+          },
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.321285903853404,
+              "unit": "$",
+              "ci95": [
+                1.5547783868197498,
+                3.0877934208870585
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.68,
+              "ci95": [
+                0.5833738138954762,
+                0.7633085267500092
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.20331999999999997,
+              "unit": "$",
+              "ci95": [
+                0.08316705310875767,
+                0.3234729468912423
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 35.45,
+              "unit": "s",
+              "ci95": [
+                14.488992261480405,
+                56.4110077385196
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.34,
+              "ci95": [
+                0.13298887158263148,
+                0.5470111284173685
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.1,
+              "ci95": [
+                0.0552291370606751,
+                0.17436566150491345
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 14.111210413220759,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.9411259577986949,
+            "ci95": [
+              0.13837055168237766,
+              1.7438813639150121
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.12352160330698432,
+          "work": {
+            "estimated_operations": 2147900,
+            "operations": 277992
+          }
+        },
+        {
+          "name": "forecast_voi",
+          "oracle": false,
+          "status": "ok",
+          "rank": 7,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 2.8651591696081686,
+              "unit": "$",
+              "ci95": [
+                1.3257731840813332,
+                4.404545155135004
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.69,
+              "ci95": [
+                0.5937394428051057,
+                0.7722030278762395
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.06923999999999995,
+              "unit": "$",
+              "ci95": [
+                0.002019252112346298,
+                0.1364607478876536
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 24.95,
+              "unit": "s",
+              "ci95": [
+                14.158510329303958,
+                35.74148967069604
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 1.04,
+              "ci95": [
+                0.8121109501388087,
+                1.2678890498611914
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.03,
+              "ci95": [
+                0.010254524024038925,
+                0.0845193642905276
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 0.8
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 25.067567320608088,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 1.484999223553462,
+            "ci95": [
+              -0.04579704114494132,
+              3.0157954882518654
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.10007435524675824,
+          "work": {
+            "estimated_operations": 168689900,
+            "operations": 48847846
+          }
+        },
+        {
+          "name": "lookahead2",
+          "oracle": false,
+          "status": "ok",
+          "rank": 2,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 1.4117756815736302,
+              "unit": "$",
+              "ci95": [
+                0.7330890337467534,
+                2.090462329400507
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.8,
+              "ci95": [
+                0.7111708344068411,
+                0.8666330666689676
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.03357999999999997,
+              "unit": "$",
+              "ci95": [
+                -0.005503184614791844,
+                0.07266318461479179
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 27.7,
+              "unit": "s",
+              "ci95": [
+                20.176585776448388,
+                35.22341422355161
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 2.15,
+              "ci95": [
+                1.7853138874509302,
+                2.5146861125490694
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.01,
+              "ci95": [
+                0.0017674320641406505,
+                0.054486196178705315
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 13.384482308504202,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": 0.03161573551892244,
+            "ci95": [
+              -0.5822710524436068,
+              0.6455025234814518
+            ],
+            "worlds": 100
+          },
+          "of_oracle": 0.20309809860039055,
+          "work": {
+            "estimated_operations": 315271700,
+            "operations": 141670580
+          }
+        },
+        {
+          "name": "hindsight",
+          "oracle": true,
+          "status": "ok",
+          "rank": null,
+          "worlds_completed": 100,
+          "model_errors": 0,
+          "objectives": [
+            {
+              "metric": "mean(loss)",
+              "value": 0.2867289565778747,
+              "unit": "$",
+              "ci95": [
+                0.08663600608003169,
+                0.48682190707571776
+              ]
+            }
+          ],
+          "constraints": [],
+          "metrics": [
+            {
+              "metric": "probability(correct)",
+              "value": 0.99,
+              "ci95": [
+                0.9455138038212946,
+                0.9982325679358593
+              ]
+            },
+            {
+              "metric": "mean(cost)",
+              "value": 0.10181999999999997,
+              "unit": "$",
+              "ci95": [
+                0.016035802601536878,
+                0.18760419739846307
+              ]
+            },
+            {
+              "metric": "mean(latency)",
+              "value": 18.45,
+              "unit": "s",
+              "ci95": [
+                5.6599294488735925,
+                31.240070551126408
+              ]
+            },
+            {
+              "metric": "mean(calls)",
+              "value": 0.35,
+              "ci95": [
+                0.25604471933559886,
+                0.4439552806644011
+              ]
+            },
+            {
+              "metric": "probability(asked)",
+              "value": 0.05,
+              "ci95": [
+                0.02154367915436796,
+                0.11175046923191913
+              ]
+            },
+            {
+              "metric": "probability(correct where stakes > 20 $)",
+              "value": 1.0
+            },
+            {
+              "metric": "cvar95(loss)",
+              "value": 4.26931594296458,
+              "unit": "$"
+            }
+          ],
+          "vs_recommended": {
+            "difference": -1.093430989476834,
+            "ci95": [
+              -1.5154966603593605,
+              -0.6713653185943074
+            ],
+            "worlds": 100
+          },
+          "work": {
+            "estimated_operations": 8417300,
+            "operations": 1767015
+          }
+        }
+      ],
+      "ranking": [
+        "until_sure_naive",
+        "lookahead2",
+        "until_sure[0.97]",
+        "until_sure[0.99]",
+        "two_sources[20 $]",
+        "until_sure[0.9]",
+        "forecast_voi",
+        "two_sources[5 $]",
+        "reflect",
+        "answer_now",
+        "risk_gate[20 $]",
+        "risk_gate[5 $]",
+        "risk_gate[1 $]",
+        "verify_once"
+      ],
+      "recommended": "until_sure_naive",
+      "best_oracle": "hindsight",
+      "errors": [],
+      "work": {
+        "estimated_operations": 510404100,
+        "estimated_transitions": 472800,
+        "operations": 201116273,
+        "max_forecast_worlds": 20
+      }
+    }
+  ]
+}

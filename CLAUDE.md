@@ -142,7 +142,8 @@ findings carried over (e.g. pre-warm: calibrated plan 15 min, best 20 min).
 
 ## Performance
 
-- About 80M operations a second. Pre-warm ~10s, island and circumbinary
+- About 80M operations a second. Pre-warm ~10s, tooluse ~12s (100 worlds; its
+  forecasts are the heavy part), island and circumbinary
   ~5s, reactor 0.5s (release and opt-level 1 are similar).
 - Measure with callgrind instruction counts (`circumbinary.px` with
   `worlds 4` is a good probe); wall time is too noisy.
