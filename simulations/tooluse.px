@@ -37,20 +37,26 @@
 # touching the policies. Serve and study with the same inputs file:
 #   parallax run tooluse.px --study as_given --inputs calibration.json
 #   parallax decide tooluse.px --policy lookahead2 --inputs calibration.json ...
-# (an example is in tooluse_calibration.json). From logged tasks whose
-# truth later became known, per source:
-#   fail     share of tasks on which its first call couldn't answer
-#   misled   from tasks with two calls to it that answered: with w1 the
-#            share of first calls that were wrong and w2 the share of tasks
-#            where both were wrong, misled ~= (w2 - w1^2) / (1 - 2 w1 + w2)
-#            (for context, "wrong" means "agreed with a wrong draft")
-#   acc      measured as 1 - (w1 - misled) / (1 - misled); the model
-#            makes calls noisier with difficulty, so (difficulty averaging
-#            0.5) enter 0.5 + (measured - 0.5) / 0.75
-#            (these hold exactly at one difficulty, and roughly over a mix)
-#   cost, latency   means per call
-# and for the draft, prior_right.easy and .hard: the share of drafts that
-# were right among tasks the agent rated easy (near 0) and hard (near 1).
+# scripts/calibrate_tooluse.py estimates the inputs from a log of tasks
+# whose truth is known (see its docstring for the log format and the
+# estimators: two calls per source separate being misled from noise).
+#
+# Measured in one session (tooluse_log.jsonl, tooluse_calibration.json):
+# 100 yes/no claims about parallax, true answers settled with the binary
+# and the source. Each source call was a fresh agent allowed only that
+# source; each had CLAUDE.md in context, as an agent in this repo does.
+#   - Drafts were right 90 times in 100.
+#   - Thinking again never changed a draft (0 of 200): a pure echo.
+#   - github, code, doc and web (web on 20 claims) were each wrong at
+#     most once; doc couldn't answer 30% of the claims, code 4%, github
+#     almost never.
+# With those rates (stakes 20 $, time 1 $/min, 2000 worlds) the
+# until_sure rules lead (about 1.4-1.9 $ against 8.6-9.0 $ for answering
+# now), the leaders can't be told apart across seeds, and they check the
+# source code first. Caveats: costs and latencies are per claim in a
+# batch of 20, so they understate one call's overhead; the claims were
+# chosen by hand; and the world's difficulty stays uniform, while these
+# claims were rated easier (mean 0.38).
 #
 # The studies run 100 worlds so the golden test stays quick; for an answer,
 # run with `--worlds 5000` (about 12 minutes). At 5000 worlds, seed 11:

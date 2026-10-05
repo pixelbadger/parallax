@@ -1,14 +1,51 @@
 {
   "domain": "calibrated",
-  "stakes_median": "20 $",
-  "time_value": "1 $/min",
-  "prior_right": {"easy": 0.75, "hard": 0.35},
+  "prior_right": {
+    "easy": 0.99,
+    "hard": 0.587
+  },
   "sources": [
-    {"acc": 0.65, "misled": 0.30, "fail": 0.00, "cost": 0.002, "latency": 5},
-    {"acc": 0.75, "misled": 0.25, "fail": 0.60, "cost": 0.01, "latency": 15},
-    {"acc": 0.90, "misled": 0.08, "fail": 0.15, "cost": 0.01, "latency": 20},
-    {"acc": 0.97, "misled": 0.04, "fail": 0.30, "cost": 0.02, "latency": 30},
-    {"acc": 0.92, "misled": 0.08, "fail": 0.10, "cost": 0.01, "latency": 15},
-    {"acc": 0.98, "misled": 0.02, "fail": 0.10, "cost": 2, "latency": 300}
+    {
+      "acc": 0.5,
+      "misled": 0.9734,
+      "fail": 0.0,
+      "cost": 0.0,
+      "latency": 0.426
+    },
+    {
+      "acc": 0.995,
+      "misled": 0.0137,
+      "fail": 0.1667,
+      "cost": 0.0009,
+      "latency": 2.36
+    },
+    {
+      "acc": 0.995,
+      "misled": 0.0023,
+      "fail": 0.005,
+      "cost": 0.0049,
+      "latency": 2.568
+    },
+    {
+      "acc": 0.995,
+      "misled": 0.0025,
+      "fail": 0.0446,
+      "cost": 0.0018,
+      "latency": 2.902
+    },
+    {
+      "acc": 0.995,
+      "misled": 0.0181,
+      "fail": 0.302,
+      "cost": 0.0034,
+      "latency": 0.724
+    },
+    {
+      "acc": 0.98,
+      "misled": 0.02,
+      "fail": 0.1,
+      "cost": 2.0,
+      "latency": 300
+    }
   ]
 }
