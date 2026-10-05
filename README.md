@@ -247,12 +247,26 @@ never recommended.
 
 ## Running
 
+Each version is released with prebuilt binaries for Linux (x86_64), macOS
+(Apple silicon and Intel) and Windows (x86_64). The repo is private, so
+download them with an authenticated [`gh`](https://cli.github.com):
+
 ```sh
-cargo run --release -- run simulations/reactor.px
-cargo run --release -- check simulations/reactor.px
-cargo run --release -- run model.px --inputs inputs.json --input soc=30% --seed 3
-cargo install --path .            # installs the `parallax` binary
+scripts/install.sh                # latest release into ~/.local/bin (or $PARALLAX_INSTALL_DIR)
+scripts/install.sh v0.1.0         # a specific version
+gh release download --repo pixelbadger/parallax --pattern '*windows*'   # Windows: unzip parallax.exe
 ```
+
+Then:
+
+```sh
+parallax run simulations/reactor.px
+parallax check simulations/reactor.px
+parallax run model.px --inputs inputs.json --input soc=30% --seed 3
+```
+
+From source, use `cargo run --release -- <args>` in place of `parallax`, or
+`cargo install --path .` to install it.
 
 Options: `--study NAME`, `--seed N`, `--worlds N`, `--max-operations X`,
 `--max-worlds N` and `--compact`. Errors are printed as JSON too

@@ -1,0 +1,99 @@
+name: Release
+
+# After CI passes on main, publish binaries for Cargo.toml's version as a
+# GitHub release, unless that version already has one. Bump `version` in
+# Cargo.toml to release.
+
+on:
+  workflow_run:
+    workflows: [ "CI" ]
+    types: [ completed ]
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.v.outputs.tag }}
+      new: ${{ steps.v.outputs.new }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.workflow_run.head_sha }}
+    - id: v
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -n1)
+        tag="v$version"
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        if gh release view "$tag" > /dev/null 2>&1; then
+          echo "$tag is already released"
+          echo "new=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "new=true" >> "$GITHUB_OUTPUT"
+        fi
+
+  build:
+    needs: version
+    if: needs.version.outputs.new == 'true'
+    strategy:
+      matrix:
+        include:
+        - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+        - { target: aarch64-apple-darwin, os: macos-latest }
+        - { target: x86_64-apple-darwin, os: macos-latest }
+        - { target: x86_64-pc-windows-msvc, os: windows-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.workflow_run.head_sha }}
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+    - name: Build
+      run: cargo build --release --locked --target ${{ matrix.target }}
+    - name: Package
+      shell: bash
+      run: |
+        name="parallax-${{ needs.version.outputs.tag }}-${{ matrix.target }}"
+        cd "target/${{ matrix.target }}/release"
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          7z a "$GITHUB_WORKSPACE/$name.zip" parallax.exe
+        else
+          tar -czf "$GITHUB_WORKSPACE/$name.tar.gz" parallax
+        fi
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.target }}
+        path: parallax-*
+
+  release:
+    needs: [ version, build ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        path: dist
+        merge-multiple: true
+    - name: Publish
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        TAG: ${{ needs.version.outputs.tag }}
+      run: |
+        cd dist
+        sha256sum parallax-* > SHA256SUMS
+        gh release create "$TAG" --target "${{ github.event.workflow_run.head_sha }}" \
+          --title "parallax $TAG" --generate-notes parallax-* SHA256SUMS

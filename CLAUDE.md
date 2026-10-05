@@ -17,6 +17,13 @@ cargo run --release -- run simulations/reactor.px
 cargo run --release -- check simulations/reactor.px
 ```
 
+Releases: when CI passes on main, `.github/workflows/release.yml` publishes
+binaries for Cargo.toml's `version` as GitHub release `v<version>`, unless
+it already exists. To release, bump the version (and refresh `Cargo.lock`,
+since CI builds `--locked`). The runtime version appears in every report's
+provenance, so regenerate the goldens with `UPDATE_EXPECT=1`. `scripts/install.sh`
+fetches a release.
+
 `[profile.dev] opt-level = 1` is deliberate: the golden tests run whole
 studies. Each golden program is its own test, so they run in parallel.
 
