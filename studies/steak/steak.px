@@ -1,0 +1,491 @@
+# ============================================================
+# Steak: which pan temperature and flip schedule give the thinnest grey
+# band at a 54 °C core, while still building a crust?
+#
+# STATUS: validation gate NOT passed. Only the `patty_*` studies may be run
+# (`--study patty_once`, `--study patty_rapid`). The `steak_*` studies are
+# written and checked, not run. See README.md next to this file.
+#
+# A steak is a 1D slab of 21 nodes, stepped once a second by an implicit
+# (backward Euler) finite-difference solve, so it is stable at any
+# thickness and contact conductance. Node 0 touches the pan; a flip
+# reverses the slab.
+#
+#   properties  Choi-Okos polynomials for water, ice, protein, fat and ash,
+#               mixed by composition (fat varies by world). Below the
+#               initial freezing point, ice melts by the
+#               x_ice = x_w (1 - Tf/T) rule, as an apparent heat capacity
+#               averaged over 1 °C bins.
+#   surface     each face holds a film of water (kg/m²). While wet, a face
+#               can't pass 100 °C: heat above that boils water off. Water
+#               expelled by cooking joins the nearer face's film.
+#   pan         drops on contact, and again (scaled) when a cold face is
+#               flipped down; recovers to its setting exponentially.
+#   cooking     loss per node follows first-order kinetics toward an
+#   loss        equilibrium loss that rises with temperature (Kondjoyan's
+#               form; the numbers here are not his, see LOSS_EQ).
+#
+# Every uncertain range and borrowed constant is tagged:
+#   [measured]  from a measurement of this kind of steak (none yet)
+#   [borrowed]  from the literature, for patties or meat in general
+#   [guessed]   chosen by judgement
+#   [memory]    a literature value recalled, not checked against the source
+# ============================================================
+
+input start: °C between -18 °C and 20 °C = 4 °C
+input thickness: mm between 15 mm and 40 mm = 25 mm
+input target: °C between 45 °C and 65 °C = 54 °C
+input crust_need: s between 0 s and 600 s = 60 s     # [guessed] see README
+input patty_substeps: Int between 1 and 20 = 1       # solver steps per second, patty check only
+
+const N = 21                 # nodes; node MID is the geometric centre
+const MID = 10
+const HORIZON = 3000         # s: the longest cook allowed
+const AIR = 25.0             # °C, around the pan
+const H_TOP = 20.0           # W/m²K, still air on the upper face [guessed]
+const DRY_RATE = 0.00003     # kg/m²s, evaporation from a wet upper face (~70 W/m²) [guessed]
+const LATENT = 2257000.0     # J/kg, water at 100 °C [borrowed]
+const FUSION = 334000.0      # J/kg, ice [borrowed]
+const TF = -1.7              # °C, initial freezing point of beef [memory]
+const GREY = 65.0            # °C peak above which tissue counts as grey [guessed]
+const CRUST_T = 150.0        # °C: a dry face above this is browning (a proxy) [guessed]
+
+# Property table: one entry per °C from TLO to TLO + TN - 1.
+const TLO = -30
+const TN = 171
+
+# Fat-free beef: mass fractions of water, protein and ash [memory, USDA-like]
+const LEAN_WATER = 0.765
+const LEAN_PROTEIN = 0.223
+const LEAN_ASH = 0.012
+
+# Equilibrium cooking loss (fraction of initial mass) against temperature.
+# Kondjoyan et al. 2013 (Meat Sci 95:336) model loss as first-order
+# kinetics toward a temperature-dependent equilibrium. These points are of
+# that shape but are NOT his fitted values [memory/guessed].
+type LossPoint = { temp: Float, loss: Float }
+const LOSS_EQ = [
+    LossPoint { temp: 40.0, loss: 0.0 }, LossPoint { temp: 50.0, loss: 0.08 },
+    LossPoint { temp: 60.0, loss: 0.16 }, LossPoint { temp: 70.0, loss: 0.26 },
+    LossPoint { temp: 80.0, loss: 0.32 }, LossPoint { temp: 90.0, loss: 0.36 },
+    LossPoint { temp: 100.0, loss: 0.38 },
+]
+const LOSS_RATE_60 = 0.0015  # 1/s at 60 °C, doubling every 10 °C [guessed]
+
+type Steak = {
+    temp: [Float],           # °C per node; node 0 on the pan
+    peak: [Float],           # the hottest each node has been
+    loss: [Float],           # cooking loss per node, fraction of its mass
+    wet: [Float],            # water film, kg/m²: [pan face, upper face]
+    crust: [Int],            # s each face spent dry above CRUST_T: [pan face, upper face]
+    pan: Float,              # °C, the pan surface now
+    set: Float,              # °C, the pan's setting
+    drop: Float,             # °C, the pan's drop when the steak first lands
+    recover: Float,          # fraction of the gap to the setting recovered per second
+    contact: Float,          # W/m²K, pan to steak
+    dx: Float,               # m between nodes
+    rc: [Float],             # J/m³K by °C (heat capacity, latent heat included)
+    k: [Float],              # W/mK by °C
+    rho: Float,              # kg/m³ raw, for the mass of expelled water
+    t: Int,                  # s cooked
+    flips: Int,
+    last_flip: Int,
+    done: Bool,
+}
+
+type Seen = { core: °C, flips: Int, since: s }
+
+type Cook = {
+    done: Bool,              # core reached the target within HORIZON
+    time: s,
+    grey: mm,                # grey band, both faces together
+    loss: %,                 # cooking loss
+    crust: s,                # the less-browned face's seconds dry above CRUST_T (a proxy)
+    crusted: Bool,           # crust >= crust_need
+    flips: Int,
+    surface: °C,             # hottest face at the end
+}
+
+# The pan's setting, and whether to flip now. The families hold the setting.
+action Move = { pan: °C, flip: Bool }
+
+world Cut {
+    uncertain thickness_error ~ normal(0.0, 0.06)                 # fraction of nominal [guessed]
+    uncertain fat ~ uniform(0.04, 0.18)                           # mass fraction, sirloin to ribeye [memory]
+    uncertain contact ~ uniform(250.0, 900.0)                     # W/m²K pan to meat [borrowed: patties]
+    uncertain pan_drop ~ uniform(5.0, 40.0)                       # °C on first contact [guessed]
+    uncertain pan_recovery ~ uniform(20.0, 90.0)                  # s time constant [guessed]
+    uncertain surface_water ~ uniform(0.02, 0.25)                 # kg/m² per face: blotted to wet [guessed]
+}
+
+# ---------- properties (Choi & Okos 1986), T in °C, cp in J/kgK ----------
+
+type Props = { rho: Float, cp: Float, k: Float }
+
+fn ice_fraction(xw: Float, temp: Float) -> Float =
+    if temp < TF { xw * (1.0 - TF / temp) } else { 0.0 }
+
+# Sensible properties at temp, with the water split into ice and liquid.
+fn props(xw: Float, xp: Float, xf: Float, xa: Float, temp: Float) -> Props = {
+    let x = temp
+    let xi = ice_fraction(xw, x)
+    let xl = xw - xi
+    let rw = 997.18 + 0.0031439 * x - 0.0037574 * x * x
+    let ri = 916.89 - 0.13071 * x
+    let rp = 1329.9 - 0.5184 * x
+    let rf = 925.59 - 0.41757 * x
+    let ra = 2423.8 - 0.28063 * x
+    let rho = 1.0 / (xl / rw + xi / ri + xp / rp + xf / rf + xa / ra)
+    let cp = 1000.0 * (
+        xl * (4.1762 - 0.000090864 * x + 0.0000054731 * x * x)
+        + xi * (2.0623 + 0.0060769 * x)
+        + xp * (2.0082 + 0.0012089 * x - 0.0000013129 * x * x)
+        + xf * (1.9842 + 0.0014733 * x - 0.0000048008 * x * x)
+        + xa * (1.0926 + 0.0018896 * x - 0.0000036817 * x * x))
+    let k = rho * (
+        xl / rw * (0.57109 + 0.0017625 * x - 0.0000067036 * x * x)
+        + xi / ri * (2.2196 - 0.0062489 * x + 0.00010154 * x * x)
+        + xp / rp * (0.17881 + 0.0011958 * x - 0.0000027178 * x * x)
+        + xf / rf * (0.18071 - 0.00027604 * x - 0.00000017749 * x * x)
+        + xa / ra * (0.32962 + 0.0014011 * x - 0.0000029069 * x * x))
+    Props { rho, cp, k }
+}
+
+# The bin around each whole °C: melting inside the bin is added to its
+# heat capacity, so the latent heat is counted once however the bins fall.
+type Table = { rc: [Float], k: [Float], rho: Float }
+
+fn table(fat: Float) -> Table = {
+    let xw = LEAN_WATER * (1.0 - fat)
+    let xp = LEAN_PROTEIN * (1.0 - fat)
+    let xa = LEAN_ASH * (1.0 - fat)
+    let ps = [props(xw, xp, fat, xa, float(TLO + i)) for i in 0..TN]
+    let melt = [ice_fraction(xw, float(TLO + i) - 0.5) - ice_fraction(xw, float(TLO + i) + 0.5) for i in 0..TN]
+    Table {
+        rc: [ps[i].rho * (ps[i].cp + FUSION * melt[i]) for i in 0..TN],
+        k: [p.k for p in ps],
+        rho: props(xw, xp, fat, xa, 20.0).rho,
+    }
+}
+
+fn bin(temp: Float) -> Int = clamp(round(temp) - TLO, 0, TN - 1)
+
+# ---------- the slab ----------
+
+# One backward-Euler step of 1D conduction (Thomas algorithm).
+# cap: J/m²K per node; g: W/m²K between node i and i+1;
+# face 0 exchanges with t0 through h0, face n-1 with t1 through h1.
+fn conduct(temp: [Float], cap: [Float], g: [Float], h0: Float, t0: Float, h1: Float, t1: Float, dt: Float) -> [Float] = {
+    let n = len(temp)
+    var cp = fill(n, 0.0)
+    var dp = fill(n, 0.0)
+    let b0 = cap[0] + (g[0] + h0) * dt
+    cp[0] = -g[0] * dt / b0
+    dp[0] = (cap[0] * temp[0] + h0 * t0 * dt) / b0
+    for i in 1..n {
+        let lo = -g[i - 1] * dt
+        let last = i == n - 1
+        let gi = if last { 0.0 } else { g[i] }
+        let hb = if last { h1 } else { 0.0 }
+        let m = cap[i] + (g[i - 1] + gi + hb) * dt - lo * cp[i - 1]
+        cp[i] = -gi * dt / m
+        dp[i] = (cap[i] * temp[i] + hb * t1 * dt - lo * dp[i - 1]) / m
+    }
+    var x = dp
+    for k in 1..n {
+        let i = n - 1 - k
+        x[i] = dp[i] - cp[i] * x[i + 1]
+    }
+    x
+}
+
+fn reversed(xs: [Float]) -> [Float] = [xs[len(xs) - 1 - i] for i in 0..len(xs)]
+
+# Thickness (m) of tissue whose peak passed GREY, from one face inward.
+fn grey_depth(peak: [Float], dx: Float) -> Float = {
+    var d = 0.0
+    var going = peak[0] >= GREY
+    for i in 0..N - 1 while going {
+        if peak[i + 1] >= GREY {
+            d = d + dx
+        } else {
+            d = d + dx * (peak[i] - GREY) / (peak[i] - peak[i + 1])
+            going = false
+        }
+    }
+    d
+}
+
+fn loss_eq(temp: Float) -> Float = {
+    var i = 0
+    for k in 0..len(LOSS_EQ) while temp > LOSS_EQ[k].temp { i = k + 1 }
+    if i == 0 {
+        0.0
+    } else if i == len(LOSS_EQ) {
+        LOSS_EQ[i - 1].loss
+    } else {
+        let a = LOSS_EQ[i - 1]
+        let b = LOSS_EQ[i]
+        a.loss + (b.loss - a.loss) * (temp - a.temp) / (b.temp - a.temp)
+    }
+}
+
+# Share of the slab's mass (or volume) in node i.
+fn weight(i: Int) -> Float = if i == 0 or i == N - 1 { 0.5 / float(N - 1) } else { 1.0 / float(N - 1) }
+
+fn fresh(temp: Float, fat: Float, thick: Float, wet: Float) -> Steak = {
+    let tab = table(fat)
+    Steak {
+        temp: fill(N, temp),
+        peak: fill(N, temp),
+        loss: fill(N, 0.0),
+        wet: [wet, wet],
+        crust: [0, 0],
+        pan: AIR,
+        set: AIR,
+        drop: 20.0,
+        recover: 1.0 - exp(-1.0 / 50.0),
+        contact: 500.0,
+        dx: thick / float(N - 1),
+        rc: tab.rc,
+        k: tab.k,
+        rho: tab.rho,
+        t: 0,
+        flips: 0,
+        last_flip: 0,
+        done: false,
+    }
+}
+
+fn turn(s: Steak, t: Int) -> Steak = {
+    var s = s
+    s.temp = reversed(s.temp)
+    s.peak = reversed(s.peak)
+    s.loss = reversed(s.loss)
+    s.wet = [s.wet[1], s.wet[0]]
+    s.crust = [s.crust[1], s.crust[0]]
+    # a colder face draws the pan down more
+    let cold = clamp((s.set - s.temp[0]) / max(1.0, s.set - (start in °C)), 0.0, 1.0)
+    s.pan = s.pan - s.drop * cold
+    s.flips = s.flips + 1
+    s.last_flip = t
+    s
+}
+
+# One second on the pan.
+fn cook(s: Steak, target_c: Float) -> Steak = {
+    var s = s
+    s.pan = s.pan + (s.set - s.pan) * s.recover
+
+    var cap = fill(N, 0.0)
+    var kk = fill(N, 0.0)
+    for i in 0..N {
+        let j = bin(s.temp[i])
+        kk[i] = s.k[j]
+        cap[i] = s.rc[j] * s.dx * if i == 0 or i == N - 1 { 0.5 } else { 1.0 }
+    }
+    let g = [(kk[i] + kk[i + 1]) / (2.0 * s.dx) for i in 0..N - 1]
+    var temp = conduct(s.temp, cap, g, s.contact, s.pan, H_TOP, AIR, 1.0)
+
+    # the upper face dries slowly in air
+    let dry = min(s.wet[1], DRY_RATE)
+    s.wet[1] = s.wet[1] - dry
+    temp[N - 1] = temp[N - 1] - dry * LATENT / cap[N - 1]
+
+    # a wet face can't pass 100 °C: the excess boils water off
+    for f in 0..2 {
+        let i = if f == 0 { 0 } else { N - 1 }
+        if s.wet[f] > 0.0 and temp[i] > 100.0 {
+            let boil = min(s.wet[f], (temp[i] - 100.0) * cap[i] / LATENT)
+            s.wet[f] = s.wet[f] - boil
+            temp[i] = temp[i] - boil * LATENT / cap[i]
+        }
+    }
+
+    # cooking loss; expelled water joins the nearer face's film
+    for i in 0..N {
+        if temp[i] > 40.0 {
+            let eq = loss_eq(temp[i])
+            if eq > s.loss[i] {
+                let rate = LOSS_RATE_60 * exp(0.0693147 * (temp[i] - 60.0))
+                let more = (eq - s.loss[i]) * min(1.0, rate)
+                s.loss[i] = s.loss[i] + more
+                let water = more * s.rho * s.dx * float(N - 1) * weight(i)
+                if i < MID { s.wet[0] = s.wet[0] + water }
+                else if i > MID { s.wet[1] = s.wet[1] + water }
+                else { s.wet[0] = s.wet[0] + water / 2.0; s.wet[1] = s.wet[1] + water / 2.0 }
+            }
+        }
+        s.peak[i] = max(s.peak[i], temp[i])
+    }
+    if s.wet[0] <= 0.0 and temp[0] > CRUST_T { s.crust[0] = s.crust[0] + 1 }
+    if s.wet[1] <= 0.0 and temp[N - 1] > CRUST_T { s.crust[1] = s.crust[1] + 1 }
+
+    s.temp = temp
+    s.t = s.t + 1
+    s.done = temp[MID] >= target_c
+    s
+}
+
+model pan {
+    horizon HORIZON
+    init = {
+        let thick = (thickness in m) * (1.0 + Cut.thickness_error)
+        var s = fresh(start in °C, Cut.fat, thick, Cut.surface_water)
+        s.contact = Cut.contact
+        s.drop = Cut.pan_drop
+        s.recover = 1.0 - exp(-1.0 / Cut.pan_recovery)
+        s
+    }
+    step(s: Steak, a: Move, t: Int) -> Steak = {
+        var s = s
+        if t == 0 {
+            s.set = a.pan in °C
+            s.pan = s.set - s.drop
+        }
+        if a.flip { s = turn(s, t) }
+        cook(s, target in °C)
+    }
+    stop(s: Steak) -> Bool = s.done
+    # A probe thermometer in the centre, and the cook's own count.
+    observe(s: Steak, t: Int) -> Seen = Seen {
+        core: s.temp[MID] * 1 °C,
+        flips: s.flips,
+        since: float(t - s.last_flip) * 1 s,
+    }
+    belief(o: Seen, t: Int) -> Steak = {
+        var s = fresh(o.core in °C, 0.10, thickness in m, 0.1)
+        s.flips = o.flips
+        s
+    }
+    outcome(s: Steak) -> Cook = {
+        let thick = s.dx * float(N - 1)
+        let grey = min(thick, grey_depth(s.peak, s.dx) + grey_depth(reversed(s.peak), s.dx))
+        let crust = min(s.crust[0], s.crust[1])
+        Cook {
+            done: s.done,
+            time: float(s.t) * 1 s,
+            grey: grey * 1000.0 * 1 mm,
+            loss: sum([s.loss[i] * weight(i) for i in 0..N]) * 100 %,
+            crust: float(crust) * 1 s,
+            crusted: float(crust) * 1 s >= crust_need,
+            flips: s.flips,
+            surface: max(s.temp[0], s.temp[N - 1]) * 1 °C,
+        }
+    }
+    invariant(s: Steak) -> Bool = all([x > -40.0 and x < 400.0 for x in s.temp])
+}
+
+const PANS = [180 °C, 200 °C, 220 °C, 240 °C, 260 °C]
+
+# Flip once, when the core is half way from its start to the target.
+policy once[p in PANS](o: Seen, t: Int) -> Move =
+    Move { pan: p, flip: o.flips == 0 and o.core >= (start + target) / 2 }
+
+policy every30[p in PANS](o: Seen, t: Int) -> Move = Move { pan: p, flip: t > 0 and o.since >= 30 s }
+policy every15[p in PANS](o: Seen, t: Int) -> Move = Move { pan: p, flip: t > 0 and o.since >= 15 s }
+
+# NOT TO BE RUN until the validation gate passes (README.md).
+study steak_fridge {
+    model pan
+    worlds 200
+    seed 1
+    with start = 4 °C
+    require probability(done) >= 99%
+    require probability(crusted) >= 90%
+    minimize mean(grey)
+    report mean(loss), p95(grey), mean(time), p95(time), mean(crust), mean(flips)
+}
+
+study steak_frozen {
+    model pan
+    worlds 200
+    seed 1
+    with start = -18 °C
+    require probability(done) >= 99%
+    require probability(crusted) >= 90%
+    minimize mean(grey)
+    report mean(loss), p95(grey), mean(time), p95(time), mean(crust), mean(flips)
+}
+
+study steak_room {
+    model pan
+    worlds 200
+    seed 1
+    with start = 20 °C
+    require probability(done) >= 99%
+    require probability(crusted) >= 90%
+    minimize mean(grey)
+    report mean(loss), p95(grey), mean(time), p95(time), mean(crust), mean(flips)
+}
+
+# ============================================================
+# Validation gate, part 2: Thiffeault's burger (Physica D 439, 133410,
+# 2022; code github.com/jeanluct/cookflip_code). A 1 cm slab of constant
+# properties (k = 0.4167 W/mK, diffusivity 1.205e-7 m²/s) on a 200 °C
+# plate (h = 900 W/m²K) under 25 °C air (h = 60 W/m²K), starting at 25 °C.
+# It is cooked when every point has reached 70 °C. Published: one
+# optimally timed flip cooks in 80 s; many flips approach 0.0754 L²/κ
+# (62.6 s, his extrapolation), about 29% faster than one flip.
+# The same `conduct` solves it, with the steak's physics switched off.
+# ============================================================
+
+const P_K = 0.4167
+const P_RC = 0.4167 / 0.0000001205
+const P_L = 0.01
+
+type Patty = { temp: [Float], peak: [Float], time: Float, done: Bool }
+action Side = stay | turn_over
+
+fn patty_second(p: Patty, subs: Int) -> Patty = {
+    var p = p
+    let dx = P_L / float(N - 1)
+    let cap = [P_RC * dx * if i == 0 or i == N - 1 { 0.5 } else { 1.0 } for i in 0..N]
+    let g = fill(N - 1, P_K / dx)
+    let dt = 1.0 / float(subs)
+    for k in 0..20 while k < subs and not p.done {
+        p.temp = conduct(p.temp, cap, g, 900.0, 200.0, 60.0, 25.0, dt)
+        p.peak = [max(p.peak[i], p.temp[i]) for i in 0..N]
+        p.time = p.time + dt
+        p.done = min(p.peak) >= 70.0
+    }
+    p
+}
+
+model patty {
+    horizon 300
+    init = Patty { temp: fill(N, 25.0), peak: fill(N, 25.0), time: 0.0, done: false }
+    step(p: Patty, a: Side, t: Int) -> Patty = {
+        var p = p
+        if a == turn_over {
+            p.temp = reversed(p.temp)
+            p.peak = reversed(p.peak)
+        }
+        patty_second(p, patty_substeps)
+    }
+    stop(p: Patty) -> Bool = p.done
+    observe(p: Patty, t: Int) -> Patty = p
+    outcome(p: Patty) -> Float = p.time
+}
+
+# One flip at second f.
+policy flip_at[f in 30..=50](p: Patty, t: Int) -> Side = if t == f { turn_over } else { stay }
+
+# Flip every second until second f, then leave it: the many-flip limit,
+# with the long last interval Thiffeault's optima have.
+policy rapid_until[f in 20..=60](p: Patty, t: Int) -> Side =
+    if t > 0 and t <= f { turn_over } else { stay }
+
+study patty_once {
+    model patty
+    worlds 1
+    compare flip_at
+    minimize mean(outcome)
+}
+
+study patty_rapid {
+    model patty
+    worlds 1
+    compare rapid_until
+    minimize mean(outcome)
+}
